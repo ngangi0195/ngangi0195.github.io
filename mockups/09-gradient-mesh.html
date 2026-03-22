@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>09 — Gradient Mesh</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #05080f; color: #f0f4ff; font-family: 'Inter', sans-serif; overflow-x: hidden; }
+
+  /* Mesh background */
+  .mesh-bg {
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background:
+      radial-gradient(ellipse 80% 60% at 20% 20%, rgba(99,102,241,0.12) 0%, transparent 70%),
+      radial-gradient(ellipse 60% 80% at 80% 80%, rgba(6,182,212,0.10) 0%, transparent 70%),
+      radial-gradient(ellipse 50% 50% at 50% 50%, rgba(168,85,247,0.06) 0%, transparent 70%);
+  }
+
+  /* NAV */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100; padding: 0 60px;
+    height: 60px; display: flex; align-items: center; justify-content: space-between;
+    background: rgba(5,8,15,0.7); backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+  }
+  .logo {
+    font-size: 15px; font-weight: 700; letter-spacing: -0.02em;
+    background: linear-gradient(135deg, #818cf8, #06b6d4); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  }
+  .nav-center { display: flex; gap: 4px; }
+  .nav-center a {
+    font-size: 13px; color: rgba(255,255,255,0.4); text-decoration: none;
+    padding: 6px 16px; border-radius: 8px; transition: all 0.2s;
+  }
+  .nav-center a:hover { color: rgba(255,255,255,0.9); background: rgba(255,255,255,0.06); }
+  .nav-cta {
+    background: linear-gradient(135deg, #6366f1, #06b6d4);
+    color: #fff; padding: 8px 22px; border-radius: 10px; font-size: 13px; font-weight: 600;
+    text-decoration: none; box-shadow: 0 0 20px rgba(99,102,241,0.3);
+  }
+
+  /* HERO */
+  .hero {
+    position: relative; z-index: 1; min-height: 100vh;
+    display: flex; align-items: center; justify-content: center;
+    padding: 80px 60px; text-align: center;
+  }
+  .hero-inner { max-width: 800px; }
+
+  .eyebrow {
+    display: inline-flex; align-items: center; gap: 10px;
+    background: rgba(99,102,241,0.08); border: 1px solid rgba(99,102,241,0.2);
+    border-radius: 100px; padding: 8px 20px; margin-bottom: 32px;
+    font-size: 13px; color: rgba(255,255,255,0.55);
+  }
+  .eyebrow strong { color: rgba(255,255,255,0.85); font-weight: 500; }
+  .live-dot { width: 7px; height: 7px; border-radius: 50%; background: #22d3ee; box-shadow: 0 0 8px #22d3ee; animation: p 2s infinite; }
+  @keyframes p { 50% { opacity: 0.4; } }
+
+  h1 { font-size: clamp(52px, 7vw, 88px); font-weight: 900; line-height: 0.95; letter-spacing: -0.04em; margin-bottom: 28px; }
+  .grad-name {
+    background: linear-gradient(135deg, #a5b4fc 0%, #22d3ee 40%, #c084fc 80%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    display: block;
+  }
+
+  .hero-desc { font-size: 18px; color: rgba(255,255,255,0.45); line-height: 1.7; max-width: 580px; margin: 0 auto 44px; }
+  .hero-desc strong { color: rgba(255,255,255,0.8); font-weight: 500; }
+
+  /* Pill stats */
+  .stat-pills { display: flex; gap: 10px; justify-content: center; margin-bottom: 44px; flex-wrap: wrap; }
+  .pill {
+    background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 100px; padding: 10px 24px; display: flex; align-items: center; gap: 10px;
+    backdrop-filter: blur(10px);
+  }
+  .pill-num { font-size: 20px; font-weight: 800; letter-spacing: -0.02em; }
+  .pill-num.blue { color: #818cf8; }
+  .pill-num.cyan { color: #22d3ee; }
+  .pill-num.purple { color: #c084fc; }
+  .pill-num.green { color: #4ade80; }
+  .pill-label { font-size: 11px; color: rgba(255,255,255,0.35); font-family: 'JetBrains Mono', monospace; }
+
+  .cta-row { display: flex; gap: 12px; justify-content: center; }
+  .btn-mesh {
+    padding: 14px 34px; border-radius: 12px; font-size: 14px; font-weight: 700;
+    background: linear-gradient(135deg, #6366f1, #06b6d4); color: #fff; text-decoration: none;
+    box-shadow: 0 0 40px rgba(99,102,241,0.3); transition: all 0.2s;
+  }
+  .btn-mesh:hover { box-shadow: 0 0 60px rgba(99,102,241,0.5); transform: translateY(-2px); }
+  .btn-ghost-m {
+    padding: 14px 34px; border-radius: 12px; font-size: 14px; font-weight: 600;
+    border: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.7); text-decoration: none;
+    background: rgba(255,255,255,0.04); transition: all 0.2s;
+  }
+  .btn-ghost-m:hover { border-color: rgba(255,255,255,0.2); background: rgba(255,255,255,0.08); }
+
+  /* Cards section */
+  .cards-section { position: relative; z-index: 1; max-width: 1100px; margin: 0 auto; padding: 80px 60px; }
+  .sec-eyebrow { font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase; color: rgba(99,102,241,0.7); margin-bottom: 8px; }
+  .sec-title { font-size: 36px; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 36px; }
+
+  .exp-cards-m { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+  .exp-card-m {
+    background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 16px; padding: 24px; backdrop-filter: blur(10px);
+    transition: all 0.25s; position: relative; overflow: hidden;
+  }
+  .exp-card-m:hover { border-color: rgba(99,102,241,0.3); background: rgba(99,102,241,0.04); transform: translateY(-3px); }
+  .ecm-glow { position: absolute; width: 120px; height: 120px; border-radius: 50%; filter: blur(50px); top: -30px; right: -30px; pointer-events: none; }
+  .ecm-glow.blue { background: rgba(99,102,241,0.3); }
+  .ecm-glow.cyan { background: rgba(6,182,212,0.3); }
+  .ecm-glow.purple { background: rgba(192,132,252,0.3); }
+  .ecm-role { font-size: 14px; font-weight: 700; margin-bottom: 3px; }
+  .ecm-org { font-size: 12px; color: #818cf8; font-family: 'JetBrains Mono', monospace; margin-bottom: 10px; }
+  .ecm-date { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: rgba(255,255,255,0.3); margin-bottom: 12px; }
+  .ecm-desc { font-size: 12px; color: rgba(255,255,255,0.45); line-height: 1.7; margin-bottom: 14px; }
+  .ecm-tags { display: flex; gap: 5px; flex-wrap: wrap; }
+  .ecm-tag { background: rgba(255,255,255,0.05); border-radius: 5px; padding: 3px 8px; font-size: 9px; font-family: 'JetBrains Mono', monospace; color: rgba(255,255,255,0.4); }
+
+  /* Projects */
+  .proj-cards-m { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .proj-card-m {
+    background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 16px; padding: 28px; transition: all 0.25s;
+  }
+  .proj-card-m:hover { border-color: rgba(6,182,212,0.3); background: rgba(6,182,212,0.03); transform: translateY(-2px); }
+  .pcm-title { font-size: 18px; font-weight: 800; letter-spacing: -0.01em; margin-bottom: 10px; }
+  .pcm-desc { font-size: 13px; color: rgba(255,255,255,0.45); line-height: 1.7; margin-bottom: 16px; }
+  .pcm-link { font-size: 12px; color: #22d3ee; text-decoration: none; font-family: 'JetBrains Mono', monospace; display: flex; align-items: center; gap: 4px; }
+  .pcm-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px; }
+  .pcm-tag { background: rgba(6,182,212,0.06); border: 1px solid rgba(6,182,212,0.15); border-radius: 6px; padding: 3px 9px; font-size: 10px; font-family: 'JetBrains Mono', monospace; color: #22d3ee; }
+</style>
+</head>
+<body>
+
+<div class="mesh-bg"></div>
+
+<nav>
+  <div class="logo">Nidhin Gangisetty</div>
+  <div class="nav-center">
+    <a href="#">Experience</a>
+    <a href="#">Projects</a>
+    <a href="#">About</a>
+    <a href="#">Blog</a>
+    <a href="#">Content</a>
+  </div>
+  <a href="#" class="nav-cta">Resume ↗</a>
+</nav>
+
+<div class="hero">
+  <div class="hero-inner">
+    <div class="eyebrow"><span class="live-dot"></span> <strong>CS @ UMD</strong> · Robotics & Entrepreneurship · Class of 2027</div>
+    <h1>
+      <span style="color: rgba(255,255,255,0.92);">Hi, I'm</span><br>
+      <span class="grad-name">Nidhin Gangisetty</span>
+    </h1>
+    <p class="hero-desc">
+      Building at the intersection of <strong>autonomous systems</strong>, <strong>AI pipelines</strong>, and <strong>full-stack engineering</strong>.
+      Researcher at RAAS Lab. Co-founder of Project Lift.
+    </p>
+    <div class="stat-pills">
+      <div class="pill"><span class="pill-num blue">3.75</span><span class="pill-label">GPA</span></div>
+      <div class="pill"><span class="pill-num cyan">11k+</span><span class="pill-label">Kato Users</span></div>
+      <div class="pill"><span class="pill-num purple">$10k+</span><span class="pill-label">Project Lift Value</span></div>
+      <div class="pill"><span class="pill-num green">35+</span><span class="pill-label">Mentored</span></div>
+    </div>
+    <div class="cta-row">
+      <a href="#" class="btn-mesh">View Projects</a>
+      <a href="#" class="btn-ghost-m">Download Resume</a>
+    </div>
+  </div>
+</div>
+
+<div class="cards-section">
+  <div class="sec-eyebrow">// experience</div>
+  <div class="sec-title">Where I've Worked</div>
+  <div class="exp-cards-m">
+    <div class="exp-card-m">
+      <div class="ecm-glow blue"></div>
+      <div class="ecm-role">Undergraduate Researcher</div>
+      <div class="ecm-org">RAAS Lab · UMD</div>
+      <div class="ecm-date">Oct 2025 – Present</div>
+      <div class="ecm-desc">Adapted ITPS framework (MIT CSAIL) to UR3 robotic arm in MuJoCo. Implemented all 4 steering methods with CPU & CUDA support.</div>
+      <div class="ecm-tags"><span class="ecm-tag">ROS 2</span><span class="ecm-tag">Python</span><span class="ecm-tag">MuJoCo</span><span class="ecm-tag">CUDA</span></div>
+    </div>
+    <div class="exp-card-m">
+      <div class="ecm-glow cyan"></div>
+      <div class="ecm-role">Software Engineering Intern</div>
+      <div class="ecm-org">Xprotege Institute</div>
+      <div class="ecm-date">Sep – Dec 2025</div>
+      <div class="ecm-desc">Production RAG system · LlamaIndex + Qdrant + GPT-4 · 75% faster RFP evaluation · 92% retrieval accuracy.</div>
+      <div class="ecm-tags"><span class="ecm-tag">LLM</span><span class="ecm-tag">RAG</span><span class="ecm-tag">Python</span></div>
+    </div>
+    <div class="exp-card-m">
+      <div class="ecm-glow purple"></div>
+      <div class="ecm-role">Software Engineering Intern</div>
+      <div class="ecm-org">Craving Hour Halal</div>
+      <div class="ecm-date">May – Sep 2025</div>
+      <div class="ecm-desc">Full-stack AWS platform · React + Node.js + PostgreSQL · 43% efficiency gain · 150+ daily customers.</div>
+      <div class="ecm-tags"><span class="ecm-tag">React</span><span class="ecm-tag">AWS</span><span class="ecm-tag">Node.js</span></div>
+    </div>
+  </div>
+</div>
+
+<div class="cards-section" style="padding-top: 0;">
+  <div class="sec-eyebrow">// projects</div>
+  <div class="sec-title">Things I've Built</div>
+  <div class="proj-cards-m">
+    <div class="proj-card-m">
+      <div class="pcm-title">UR3e Robotic Arm Manipulation</div>
+      <div class="pcm-tags"><span class="pcm-tag">Python</span><span class="pcm-tag">ROS 2</span><span class="pcm-tag">OpenCV</span></div>
+      <div class="pcm-desc">ROS 2 vision-guided control using pose estimation & inverse kinematics. 98% stacking accuracy for industrial automation demos.</div>
+      <a href="#" class="pcm-link">GitHub ↗</a>
+    </div>
+    <div class="proj-card-m">
+      <div class="pcm-title">Kato Apartment Finder</div>
+      <div class="pcm-tags"><span class="pcm-tag">Next.js</span><span class="pcm-tag">Supabase</span><span class="pcm-tag">Mapbox</span></div>
+      <div class="pcm-desc">Off-campus housing platform scraping 18 apartments with real-time pricing. 11,000+ visits. Unified map-based UI.</div>
+      <a href="#" class="pcm-link">Live site ↗</a>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

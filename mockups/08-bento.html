@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>08 — Bento Grid</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #0f0f13;
+    --surface: #16161d;
+    --surface2: #1c1c26;
+    --border: #25252f;
+    --blue: #4f8fff;
+    --teal: #2dd4bf;
+    --purple: #c084fc;
+    --text: #f4f4f8;
+    --muted: #60607a;
+    --sub: #9090aa;
+  }
+  body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; min-height: 100vh; padding: 24px; }
+
+  /* NAV */
+  nav {
+    max-width: 1200px; margin: 0 auto 32px;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 4px;
+  }
+  .logo { font-family: 'JetBrains Mono', monospace; font-size: 14px; color: var(--text); font-weight: 600; }
+  .logo span { color: var(--blue); }
+  .nav-right { display: flex; align-items: center; gap: 6px; }
+  .nav-right a { font-size: 12px; font-family: 'JetBrains Mono', monospace; color: var(--muted); text-decoration: none; padding: 6px 12px; border-radius: 8px; transition: all 0.15s; }
+  .nav-right a:hover { color: var(--text); background: var(--surface); }
+  .nav-resume { background: var(--surface) !important; border: 1px solid var(--border) !important; color: var(--text) !important; }
+
+  /* GRID */
+  .grid {
+    max-width: 1200px; margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-auto-rows: 200px;
+    gap: 14px;
+  }
+  .cell {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 16px;
+    padding: 24px; overflow: hidden; position: relative;
+    transition: border-color 0.25s, transform 0.25s;
+  }
+  .cell:hover { transform: translateY(-2px); }
+
+  /* Spans */
+  .col-2 { grid-column: span 2; }
+  .col-3 { grid-column: span 3; }
+  .col-4 { grid-column: span 4; }
+  .row-2 { grid-row: span 2; }
+
+  /* HERO cell */
+  .cell-hero {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    border-color: rgba(79,143,255,0.2);
+    display: flex; flex-direction: column; justify-content: space-between;
+  }
+  .cell-hero:hover { border-color: rgba(79,143,255,0.4); }
+  .hero-name { font-size: clamp(28px, 3.5vw, 44px); font-weight: 900; letter-spacing: -0.03em; line-height: 1; color: var(--text); }
+  .hero-grad { background: linear-gradient(135deg, var(--blue), var(--teal)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+  .hero-sub { font-size: 13px; color: var(--sub); line-height: 1.6; max-width: 340px; }
+  .hero-badge { display: inline-flex; align-items: center; gap: 6px; background: rgba(79,143,255,0.08); border: 1px solid rgba(79,143,255,0.2); border-radius: 20px; padding: 4px 12px; font-size: 11px; font-family: 'JetBrains Mono', monospace; color: var(--blue); margin-bottom: 12px; }
+  .hero-badge .dot { width: 5px; height: 5px; border-radius: 50%; background: var(--teal); box-shadow: 0 0 6px var(--teal); }
+  .hero-ctas { display: flex; gap: 8px; }
+  .btn-b { padding: 9px 20px; border-radius: 10px; font-size: 12px; font-weight: 600; text-decoration: none; transition: all 0.2s; }
+  .btn-fill-b { background: var(--blue); color: #fff; box-shadow: 0 0 20px rgba(79,143,255,0.25); }
+  .btn-fill-b:hover { box-shadow: 0 0 35px rgba(79,143,255,0.4); }
+  .btn-out-b { border: 1px solid var(--border); color: var(--sub); }
+  .btn-out-b:hover { border-color: var(--blue); color: var(--text); }
+
+  /* Stat cell */
+  .cell-stat { display: flex; flex-direction: column; justify-content: space-between; }
+  .cell-stat .label { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase; }
+  .cell-stat .num { font-size: 52px; font-weight: 900; letter-spacing: -0.04em; line-height: 1; }
+  .cell-stat .desc { font-size: 12px; color: var(--sub); line-height: 1.5; }
+  .blue-num { background: linear-gradient(135deg, var(--blue), var(--teal)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+  .teal-num { color: var(--teal); }
+  .purple-num { color: var(--purple); }
+
+  /* Status cell */
+  .cell-status { background: linear-gradient(135deg, rgba(45,212,191,0.06), rgba(79,143,255,0.03)); border-color: rgba(45,212,191,0.15); }
+  .cell-status:hover { border-color: rgba(45,212,191,0.3); }
+  .status-row { display: flex; align-items: center; gap: 8px; padding: 8px 0; }
+  .status-row:not(:last-child) { border-bottom: 1px solid var(--border); }
+  .s-icon { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+  .s-active { background: var(--teal); box-shadow: 0 0 6px var(--teal); }
+  .s-warn { background: #fbbf24; }
+  .s-text { font-size: 12px; color: var(--sub); }
+  .s-bold { color: var(--text); font-weight: 500; }
+
+  /* Experience cell */
+  .cell-exp-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
+  .exp-role-b { font-size: 13px; font-weight: 700; color: var(--text); }
+  .exp-org-b { font-size: 11px; color: var(--blue); font-family: 'JetBrains Mono', monospace; }
+  .exp-date-b { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--muted); text-align: right; }
+  .exp-bullets-b { list-style: none; margin-top: 8px; }
+  .exp-bullets-b li { font-size: 11px; color: var(--sub); padding: 2px 0 2px 12px; position: relative; line-height: 1.5; }
+  .exp-bullets-b li::before { content: '▸'; position: absolute; left: 0; color: var(--blue); font-size: 9px; top: 3px; }
+  .cell-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 10px; }
+  .ct { background: var(--surface2); border-radius: 5px; padding: 2px 7px; font-size: 9px; font-family: 'JetBrains Mono', monospace; color: var(--muted); }
+
+  /* Skills cell */
+  .cell-skills { background: linear-gradient(135deg, rgba(192,132,252,0.05), rgba(79,143,255,0.03)); border-color: rgba(192,132,252,0.12); }
+  .skills-wrap-b { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+  .skill-b { background: var(--surface2); border: 1px solid var(--border); border-radius: 7px; padding: 4px 10px; font-size: 10px; font-family: 'JetBrains Mono', monospace; color: var(--sub); transition: all 0.15s; }
+  .skill-b:hover { border-color: var(--purple); color: var(--purple); }
+  .skill-b.hl { border-color: rgba(79,143,255,0.3); color: var(--blue); }
+
+  /* Project cell */
+  .cell-proj { border-color: rgba(192,132,252,0.12); background: linear-gradient(135deg, rgba(192,132,252,0.04), transparent); }
+  .cell-proj:hover { border-color: rgba(192,132,252,0.3); }
+  .proj-title-b { font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 8px; }
+  .proj-desc-b { font-size: 12px; color: var(--sub); line-height: 1.6; }
+  .proj-link-b { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; color: var(--purple); text-decoration: none; margin-top: 10px; font-family: 'JetBrains Mono', monospace; }
+
+  /* Leadership cell */
+  .cell-lead { background: var(--surface2); }
+  .lead-title { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+  .lead-role { font-size: 11px; color: var(--purple); font-family: 'JetBrains Mono', monospace; margin-bottom: 8px; }
+  .lead-desc { font-size: 12px; color: var(--sub); line-height: 1.6; }
+
+  /* Section label inside cells */
+  .cell-label { font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--muted); letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 12px; }
+
+  /* UMD cell */
+  .cell-edu { background: linear-gradient(135deg, rgba(79,143,255,0.06), rgba(45,212,191,0.03)); border-color: rgba(79,143,255,0.15); }
+  .edu-school { font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+  .edu-degree { font-size: 12px; color: var(--sub); line-height: 1.5; margin-bottom: 12px; }
+  .edu-stats { display: flex; gap: 16px; }
+  .edu-stat .es-n { font-size: 22px; font-weight: 800; letter-spacing: -0.02em; color: var(--teal); }
+  .edu-stat .es-l { font-size: 10px; color: var(--muted); font-family: 'JetBrains Mono', monospace; }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo">ng<span>.</span>dev</div>
+  <div class="nav-right">
+    <a href="#">Experience</a>
+    <a href="#">Projects</a>
+    <a href="#">Blog</a>
+    <a href="#">Content</a>
+    <a href="#" class="nav-resume">Resume ↗</a>
+  </div>
+</nav>
+
+<div class="grid">
+
+  <!-- HERO — 2col × 2row -->
+  <div class="cell cell-hero col-2 row-2">
+    <div>
+      <div class="hero-badge"><span class="dot"></span> Open to internships 2026</div>
+      <div class="hero-name">Nidhin<br><span class="hero-grad">Gangisetty</span></div>
+    </div>
+    <div>
+      <p class="hero-sub" style="margin-bottom: 16px;">CS @ UMD · Robotics & Entrepreneurship Minor · Honors College. Researching robot manipulation. Building things people use.</p>
+      <div class="hero-ctas">
+        <a href="#" class="btn-b btn-fill-b">View Projects</a>
+        <a href="#" class="btn-b btn-out-b">Resume</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- GPA stat -->
+  <div class="cell cell-stat">
+    <div class="label">GPA</div>
+    <div class="num blue-num">3.75</div>
+    <div class="desc">Honors College<br>UMD College Park</div>
+  </div>
+
+  <!-- Kato users -->
+  <div class="cell cell-stat">
+    <div class="label">Kato Users</div>
+    <div class="num teal-num">11k+</div>
+    <div class="desc">Apartment finder<br>Next.js + Supabase</div>
+  </div>
+
+  <!-- Status -->
+  <div class="cell cell-status col-2">
+    <div class="cell-label">// status</div>
+    <div class="status-row"><div class="s-icon s-active"></div><div class="s-text"><span class="s-bold">RAAS Lab</span> — Undergraduate Researcher</div></div>
+    <div class="status-row"><div class="s-icon s-warn"></div><div class="s-text"><span class="s-bold">Open</span> to SWE & Robotics internships 2026</div></div>
+    <div class="status-row"><div class="s-icon s-active"></div><div class="s-text"><span class="s-bold">Project Lift</span> — Co-Founder & President</div></div>
+  </div>
+
+  <!-- Education -->
+  <div class="cell cell-edu col-2">
+    <div class="cell-label">// education</div>
+    <div class="edu-school">University of Maryland, College Park</div>
+    <div class="edu-degree">B.S. Computer Science · Robotics & Entrepreneurship Minor<br>Honors College · May 2027</div>
+    <div class="edu-stats">
+      <div class="edu-stat"><div class="es-n">3.75</div><div class="es-l">GPA</div></div>
+      <div class="edu-stat"><div class="es-n">2027</div><div class="es-l">Grad Year</div></div>
+    </div>
+  </div>
+
+  <!-- Mentored -->
+  <div class="cell cell-stat">
+    <div class="label">Mentored</div>
+    <div class="num purple-num">35+</div>
+    <div class="desc">Students via<br>Project Lift</div>
+  </div>
+
+  <!-- RAAS exp -->
+  <div class="cell col-2">
+    <div class="cell-label">// experience · 01</div>
+    <div class="cell-exp-header">
+      <div><div class="exp-role-b">Undergraduate Researcher</div><div class="exp-org-b">RAAS Lab · UMD</div></div>
+      <div class="exp-date-b">Oct 2025<br>Present</div>
+    </div>
+    <ul class="exp-bullets-b">
+      <li>Adapted ITPS framework (MIT CSAIL) to UR3 robotic arm block-stacking in MuJoCo</li>
+      <li>Implemented all 4 ITPS steering methods with CPU & CUDA support</li>
+    </ul>
+    <div class="cell-tags"><span class="ct">ROS 2</span><span class="ct">Python</span><span class="ct">MuJoCo</span><span class="ct">CUDA</span></div>
+  </div>
+
+  <!-- UR3e project -->
+  <div class="cell cell-proj">
+    <div class="cell-label">// project · 01</div>
+    <div class="proj-title-b">UR3e Robotic Arm</div>
+    <div class="proj-desc-b">ROS 2 vision-guided control · pose estimation · inverse kinematics · 98% stacking accuracy</div>
+    <div class="cell-tags" style="margin-top: 8px;"><span class="ct">Python</span><span class="ct">ROS 2</span><span class="ct">OpenCV</span></div>
+    <a href="#" class="proj-link-b">GitHub ↗</a>
+  </div>
+
+  <!-- Xprotege exp -->
+  <div class="cell col-2">
+    <div class="cell-label">// experience · 02</div>
+    <div class="cell-exp-header">
+      <div><div class="exp-role-b">Software Engineering Intern</div><div class="exp-org-b">Xprotege Institute</div></div>
+      <div class="exp-date-b">Sep–Dec<br>2025</div>
+    </div>
+    <ul class="exp-bullets-b">
+      <li>Production RAG system · LlamaIndex + Qdrant + GPT-4 · 75% faster RFP evaluation</li>
+      <li>Prompt-engineering framework · 40% better bid classification accuracy</li>
+    </ul>
+    <div class="cell-tags"><span class="ct">LLM</span><span class="ct">RAG</span><span class="ct">Python</span><span class="ct">GPT-4</span></div>
+  </div>
+
+  <!-- Kato project -->
+  <div class="cell cell-proj">
+    <div class="cell-label">// project · 02</div>
+    <div class="proj-title-b">Kato Apartment Finder</div>
+    <div class="proj-desc-b">Scrapes 18 apartments · 11k+ visits · Mapbox + Supabase</div>
+    <div class="cell-tags" style="margin-top: 8px;"><span class="ct">Next.js</span><span class="ct">Supabase</span><span class="ct">Mapbox</span></div>
+    <a href="#" class="proj-link-b">Live site ↗</a>
+  </div>
+
+  <!-- Project Lift -->
+  <div class="cell cell-lead">
+    <div class="cell-label">// leadership</div>
+    <div class="lead-title">Project Lift</div>
+    <div class="lead-role">Co-Founder & President</div>
+    <div class="lead-desc">Student tech consulting club. $10k+ value. 35+ members mentored. 5+ business clients.</div>
+  </div>
+
+  <!-- Skills -->
+  <div class="cell cell-skills col-3">
+    <div class="cell-label">// technical skills</div>
+    <div class="skills-wrap-b">
+      <span class="skill-b hl">Python</span><span class="skill-b hl">ROS 2</span><span class="skill-b hl">TypeScript</span>
+      <span class="skill-b hl">React</span><span class="skill-b hl">PyTorch</span><span class="skill-b hl">OpenCV</span>
+      <span class="skill-b">Java</span><span class="skill-b">C</span><span class="skill-b">JavaScript</span><span class="skill-b">SQL</span>
+      <span class="skill-b">MATLAB</span><span class="skill-b">Node.js</span><span class="skill-b">FastAPI</span>
+      <span class="skill-b">PostgreSQL</span><span class="skill-b">Supabase</span><span class="skill-b">AWS</span>
+      <span class="skill-b">LlamaIndex</span><span class="skill-b">Qdrant</span><span class="skill-b">Gazebo</span><span class="skill-b">Git</span>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

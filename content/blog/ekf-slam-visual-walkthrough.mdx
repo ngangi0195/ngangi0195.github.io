@@ -1,0 +1,170 @@
+---
+title: "EKF-SLAM: A Visual Walkthrough"
+date: "2024-03-15"
+excerpt: "A ground-up explanation of Extended Kalman Filter SLAM — the predict-update cycle, linearization, and why it works. With animations and code."
+tags: ["SLAM", "Kalman Filter", "Robotics", "Math"]
+---
+
+Extended Kalman Filter SLAM is the workhorse of probabilistic robotics. If you've read Thrun's textbook and come away feeling like the math is a black box, this post is for you.
+
+We'll build up EKF-SLAM from scratch — starting with the Bayes filter, moving through linearization, and finishing with a working Python implementation.
+
+<Callout type="info" title="Prerequisites">
+You should be comfortable with basic probability (Gaussian distributions, Bayes' theorem) and linear algebra (matrix multiplication, covariance). Some Python helps for the code sections.
+</Callout>
+
+## Why SLAM Is Hard
+
+Simultaneous Localization and Mapping (SLAM) is fundamentally a chicken-and-egg problem:
+
+- To **localize**, you need a map to match sensor readings against.
+- To **build a map**, you need to know where you are.
+
+Both are unknown simultaneously. The Kalman filter approach treats this as a joint estimation problem over a state vector that includes both robot pose and landmark positions.
+
+## The State Vector
+
+In landmark-based EKF-SLAM, the state is:
+
+$$
+\mathbf{x} = \begin{bmatrix} x_r \\ y_r \\ \theta_r \\ x_{L_1} \\ y_{L_1} \\ \vdots \\ x_{L_n} \\ y_{L_n} \end{bmatrix}
+$$
+
+Where $(x_r, y_r, \theta_r)$ is the robot pose and $(x_{L_i}, y_{L_i})$ are the 2D positions of $n$ landmarks.
+
+The covariance matrix $\Sigma$ captures uncertainty over all of these jointly. This is the key insight — we track correlations between robot pose uncertainty and map uncertainty.
+
+## The Predict Step
+
+When the robot moves with control command $\mathbf{u} = (v, \omega)$ over time $\Delta t$, we propagate the state forward using the motion model:
+
+$$
+\mathbf{x}_{t|t-1} = f(\mathbf{x}_{t-1}, \mathbf{u}_t)
+$$
+
+For a differential-drive robot:
+
+$$
+f(\mathbf{x}, \mathbf{u}) = \begin{bmatrix}
+x + v \cos\theta \cdot \Delta t \\
+y + v \sin\theta \cdot \Delta t \\
+\theta + \omega \cdot \Delta t
+\end{bmatrix}
+$$
+
+Since $f$ is nonlinear, we linearize it with the Jacobian $F = \frac{\partial f}{\partial \mathbf{x}}$.
+
+<Callout type="warning" title="The EKF Approximation">
+The "Extended" in EKF refers to this first-order Taylor expansion. It works well for small nonlinearities but can diverge badly for highly curved motion models. Unscented Kalman Filter (UKF) or particle filters are more robust alternatives.
+</Callout>
+
+The covariance prediction is:
+
+$$
+\Sigma_{t|t-1} = F \Sigma_{t-1} F^T + Q
+$$
+
+Where $Q$ is the process noise covariance (how much we trust the motion model).
+
+## The Update Step
+
+When we observe a landmark at range $r$ and bearing $\phi$:
+
+$$
+\mathbf{z} = h(\mathbf{x}) + \mathbf{v}, \quad \mathbf{v} \sim \mathcal{N}(0, R)
+$$
+
+The Kalman gain balances prediction uncertainty against sensor noise:
+
+$$
+K = \Sigma H^T (H \Sigma H^T + R)^{-1}
+$$
+
+State and covariance updates:
+
+$$
+\mathbf{x}_t = \mathbf{x}_{t|t-1} + K(\mathbf{z} - h(\mathbf{x}_{t|t-1}))
+$$
+
+$$
+\Sigma_t = (I - KH)\Sigma_{t|t-1}
+$$
+
+## Python Implementation
+
+Here's a minimal EKF-SLAM predict step:
+
+```python title="ekf_slam.py"
+import numpy as np
+
+class EKFSLAM:
+    def __init__(self, n_landmarks: int):
+        self.n = n_landmarks
+        state_dim = 3 + 2 * n_landmarks
+        self.mu = np.zeros(state_dim)
+        self.sigma = np.eye(state_dim) * 0.1
+        self.Q = np.diag([0.1, 0.1, 0.05])  # motion noise
+
+    def predict(self, v: float, omega: float, dt: float):
+        x, y, theta = self.mu[:3]
+
+        # Motion model
+        self.mu[0] += v * np.cos(theta) * dt
+        self.mu[1] += v * np.sin(theta) * dt
+        self.mu[2] += omega * dt
+        self.mu[2] = np.arctan2(np.sin(self.mu[2]), np.cos(self.mu[2]))
+
+        # Jacobian of motion model w.r.t. state
+        F = np.eye(len(self.mu))
+        F[0, 2] = -v * np.sin(theta) * dt
+        F[1, 2] =  v * np.cos(theta) * dt
+
+        # Build process noise in full state space
+        Q_full = np.zeros_like(self.sigma)
+        Q_full[:3, :3] = self.Q
+
+        self.sigma = F @ self.sigma @ F.T + Q_full
+```
+
+<CodeComparison
+  before={`# Naive: just propagate pose, ignore landmarks
+self.pose = motion_model(self.pose, u)
+# Problem: landmarks drift because
+# we don't track pose-landmark correlations`}
+  after={`# EKF: joint covariance update
+# captures how pose uncertainty
+# affects landmark uncertainty
+self.sigma = F @ self.sigma @ F.T + Q_full`}
+/>
+
+<Diagram alt="EKF predict-update cycle" caption="The EKF predict-update loop: prediction grows uncertainty (ellipse expands), observation shrinks it (ellipse contracts)." />
+
+## Data Association
+
+The elephant in the room: how do you know which observed landmark corresponds to which entry in your state vector?
+
+The classic approach is **Mahalanobis distance** — a distance metric that accounts for covariance:
+
+$$
+d_{ij} = (\mathbf{z}_i - \hat{\mathbf{z}}_j)^T S_j^{-1} (\mathbf{z}_i - \hat{\mathbf{z}}_j)
+$$
+
+If $d_{ij}$ exceeds a threshold (typically $\chi^2_{0.95}$ for 2 DOF), the observation is treated as a new landmark.
+
+## Complexity and Scaling
+
+EKF-SLAM has $O(n^2)$ update complexity where $n$ is the number of landmarks — the covariance matrix grows quadratically. For large environments, this becomes intractable.
+
+Alternatives for large-scale SLAM:
+- **Graph-based SLAM (iSAM2)** — sparse factor graphs, $O(n)$ updates
+- **Particle filter SLAM (FastSLAM)** — $O(n \log n)$ with a Rao-Blackwellized filter
+
+<Callout type="tip" title="When to use EKF-SLAM">
+EKF-SLAM is excellent for small, structured environments with reliable data association (e.g., a lab with AprilTag landmarks). For large outdoor environments or featureless spaces, reach for graph-based SLAM or LiDAR-based approaches like LOAM.
+</Callout>
+
+## Wrapping Up
+
+EKF-SLAM is elegant because it unifies localization and mapping into a single probabilistic framework. Understanding it deeply — especially the covariance propagation — gives you the intuition to debug any SLAM system.
+
+In the next post, we'll implement the full update step with sensor observations and landmark initialization, then visualize the filter running on a simulated 2D environment.

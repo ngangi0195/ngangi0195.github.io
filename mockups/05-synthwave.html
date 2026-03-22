@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>05 — Synthwave</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #0d0015;
+    --surface: #130020;
+    --border: rgba(180,80,255,0.15);
+    --pink: #ff2d78;
+    --purple: #9b30ff;
+    --cyan: #00e5ff;
+    --yellow: #ffe566;
+    --text: #f0e8ff;
+    --muted: rgba(240,232,255,0.4);
+  }
+  body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; min-height: 100vh; overflow-x: hidden; }
+
+  /* Grid lines perspective */
+  .grid-perspective {
+    position: fixed; bottom: 0; left: 0; right: 0; height: 50vh; z-index: 0; pointer-events: none;
+    background:
+      linear-gradient(to bottom, transparent 0%, rgba(155,48,255,0.05) 100%),
+      repeating-linear-gradient(90deg, rgba(155,48,255,0.12) 0px, transparent 1px, transparent 80px, rgba(155,48,255,0.12) 80px),
+      repeating-linear-gradient(0deg, rgba(155,48,255,0.12) 0px, transparent 1px, transparent 60px, rgba(155,48,255,0.12) 60px);
+    transform: perspective(400px) rotateX(45deg);
+    transform-origin: bottom center;
+  }
+  .sun {
+    position: fixed; bottom: 30vh; left: 50%; transform: translateX(-50%);
+    width: 280px; height: 140px; border-radius: 280px 280px 0 0;
+    background: linear-gradient(180deg, #ff8c00 0%, #ff2d78 60%, transparent 100%);
+    box-shadow: 0 0 80px rgba(255,45,120,0.3), 0 0 200px rgba(255,140,0,0.15);
+    z-index: 0; pointer-events: none; opacity: 0.6;
+  }
+  /* Sun stripes */
+  .sun::after {
+    content: '';
+    position: absolute; left: 0; right: 0; bottom: 10px; height: 90px;
+    background: repeating-linear-gradient(0deg, var(--bg) 0px, var(--bg) 8px, transparent 8px, transparent 18px);
+  }
+
+  /* NAV */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    padding: 0 48px; height: 56px;
+    display: flex; align-items: center; justify-content: space-between;
+    background: rgba(13,0,21,0.85); backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+  }
+  .logo {
+    font-family: 'JetBrains Mono', monospace; font-size: 14px; font-weight: 700;
+    background: linear-gradient(90deg, var(--pink), var(--purple));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    letter-spacing: 0.05em;
+  }
+  .nav-links { display: flex; gap: 4px; }
+  .nav-links a {
+    font-size: 12px; color: var(--muted); text-decoration: none; padding: 6px 14px; border-radius: 6px;
+    font-family: 'JetBrains Mono', monospace; transition: all 0.2s;
+  }
+  .nav-links a:hover { color: var(--cyan); background: rgba(0,229,255,0.06); }
+  .nav-btn {
+    background: linear-gradient(135deg, var(--pink), var(--purple));
+    color: #fff; font-size: 12px; font-weight: 700; padding: 7px 20px; border-radius: 8px;
+    text-decoration: none; font-family: 'JetBrains Mono', monospace;
+    box-shadow: 0 0 20px rgba(155,48,255,0.4);
+  }
+
+  /* HERO */
+  .hero {
+    position: relative; z-index: 1; min-height: 100vh;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 100px 48px 60px; text-align: center;
+  }
+  .hero-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    border: 1px solid var(--border); border-radius: 100px;
+    padding: 6px 20px; margin-bottom: 36px;
+    font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--muted);
+    background: rgba(155,48,255,0.05);
+  }
+  .hero-badge .pulse { width: 6px; height: 6px; border-radius: 50%; background: var(--pink); box-shadow: 0 0 10px var(--pink); animation: pulse 2s infinite; }
+  @keyframes pulse { 50% { opacity: 0.4; } }
+
+  h1 {
+    font-size: clamp(52px, 7vw, 96px); font-weight: 900; line-height: 0.95;
+    letter-spacing: -0.04em; margin-bottom: 24px;
+  }
+  .neon-pink {
+    background: linear-gradient(135deg, var(--pink), var(--yellow));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    filter: drop-shadow(0 0 20px rgba(255,45,120,0.4));
+  }
+  .neon-purple {
+    background: linear-gradient(135deg, var(--purple), var(--cyan));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    filter: drop-shadow(0 0 20px rgba(155,48,255,0.4));
+  }
+
+  .hero-sub { font-size: 17px; color: var(--muted); max-width: 540px; line-height: 1.7; margin-bottom: 48px; }
+  .hero-sub strong { color: var(--text); font-weight: 600; }
+
+  .cta-row { display: flex; gap: 14px; justify-content: center; margin-bottom: 64px; }
+  .btn-neon {
+    padding: 13px 32px; border-radius: 10px; font-size: 14px; font-weight: 700;
+    background: linear-gradient(135deg, var(--pink), var(--purple));
+    color: #fff; text-decoration: none;
+    box-shadow: 0 0 30px rgba(255,45,120,0.35), 0 0 60px rgba(155,48,255,0.2);
+    transition: all 0.2s;
+  }
+  .btn-neon:hover { box-shadow: 0 0 50px rgba(255,45,120,0.5), 0 0 90px rgba(155,48,255,0.3); transform: translateY(-2px); }
+  .btn-ghost {
+    padding: 13px 32px; border-radius: 10px; font-size: 14px; font-weight: 600;
+    border: 1px solid var(--border); color: var(--text); text-decoration: none;
+    background: rgba(155,48,255,0.06); transition: all 0.2s;
+  }
+  .btn-ghost:hover { border-color: var(--purple); background: rgba(155,48,255,0.12); }
+
+  /* Stats strip */
+  .stats-strip {
+    display: flex; gap: 0; border: 1px solid var(--border); border-radius: 14px;
+    background: rgba(255,255,255,0.02); overflow: hidden; backdrop-filter: blur(10px);
+  }
+  .stat-item { padding: 20px 40px; text-align: center; border-right: 1px solid var(--border); }
+  .stat-item:last-child { border-right: none; }
+  .stat-n { font-size: 32px; font-weight: 900; letter-spacing: -0.03em; background: linear-gradient(135deg, var(--cyan), var(--purple)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; display: block; }
+  .stat-l { font-size: 10px; font-family: 'JetBrains Mono', monospace; color: var(--muted); margin-top: 2px; }
+
+  /* Experience */
+  .section { position: relative; z-index: 1; max-width: 900px; margin: 0 auto; padding: 80px 48px; }
+  .sec-eyebrow { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--pink); letter-spacing: 0.2em; text-transform: uppercase; margin-bottom: 8px; }
+  .sec-title { font-size: 36px; font-weight: 900; letter-spacing: -0.03em; margin-bottom: 40px; }
+
+  .exp-neon {
+    background: rgba(255,255,255,0.02); border: 1px solid var(--border);
+    border-radius: 14px; padding: 24px 28px; margin-bottom: 14px;
+    transition: all 0.25s; position: relative; overflow: hidden;
+  }
+  .exp-neon::before {
+    content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
+    background: linear-gradient(180deg, var(--pink), var(--purple));
+  }
+  .exp-neon:hover { border-color: rgba(155,48,255,0.3); background: rgba(155,48,255,0.04); }
+  .exp-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
+  .exp-role-n { font-size: 15px; font-weight: 700; color: var(--text); }
+  .exp-org-n { font-size: 13px; color: var(--pink); font-weight: 500; margin-top: 2px; }
+  .exp-date-n { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--muted); text-align: right; }
+  .exp-b { font-size: 13px; color: var(--muted); line-height: 1.7; }
+  .exp-tags-n { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 12px; }
+  .en-tag { background: rgba(0,229,255,0.06); border: 1px solid rgba(0,229,255,0.2); border-radius: 6px; padding: 3px 10px; font-size: 10px; font-family: 'JetBrains Mono', monospace; color: var(--cyan); }
+</style>
+</head>
+<body>
+
+<div class="grid-perspective"></div>
+<div class="sun"></div>
+
+<nav>
+  <div class="logo">NIDHIN.EXE</div>
+  <div class="nav-links">
+    <a href="#">Experience</a>
+    <a href="#">Projects</a>
+    <a href="#">About</a>
+    <a href="#">Blog</a>
+    <a href="#">Content</a>
+  </div>
+  <a href="#" class="nav-btn">Resume ↗</a>
+</nav>
+
+<div class="hero">
+  <div class="hero-badge"><span class="pulse"></span> Open to SWE & Robotics roles — 2026</div>
+  <h1>
+    <span class="neon-pink">NIDHIN</span><br>
+    <span class="neon-purple">GANGISETTY</span>
+  </h1>
+  <p class="hero-sub">
+    CS @ <strong>University of Maryland</strong> · Robotics & Entrepreneurship Minor · Honors College.
+    Researching robot manipulation at <strong>RAAS Lab</strong>. Building things people use.
+  </p>
+  <div class="cta-row">
+    <a href="#" class="btn-neon">View Projects</a>
+    <a href="#" class="btn-ghost">Download Resume</a>
+  </div>
+  <div class="stats-strip">
+    <div class="stat-item"><span class="stat-n">3.75</span><span class="stat-l">GPA</span></div>
+    <div class="stat-item"><span class="stat-n">11k+</span><span class="stat-l">Kato Users</span></div>
+    <div class="stat-item"><span class="stat-n">3</span><span class="stat-l">Internships</span></div>
+    <div class="stat-item"><span class="stat-n">35+</span><span class="stat-l">Mentored</span></div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="sec-eyebrow">// experience</div>
+  <div class="sec-title">Where I've Worked</div>
+  <div class="exp-neon">
+    <div class="exp-header">
+      <div><div class="exp-role-n">Undergraduate Researcher</div><div class="exp-org-n">RAAS Lab · UMD</div></div>
+      <div class="exp-date-n">Oct 2025 – Present<br>College Park, MD</div>
+    </div>
+    <div class="exp-b">Adapted ITPS framework (MIT CSAIL) to UR3 robotic arm block-stacking in MuJoCo. Implemented all 4 ITPS steering methods with CPU & CUDA support.</div>
+    <div class="exp-tags-n"><span class="en-tag">ROS 2</span><span class="en-tag">Python</span><span class="en-tag">MuJoCo</span><span class="en-tag">CUDA</span></div>
+  </div>
+  <div class="exp-neon">
+    <div class="exp-header">
+      <div><div class="exp-role-n">Software Engineering Intern</div><div class="exp-org-n">Xprotege Institute</div></div>
+      <div class="exp-date-n">Sep – Dec 2025<br>Ellicott City, MD</div>
+    </div>
+    <div class="exp-b">Production RAG system with LlamaIndex + Qdrant + GPT-4. 75% faster RFP evaluation, 92% retrieval accuracy, 40% better bid classification accuracy.</div>
+    <div class="exp-tags-n"><span class="en-tag">LLM</span><span class="en-tag">RAG</span><span class="en-tag">Python</span><span class="en-tag">GPT-4</span></div>
+  </div>
+  <div class="exp-neon">
+    <div class="exp-header">
+      <div><div class="exp-role-n">Software Engineering Intern</div><div class="exp-org-n">Craving Hour Halal</div></div>
+      <div class="exp-date-n">May – Sep 2025<br>College Park, MD</div>
+    </div>
+    <div class="exp-b">Full-stack AWS platform · React + Node.js + PostgreSQL · 43% operational efficiency gain · 150+ daily customers · S3 media pipeline.</div>
+    <div class="exp-tags-n"><span class="en-tag">React</span><span class="en-tag">Node.js</span><span class="en-tag">AWS</span><span class="en-tag">PostgreSQL</span></div>
+  </div>
+</div>
+
+</body>
+</html>

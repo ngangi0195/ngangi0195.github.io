@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>01 — Terminal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #0c0c0c;
+    --surface: #111111;
+    --border: #1e1e1e;
+    --green: #00ff88;
+    --blue: #3b82f6;
+    --cyan: #06b6d4;
+    --purple: #a855f7;
+    --text: #e0e0e0;
+    --muted: #555;
+  }
+  body { background: var(--bg); color: var(--text); font-family: 'JetBrains Mono', monospace; min-height: 100vh; }
+
+  /* NAV */
+  nav {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 20px 48px; border-bottom: 1px solid var(--border);
+    position: sticky; top: 0; background: rgba(12,12,12,0.95); backdrop-filter: blur(8px); z-index: 100;
+  }
+  .logo { color: var(--green); font-size: 14px; font-weight: 700; letter-spacing: 0.05em; }
+  .logo span { color: #555; }
+  .nav-links { display: flex; gap: 32px; }
+  .nav-links a { color: var(--muted); text-decoration: none; font-size: 12px; letter-spacing: 0.08em; transition: color 0.2s; }
+  .nav-links a:hover { color: var(--green); }
+
+  /* HERO */
+  .hero { padding: 80px 48px 80px; max-width: 900px; }
+  .prompt { color: var(--muted); font-size: 12px; margin-bottom: 24px; display: flex; align-items: center; gap: 8px; }
+  .prompt::before { content: ''; display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--green); box-shadow: 0 0 8px var(--green); }
+  h1 { font-size: clamp(40px, 6vw, 72px); font-weight: 700; line-height: 1.0; margin-bottom: 16px; }
+  .name-green { color: var(--green); text-shadow: 0 0 40px rgba(0,255,136,0.3); }
+  .tagline { font-size: 14px; color: var(--muted); margin-bottom: 48px; line-height: 1.8; }
+  .tagline .highlight { color: var(--cyan); }
+
+  /* Terminal block */
+  .terminal {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+    overflow: hidden; max-width: 640px; margin-bottom: 48px;
+  }
+  .term-bar {
+    background: #1a1a1a; padding: 10px 16px; display: flex; align-items: center; gap: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+  .dot { width: 10px; height: 10px; border-radius: 50%; }
+  .dot.r { background: #ff5f57; } .dot.y { background: #ffbd2e; } .dot.g { background: #28c840; }
+  .term-title { flex: 1; text-align: center; font-size: 11px; color: var(--muted); }
+  .term-body { padding: 20px 24px; font-size: 13px; line-height: 2; }
+  .cmd { color: var(--muted); }
+  .cmd .ps1 { color: var(--green); }
+  .cmd .ps2 { color: var(--blue); }
+  .output { color: var(--text); padding-left: 16px; }
+  .output .key { color: var(--cyan); }
+  .output .val { color: var(--text); }
+  .cursor { display: inline-block; width: 8px; height: 14px; background: var(--green); vertical-align: middle; animation: blink 1s step-end infinite; }
+  @keyframes blink { 50% { opacity: 0; } }
+
+  /* Stats */
+  .stats { display: flex; gap: 48px; margin-bottom: 48px; }
+  .stat-val { font-size: 32px; font-weight: 700; color: var(--green); display: block; }
+  .stat-lbl { font-size: 11px; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase; }
+
+  /* CTA */
+  .ctas { display: flex; gap: 12px; flex-wrap: wrap; }
+  .btn { padding: 10px 24px; border-radius: 4px; font-family: 'JetBrains Mono', monospace; font-size: 13px; cursor: pointer; text-decoration: none; }
+  .btn-primary { background: var(--green); color: #000; font-weight: 700; border: none; }
+  .btn-outline { background: transparent; color: var(--green); border: 1px solid var(--green); }
+  .btn-outline:hover { background: rgba(0,255,136,0.05); }
+
+  /* Divider */
+  .section { padding: 60px 48px; border-top: 1px solid var(--border); max-width: 1100px; }
+  .section-label { font-size: 11px; color: var(--green); letter-spacing: 0.2em; text-transform: uppercase; margin-bottom: 32px; }
+  .section-label::before { content: '// '; color: var(--muted); }
+
+  /* Experience */
+  .exp-grid { display: grid; gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: 4px; overflow: hidden; }
+  .exp-item { background: var(--surface); padding: 24px; }
+  .exp-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
+  .exp-role { color: var(--text); font-weight: 700; font-size: 14px; }
+  .exp-org { color: var(--cyan); font-size: 13px; margin-top: 2px; }
+  .exp-date { color: var(--muted); font-size: 11px; text-align: right; }
+  .exp-bullets { list-style: none; }
+  .exp-bullets li { font-size: 12px; color: #888; padding: 3px 0; padding-left: 16px; position: relative; line-height: 1.6; }
+  .exp-bullets li::before { content: '>'; position: absolute; left: 0; color: var(--green); }
+
+  /* Skills */
+  .skills-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+  .skill-tag { background: transparent; border: 1px solid var(--border); color: var(--muted); padding: 4px 12px; border-radius: 2px; font-size: 11px; letter-spacing: 0.05em; }
+  .skill-tag.hot { border-color: rgba(0,255,136,0.3); color: var(--green); }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo">nidhin<span>@</span>gangisetty<span> ~ $</span></div>
+  <div class="nav-links">
+    <a href="#">./experience</a>
+    <a href="#">./projects</a>
+    <a href="#">./about</a>
+    <a href="#">/blog</a>
+    <a href="#">/content</a>
+  </div>
+</nav>
+
+<div class="hero">
+  <div class="prompt">system online — ready to build</div>
+  <h1>
+    <span>Hi, I'm</span><br>
+    <span class="name-green">Nidhin Gangisetty</span>
+  </h1>
+  <div class="tagline">
+    CS @ UMD · Robotics & Entrepreneurship Minor · Honors College<br>
+    Building at the intersection of <span class="highlight">autonomy</span>, <span class="highlight">AI systems</span>, and <span class="highlight">full-stack engineering</span>.
+  </div>
+
+  <div class="terminal">
+    <div class="term-bar">
+      <div class="dot r"></div><div class="dot y"></div><div class="dot g"></div>
+      <div class="term-title">nidhin — zsh — 80×24</div>
+    </div>
+    <div class="term-body">
+      <div class="cmd"><span class="ps1">nidhin</span><span class="ps2">@umd</span> ~ $ whoami</div>
+      <div class="output">
+        <span class="key">role     </span>: <span class="val">Undergraduate Researcher · Software Engineer</span><br>
+        <span class="key">location </span>: <span class="val">College Park, MD</span><br>
+        <span class="key">gpa      </span>: <span class="val">3.756 / 4.00</span><br>
+        <span class="key">looking  </span>: <span class="val">SWE / Robotics internships 2026</span>
+      </div>
+      <div class="cmd" style="margin-top:12px"><span class="ps1">nidhin</span><span class="ps2">@umd</span> ~ $ <span class="cursor"></span></div>
+    </div>
+  </div>
+
+  <div class="stats">
+    <div><span class="stat-val">3.75</span><span class="stat-lbl">GPA</span></div>
+    <div><span class="stat-val">3+</span><span class="stat-lbl">Internships</span></div>
+    <div><span class="stat-val">11k+</span><span class="stat-lbl">Users on Kato</span></div>
+    <div><span class="stat-val">35+</span><span class="stat-lbl">Mentored</span></div>
+  </div>
+
+  <div class="ctas">
+    <a href="#" class="btn btn-primary">$ view_projects</a>
+    <a href="#" class="btn btn-outline">$ download_resume</a>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-label">experience</div>
+  <div class="exp-grid">
+    <div class="exp-item">
+      <div class="exp-header">
+        <div><div class="exp-role">Undergraduate Researcher</div><div class="exp-org">RAAS Lab — UMD</div></div>
+        <div class="exp-date">Oct 2025 – Present<br>College Park, MD</div>
+      </div>
+      <ul class="exp-bullets">
+        <li>Adapted ITPS framework (MIT CSAIL) to UR3 robotic arm block-stacking in MuJoCo</li>
+        <li>Implemented all 4 ITPS steering methods in 2D simulation with CPU + CUDA support</li>
+      </ul>
+    </div>
+    <div class="exp-item">
+      <div class="exp-header">
+        <div><div class="exp-role">Software Engineering Intern</div><div class="exp-org">Xprotege Institute</div></div>
+        <div class="exp-date">Sep – Dec 2025<br>Ellicott City, MD</div>
+      </div>
+      <ul class="exp-bullets">
+        <li>Built production RAG system (LlamaIndex + Qdrant + GPT-4) · 75% faster RFP eval · 92% retrieval accuracy</li>
+        <li>Prompt-engineering framework boosted bid/no-bid classification accuracy by 40%</li>
+      </ul>
+    </div>
+    <div class="exp-item">
+      <div class="exp-header">
+        <div><div class="exp-role">Software Engineering Intern</div><div class="exp-org">Craving Hour Halal</div></div>
+        <div class="exp-date">May – Sep 2025<br>College Park, MD</div>
+      </div>
+      <ul class="exp-bullets">
+        <li>Full-stack platform (React · Node.js · PostgreSQL · AWS) · 43% operational efficiency gain</li>
+        <li>REST API + S3 media pipeline · 150+ daily customers</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-label">technical skills</div>
+  <div class="skills-grid">
+    <span class="skill-tag hot">Python</span><span class="skill-tag hot">ROS 2</span><span class="skill-tag hot">TypeScript</span>
+    <span class="skill-tag hot">React</span><span class="skill-tag hot">PyTorch</span><span class="skill-tag hot">OpenCV</span>
+    <span class="skill-tag">Java</span><span class="skill-tag">C</span><span class="skill-tag">JavaScript</span>
+    <span class="skill-tag">SQL</span><span class="skill-tag">MATLAB</span><span class="skill-tag">Node.js</span>
+    <span class="skill-tag">FastAPI</span><span class="skill-tag">PostgreSQL</span><span class="skill-tag">Supabase</span>
+    <span class="skill-tag">AWS</span><span class="skill-tag">LlamaIndex</span><span class="skill-tag">Qdrant</span>
+    <span class="skill-tag">TensorFlow</span><span class="skill-tag">NumPy</span><span class="skill-tag">Pandas</span>
+    <span class="skill-tag">Gazebo</span><span class="skill-tag">CAD (Onshape)</span><span class="skill-tag">Git</span>
+  </div>
+</div>
+
+</body>
+</html>

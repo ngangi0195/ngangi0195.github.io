@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>10 — Swiss / International</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #111118;
+    --surface: #18181f;
+    --border: #27272f;
+    --accent: #4f8fff;
+    --text: #f0f0f8;
+    --muted: #505060;
+    --sub: #8888a0;
+  }
+  body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; min-height: 100vh; }
+
+  /* NAV — strict grid */
+  nav {
+    display: grid; grid-template-columns: 200px 1fr 200px;
+    align-items: center; padding: 0 40px; height: 52px;
+    border-bottom: 1px solid var(--border);
+    position: sticky; top: 0; background: var(--bg); z-index: 100;
+  }
+  .logo { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--text); font-weight: 700; letter-spacing: 0.05em; }
+  .logo-accent { color: var(--accent); }
+  .nav-center { display: flex; justify-content: center; gap: 32px; }
+  .nav-center a { font-size: 11px; color: var(--muted); text-decoration: none; letter-spacing: 0.06em; font-weight: 600; text-transform: uppercase; transition: color 0.15s; }
+  .nav-center a:hover { color: var(--text); }
+  .nav-end { display: flex; justify-content: flex-end; }
+  .nav-pill { background: var(--accent); color: #fff; font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; padding: 6px 16px; border-radius: 4px; text-decoration: none; }
+
+  /* HERO — strict 12-column grid simulation */
+  .hero {
+    display: grid; grid-template-columns: repeat(12, 1fr);
+    gap: 0; min-height: calc(100vh - 52px);
+    border-bottom: 1px solid var(--border);
+  }
+
+  /* Left — 8 cols */
+  .hero-main {
+    grid-column: 1 / 9; padding: 64px 48px 48px 40px;
+    border-right: 1px solid var(--border);
+    display: flex; flex-direction: column; justify-content: space-between;
+  }
+
+  .location-tag { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--muted); letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 40px; display: flex; align-items: center; gap: 12px; }
+  .location-tag::before { content: ''; width: 32px; height: 1px; background: var(--muted); }
+
+  h1 { font-size: clamp(56px, 7.5vw, 108px); font-weight: 900; letter-spacing: -0.05em; line-height: 0.88; margin-bottom: 40px; }
+  .name-white { color: var(--text); }
+  .name-blue { color: var(--accent); }
+
+  .bio-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-bottom: 48px; }
+  .bio-text { font-size: 15px; color: var(--sub); line-height: 1.75; }
+  .bio-text strong { color: var(--text); font-weight: 500; }
+
+  .info-pairs { display: flex; flex-direction: column; gap: 14px; }
+  .ip-row { display: flex; gap: 16px; align-items: baseline; }
+  .ip-key { font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--muted); letter-spacing: 0.15em; text-transform: uppercase; width: 80px; flex-shrink: 0; }
+  .ip-val { font-size: 12px; color: var(--text); font-weight: 500; }
+  .ip-val.accent { color: var(--accent); }
+
+  .cta-strip { display: flex; gap: 12px; }
+  .btn-swiss { padding: 11px 28px; font-size: 12px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; border-radius: 4px; text-decoration: none; transition: all 0.15s; }
+  .btn-swiss-fill { background: var(--accent); color: #fff; }
+  .btn-swiss-fill:hover { background: #3d7aff; }
+  .btn-swiss-out { border: 1px solid var(--border); color: var(--sub); }
+  .btn-swiss-out:hover { border-color: var(--text); color: var(--text); }
+
+  /* Right — 4 cols */
+  .hero-right { grid-column: 9 / 13; display: flex; flex-direction: column; }
+
+  .right-cell { padding: 28px 24px; border-bottom: 1px solid var(--border); }
+  .rc-label { font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--muted); letter-spacing: 0.2em; text-transform: uppercase; margin-bottom: 12px; }
+  .rc-big { font-size: 48px; font-weight: 900; letter-spacing: -0.04em; color: var(--accent); line-height: 1; }
+  .rc-sub { font-size: 11px; color: var(--muted); margin-top: 4px; }
+
+  .ticker-list { list-style: none; }
+  .ticker-list li { display: flex; justify-content: space-between; align-items: baseline; padding: 8px 0; border-bottom: 1px solid rgba(39,39,47,0.8); font-size: 11px; }
+  .ticker-list li:last-child { border-bottom: none; }
+  .tl-label { color: var(--sub); }
+  .tl-val { font-family: 'JetBrains Mono', monospace; color: var(--accent); font-weight: 700; font-size: 12px; }
+
+  /* Experience — strict rows */
+  .section { border-bottom: 1px solid var(--border); }
+  .section-head { display: grid; grid-template-columns: 200px 1fr; gap: 0; align-items: center; padding: 0 40px; height: 44px; border-bottom: 1px solid var(--border); background: var(--surface); }
+  .sh-num { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--muted); letter-spacing: 0.1em; }
+  .sh-title { font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
+
+  .exp-row-swiss {
+    display: grid; grid-template-columns: 200px 1fr 200px;
+    gap: 0; padding: 28px 40px; border-bottom: 1px solid var(--border);
+  }
+  .exp-row-swiss:last-child { border-bottom: none; }
+  .er-date { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--muted); padding-top: 2px; letter-spacing: 0.05em; }
+  .er-content { padding: 0 40px; }
+  .er-role { font-size: 14px; font-weight: 700; margin-bottom: 2px; }
+  .er-org { font-size: 12px; color: var(--accent); font-family: 'JetBrains Mono', monospace; margin-bottom: 10px; }
+  .er-desc { font-size: 12px; color: var(--sub); line-height: 1.7; }
+  .er-tags-col { display: flex; flex-direction: column; gap: 4px; align-items: flex-end; }
+  .ert { background: transparent; border: 1px solid var(--border); font-family: 'JetBrains Mono', monospace; font-size: 9px; padding: 2px 8px; color: var(--muted); letter-spacing: 0.04em; }
+
+  /* Projects */
+  .proj-grid-swiss { display: grid; grid-template-columns: 1fr 1fr; }
+  .proj-cell { padding: 32px 40px; border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+  .proj-cell:nth-child(even) { border-right: none; }
+  .pc-num { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--muted); margin-bottom: 16px; }
+  .pc-title { font-size: 20px; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 10px; }
+  .pc-desc { font-size: 13px; color: var(--sub); line-height: 1.7; margin-bottom: 14px; }
+  .pc-link { font-size: 11px; font-family: 'JetBrains Mono', monospace; color: var(--accent); text-decoration: none; letter-spacing: 0.05em; }
+  .pc-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px; }
+  .pct { background: rgba(79,143,255,0.07); border: 1px solid rgba(79,143,255,0.15); font-family: 'JetBrains Mono', monospace; font-size: 9px; padding: 2px 8px; color: var(--accent); border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo">NG<span class="logo-accent">.</span></div>
+  <div class="nav-center">
+    <a href="#">Experience</a>
+    <a href="#">Projects</a>
+    <a href="#">Activities</a>
+    <a href="#">Blog</a>
+    <a href="#">Content</a>
+  </div>
+  <div class="nav-end">
+    <a href="#" class="nav-pill">Resume ↗</a>
+  </div>
+</nav>
+
+<div class="hero">
+  <div class="hero-main">
+    <div>
+      <div class="location-tag">College Park, MD · Class of 2027</div>
+      <h1>
+        <span class="name-white">NIDHIN</span><br>
+        <span class="name-blue">GANGI</span><br>
+        <span class="name-white">SETTY</span>
+      </h1>
+      <div class="bio-grid">
+        <p class="bio-text">
+          CS student at <strong>University of Maryland</strong>, minoring in Robotics & Entrepreneurship.
+          Currently researching human-guided robot manipulation at <strong>RAAS Lab</strong>.
+          Co-founder of <strong>Project Lift</strong>, a student tech consulting club.
+        </p>
+        <div class="info-pairs">
+          <div class="ip-row"><span class="ip-key">Degree</span><span class="ip-val">B.S. Computer Science</span></div>
+          <div class="ip-row"><span class="ip-key">GPA</span><span class="ip-val">3.756 / 4.00</span></div>
+          <div class="ip-row"><span class="ip-key">Lab</span><span class="ip-val">RAAS · UMD</span></div>
+          <div class="ip-row"><span class="ip-key">Status</span><span class="ip-val accent">Open to 2026 Roles</span></div>
+          <div class="ip-row"><span class="ip-key">Email</span><span class="ip-val">nidhingangisetty@gmail.com</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="cta-strip">
+      <a href="#" class="btn-swiss btn-swiss-fill">View Projects</a>
+      <a href="#" class="btn-swiss btn-swiss-out">Download CV</a>
+    </div>
+  </div>
+
+  <div class="hero-right">
+    <div class="right-cell">
+      <div class="rc-label">GPA</div>
+      <div class="rc-big">3.75</div>
+      <div class="rc-sub">Honors College · UMD</div>
+    </div>
+    <div class="right-cell">
+      <div class="rc-label">Impact Metrics</div>
+      <ul class="ticker-list">
+        <li><span class="tl-label">Kato Users</span><span class="tl-val">11,000+</span></li>
+        <li><span class="tl-label">Students Mentored</span><span class="tl-val">35+</span></li>
+        <li><span class="tl-label">Project Lift Value</span><span class="tl-val">$10k+</span></li>
+        <li><span class="tl-label">RFP Speedup</span><span class="tl-val">75%</span></li>
+        <li><span class="tl-label">Stacking Accuracy</span><span class="tl-val">98%</span></li>
+      </ul>
+    </div>
+    <div class="right-cell" style="flex: 1; display: flex; flex-direction: column; gap: 8px;">
+      <div class="rc-label">Links</div>
+      <a href="#" style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--accent); text-decoration: none; display: block; padding: 6px 0; border-bottom: 1px solid var(--border);">GitHub ↗</a>
+      <a href="#" style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--accent); text-decoration: none; display: block; padding: 6px 0; border-bottom: 1px solid var(--border);">LinkedIn ↗</a>
+      <a href="#" style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--accent); text-decoration: none; display: block; padding: 6px 0;">Blog ↗</a>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-head">
+    <span class="sh-num">01 — EXPERIENCE</span>
+    <span class="sh-title">Where I've Worked</span>
+  </div>
+  <div class="exp-row-swiss">
+    <div class="er-date">OCT 2025<br>PRESENT</div>
+    <div class="er-content">
+      <div class="er-role">Undergraduate Researcher</div>
+      <div class="er-org">RAAS Lab · University of Maryland</div>
+      <div class="er-desc">Adapted ITPS framework (MIT CSAIL) to UR3 robotic arm block-stacking in MuJoCo. Implemented all 4 ITPS steering methods (Post-Hoc, Diffusion, Sampling, Initialization) in 2D sim with CPU & CUDA support.</div>
+    </div>
+    <div class="er-tags-col"><span class="ert">ROS 2</span><span class="ert">Python</span><span class="ert">MuJoCo</span><span class="ert">CUDA</span></div>
+  </div>
+  <div class="exp-row-swiss">
+    <div class="er-date">SEP 2025<br>DEC 2025</div>
+    <div class="er-content">
+      <div class="er-role">Software Engineering Intern</div>
+      <div class="er-org">Xprotege Institute of Technology</div>
+      <div class="er-desc">Production RAG system with LlamaIndex + Qdrant + GPT-4 · 75% faster RFP evaluation · 92% retrieval accuracy · 40% better bid classification. Architected scalable prompt-engineering framework.</div>
+    </div>
+    <div class="er-tags-col"><span class="ert">LLM</span><span class="ert">RAG</span><span class="ert">Python</span><span class="ert">GPT-4</span></div>
+  </div>
+  <div class="exp-row-swiss">
+    <div class="er-date">MAY 2025<br>SEP 2025</div>
+    <div class="er-content">
+      <div class="er-role">Software Engineering Intern</div>
+      <div class="er-org">Craving Hour Halal</div>
+      <div class="er-desc">Full-stack AWS platform · React + Node.js + PostgreSQL · 43% operational efficiency gain · 150+ daily customers · REST API + S3 media pipeline · admin CRUD dashboard.</div>
+    </div>
+    <div class="er-tags-col"><span class="ert">React</span><span class="ert">Node.js</span><span class="ert">AWS</span><span class="ert">PostgreSQL</span></div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-head">
+    <span class="sh-num">02 — PROJECTS</span>
+    <span class="sh-title">Things Built</span>
+  </div>
+  <div class="proj-grid-swiss">
+    <div class="proj-cell">
+      <div class="pc-num">P.01</div>
+      <div class="pc-title">UR3e Robotic Arm</div>
+      <div class="pc-tags"><span class="pct">Python</span><span class="pct">ROS 2</span><span class="pct">OpenCV</span><span class="pct">Ubuntu</span></div>
+      <div class="pc-desc">Vision-guided control for UR3e using pose estimation & inverse kinematics. 98% stacking accuracy. Demonstrates real-time manipulation for industrial automation.</div>
+      <a href="#" class="pc-link">GITHUB ↗</a>
+    </div>
+    <div class="proj-cell">
+      <div class="pc-num">P.02</div>
+      <div class="pc-title">Kato Apartment Finder</div>
+      <div class="pc-tags"><span class="pct">Next.js</span><span class="pct">Supabase</span><span class="pct">Mapbox</span><span class="pct">Firecrawl</span></div>
+      <div class="pc-desc">Off-campus housing platform scraping 18 apartments. 11,000+ visits. Real-time pricing and amenities in a unified map-based UI.</div>
+      <a href="#" class="pc-link">LIVE SITE ↗</a>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

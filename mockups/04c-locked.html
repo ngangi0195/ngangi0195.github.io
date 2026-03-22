@@ -1,0 +1,1020 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nidhin Gangisetty</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+/* ── RESET & ROOT ───────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg:     #f2ebe0;
+  --cream:  #f9f4e8;
+  --ink:    #0c0c0c;
+  --red:    #d63000;
+  --blue:   #0047cc;
+  --yellow: #ffe040;
+  --rule:   2.5px solid #0c0c0c;
+  --rule-t: 1px solid rgba(12,12,12,0.14);
+}
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: 'Inter', sans-serif;
+  overflow-x: hidden;
+  cursor: none; /* hide default cursor */
+}
+a, button { cursor: none; }
+
+/* ── CUSTOM CURSOR ──────────────────────────────── */
+#cursor {
+  position: fixed;
+  top: 0; left: 0;
+  width: 28px; height: 28px;
+  pointer-events: none;
+  z-index: 9999;
+  transform: translate(-50%, -50%);
+  transition: transform 0.08s ease, opacity 0.2s;
+  mix-blend-mode: multiply;
+}
+#cursor .c-h { /* horizontal bar */
+  position: absolute;
+  top: 50%; left: 0; right: 0;
+  height: 2px;
+  background: var(--ink);
+  transform: translateY(-50%);
+  transition: background 0.15s;
+}
+#cursor .c-v { /* vertical bar */
+  position: absolute;
+  left: 50%; top: 0; bottom: 0;
+  width: 2px;
+  background: var(--ink);
+  transform: translateX(-50%);
+  transition: background 0.15s;
+}
+#cursor .c-sq { /* center square */
+  position: absolute;
+  top: 50%; left: 50%;
+  width: 6px; height: 6px;
+  background: var(--ink);
+  transform: translate(-50%, -50%);
+  transition: all 0.15s;
+}
+body.cursor-hover #cursor { transform: translate(-50%,-50%) scale(1.6); }
+body.cursor-hover #cursor .c-h,
+body.cursor-hover #cursor .c-v { background: var(--red); }
+body.cursor-hover #cursor .c-sq { background: var(--yellow); width: 8px; height: 8px; }
+body.cursor-link #cursor { transform: translate(-50%,-50%) scale(2); }
+body.cursor-link #cursor .c-sq { background: var(--red); }
+
+/* ── NAV ────────────────────────────────────────── */
+nav {
+  position: sticky; top: 0; z-index: 500;
+  background: var(--bg);
+  border-bottom: var(--rule);
+  display: flex; align-items: stretch; height: 50px;
+}
+.nav-logo {
+  padding: 0 22px;
+  display: flex; align-items: center;
+  border-right: var(--rule);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px; font-weight: 700; letter-spacing: 0.04em;
+  white-space: nowrap; text-decoration: none; color: var(--ink);
+  flex-shrink: 0;
+}
+.nav-logo .slash { color: var(--red); }
+.nav-links {
+  display: flex; overflow-x: auto; scrollbar-width: none; flex: 1;
+}
+.nav-links::-webkit-scrollbar { display: none; }
+.nav-links a {
+  display: flex; align-items: center; padding: 0 16px;
+  border-right: var(--rule-t);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px; font-weight: 700;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  text-decoration: none; color: var(--ink);
+  white-space: nowrap; transition: background 0.12s;
+  flex-shrink: 0;
+}
+.nav-links a:hover { background: var(--yellow); }
+.nav-links a.active { background: var(--ink); color: var(--bg); }
+.nav-end {
+  margin-left: auto; display: flex; align-items: center;
+  padding: 0 18px; border-left: var(--rule); gap: 10px; flex-shrink: 0;
+}
+.live-badge {
+  display: flex; align-items: center; gap: 6px;
+  font-family: 'JetBrains Mono', monospace; font-size: 9px;
+  color: #888; letter-spacing: 0.08em; white-space: nowrap;
+}
+.live-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: #22c55e; box-shadow: 0 0 5px #22c55e;
+  animation: pulse 2.5s ease-in-out infinite;
+}
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+.nav-cta {
+  background: var(--ink); color: var(--bg);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px; font-weight: 700; letter-spacing: 0.08em;
+  text-transform: uppercase; text-decoration: none;
+  padding: 6px 14px; transition: background 0.12s; white-space: nowrap;
+}
+.nav-cta:hover { background: var(--red); }
+
+/* hamburger */
+.nav-hamburger {
+  display: none; align-items: center; justify-content: center;
+  width: 50px; border-left: var(--rule);
+  background: none; border-top: none; border-right: none; border-bottom: none;
+  flex-direction: column; gap: 5px; cursor: none;
+}
+.nav-hamburger span {
+  display: block; width: 18px; height: 2px; background: var(--ink);
+}
+.mobile-menu {
+  display: none;
+  position: fixed; top: 50px; left: 0; right: 0;
+  background: var(--bg); border-bottom: var(--rule);
+  z-index: 499; flex-direction: column;
+}
+.mobile-menu a {
+  padding: 14px 22px; border-bottom: var(--rule-t);
+  font-family: 'JetBrains Mono', monospace; font-size: 11px;
+  font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+  text-decoration: none; color: var(--ink);
+}
+.mobile-menu a:hover { background: var(--yellow); }
+.mobile-menu.open { display: flex; }
+
+/* ── HERO ────────────────────────────────────────── */
+.hero {
+  position: relative; overflow: hidden;
+  display: grid;
+  grid-template-columns: 1fr 360px;
+  border-bottom: var(--rule);
+}
+
+/* Hero background SVGs — absolute within hero, scroll with page */
+.hero-bg { position: absolute; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+
+.hero-left {
+  position: relative; z-index: 1;
+  padding: 52px 44px 48px;
+  border-right: var(--rule);
+  display: flex; flex-direction: column; justify-content: space-between;
+  min-height: 90vh;
+}
+.hero-right {
+  position: relative; z-index: 1;
+  display: flex; flex-direction: column;
+}
+
+/* Kicker */
+.kicker {
+  display: inline-flex; align-items: center; gap: 10px;
+  font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  background: var(--yellow); border: 2px solid var(--ink);
+  padding: 5px 13px; margin-bottom: 28px; width: fit-content;
+}
+.kicker .dot { width: 5px; height: 5px; border-radius: 50%; background: var(--ink); }
+
+/* Name */
+.hero-name {
+  font-family: 'Syne', sans-serif;
+  font-size: clamp(50px, 6.2vw, 86px);
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 0.92;
+  margin-bottom: 30px;
+}
+.hero-name .first { display: block; }
+.hero-name .last  { display: block; color: var(--red); }
+
+/* Intro */
+.hero-intro {
+  font-size: clamp(14px, 1.4vw, 16px);
+  line-height: 1.78; color: #3d3d3d;
+  max-width: 500px; margin-bottom: 36px;
+  border-left: 3.5px solid var(--red); padding-left: 16px;
+}
+.hero-intro strong { color: var(--ink); font-weight: 600; }
+
+/* CTAs */
+.hero-ctas { display: flex; gap: 0; flex-wrap: wrap; }
+.btn {
+  padding: 12px 26px; font-family: 'Syne', sans-serif;
+  font-size: 13px; font-weight: 700;
+  text-decoration: none; display: inline-block;
+  border: 2.5px solid var(--ink); transition: all 0.12s;
+}
+.btn-fill { background: var(--ink); color: var(--bg); margin-right: -2.5px; }
+.btn-fill:hover { background: var(--red); border-color: var(--red); }
+.btn-outline { background: transparent; }
+.btn-outline:hover { background: var(--yellow); }
+
+/* ── RIGHT COLUMN PANELS ─────────────────────────── */
+.r-panel {
+  padding: 24px 26px;
+  border-bottom: var(--rule);
+  position: relative;
+}
+.r-panel:last-child { border-bottom: none; flex: 1; }
+.panel-eyebrow {
+  font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 700;
+  letter-spacing: 0.2em; text-transform: uppercase; color: #999;
+  margin-bottom: 12px;
+}
+
+/* Vision panel — most prominent */
+.vision-headline {
+  font-family: 'Syne', sans-serif; font-size: 17px; font-weight: 800;
+  letter-spacing: -0.02em; line-height: 1.3; margin-bottom: 12px;
+}
+.vision-body {
+  font-size: 13px; line-height: 1.72; color: #3d3d3d;
+}
+.vision-body strong { color: var(--ink); font-weight: 600; }
+.vision-callout {
+  margin-top: 14px;
+  background: var(--ink); color: var(--bg);
+  padding: 11px 14px;
+  font-family: 'JetBrains Mono', monospace; font-size: 11px; line-height: 1.6;
+  display: flex; gap: 8px; align-items: flex-start;
+}
+.vc-label { color: var(--yellow); font-weight: 700; white-space: nowrap; }
+
+/* Facts */
+.facts-list { display: flex; flex-direction: column; }
+.fact-row {
+  display: flex; justify-content: space-between; align-items: baseline;
+  padding: 8px 0; border-bottom: var(--rule-t);
+}
+.fact-row:last-child { border-bottom: none; }
+.fk { font-family: 'JetBrains Mono', monospace; font-size: 9px; color: #999; letter-spacing: 0.08em; text-transform: uppercase; }
+.fv { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; color: var(--ink); text-align: right; }
+.fv.hot { color: var(--red); }
+
+/* Stack */
+.stack-wrap { display: flex; flex-wrap: wrap; gap: 5px; }
+.stag {
+  font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 700;
+  padding: 4px 8px; border: 2px solid var(--ink);
+  letter-spacing: 0.03em; transition: all 0.12s;
+}
+.stag.on { background: var(--ink); color: var(--bg); }
+.stag:hover { background: var(--yellow); }
+
+/* ── SECTION CHROME ──────────────────────────────── */
+.section { position: relative; overflow: hidden; border-bottom: var(--rule); }
+.section-bg { position: absolute; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+.section-head {
+  position: relative; z-index: 1;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 13px 36px;
+  border-bottom: var(--rule);
+  background: var(--cream);
+}
+.sh-left { display: flex; align-items: center; gap: 12px; }
+.sh-num {
+  font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700;
+  color: var(--red); letter-spacing: 0.06em;
+}
+.sh-title {
+  font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 700;
+  letter-spacing: 0.04em;
+}
+.sh-right {
+  font-family: 'JetBrains Mono', monospace; font-size: 9px; color: #aaa;
+  letter-spacing: 0.08em; text-transform: uppercase;
+}
+
+/* ── EXPERIENCE ──────────────────────────────────── */
+.exp-body { position: relative; z-index: 1; }
+.exp-row {
+  display: grid;
+  grid-template-columns: 140px 1fr;
+  border-bottom: var(--rule-t);
+  transition: background 0.12s;
+}
+.exp-row:last-child { border-bottom: none; }
+.exp-row:hover { background: rgba(255,224,64,0.18); }
+
+.exp-date {
+  padding: 22px 20px 22px 36px;
+  border-right: var(--rule-t);
+  font-family: 'JetBrains Mono', monospace; font-size: 9px; color: #999;
+  letter-spacing: 0.05em; line-height: 1.8; flex-shrink: 0;
+}
+.exp-date .now { color: var(--red); font-weight: 700; font-size: 9px; letter-spacing: 0.1em; }
+
+.exp-main { padding: 22px 32px 22px 28px; }
+.exp-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; margin-bottom: 10px; }
+.exp-titles {}
+.exp-role {
+  font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 700;
+  letter-spacing: -0.01em; margin-bottom: 2px;
+}
+.exp-org {
+  font-family: 'JetBrains Mono', monospace; font-size: 11px;
+  color: var(--blue); font-weight: 700; letter-spacing: 0.02em;
+}
+.exp-tags { display: flex; gap: 4px; flex-wrap: wrap; justify-content: flex-end; }
+.etag {
+  font-family: 'JetBrains Mono', monospace; font-size: 8px; font-weight: 700;
+  padding: 3px 7px; border: 1.5px solid var(--ink); letter-spacing: 0.04em;
+  white-space: nowrap; transition: all 0.12s;
+}
+.etag:hover { background: var(--yellow); }
+.exp-bullets { list-style: none; }
+.exp-bullets li {
+  font-size: 13px; color: #404040; line-height: 1.68;
+  padding: 2.5px 0 2.5px 15px; position: relative;
+}
+.exp-bullets li::before {
+  content: '▸'; position: absolute; left: 0;
+  color: var(--red); font-size: 9px; top: 5px;
+}
+
+/* ── PROJECTS ─────────────────────────────────────── */
+.projects-body { position: relative; z-index: 1; padding: 32px 36px; }
+
+/* Number trail above grid */
+.proj-trail {
+  display: flex; align-items: center; gap: 0; margin-bottom: 28px;
+  overflow-x: auto; scrollbar-width: none;
+}
+.proj-trail::-webkit-scrollbar { display: none; }
+.trail-node {
+  display: flex; align-items: center; gap: 0; flex-shrink: 0;
+}
+.trail-num {
+  width: 28px; height: 28px; border: 2px solid var(--ink);
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 700;
+  background: var(--bg); flex-shrink: 0; transition: all 0.12s;
+}
+.trail-num.featured { background: var(--ink); color: var(--bg); }
+.trail-label {
+  font-family: 'JetBrains Mono', monospace; font-size: 8px; color: #aaa;
+  letter-spacing: 0.06em; max-width: 80px; padding: 0 8px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.trail-line {
+  flex: 1; min-width: 20px; height: 1.5px;
+  background: repeating-linear-gradient(90deg, var(--ink) 0,var(--ink) 5px,transparent 5px,transparent 9px);
+  flex-shrink: 0;
+}
+.trail-line.last { display: none; }
+
+/* Featured card */
+.proj-featured {
+  border: 2.5px solid var(--ink); padding: 28px;
+  background: var(--ink); color: var(--bg);
+  margin-bottom: 16px;
+  display: grid; grid-template-columns: 1fr 1fr; gap: 32px;
+  transition: background 0.12s;
+}
+.proj-featured:hover { background: #1a1a1a; }
+.pf-left {}
+.pf-type {
+  font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 700;
+  letter-spacing: 0.15em; text-transform: uppercase; color: var(--yellow);
+  margin-bottom: 8px; display: flex; align-items: center; gap: 6px;
+}
+.pf-type::before { content: '★'; font-size: 8px; }
+.pf-title {
+  font-family: 'Syne', sans-serif; font-size: clamp(22px, 2.5vw, 30px);
+  font-weight: 800; letter-spacing: -0.03em; line-height: 1.1;
+  margin-bottom: 14px; color: var(--bg);
+}
+.pf-desc { font-size: 13px; color: #bbb; line-height: 1.7; margin-bottom: 16px; }
+.pf-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 16px; }
+.pf-tag {
+  font-family: 'JetBrains Mono', monospace; font-size: 8px; font-weight: 700;
+  border: 1.5px solid #444; padding: 3px 7px; color: #999; letter-spacing: 0.04em;
+}
+.pf-links { display: flex; gap: 10px; }
+.pf-link {
+  font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700;
+  letter-spacing: 0.08em; text-transform: uppercase; text-decoration: none;
+  color: var(--yellow); padding: 7px 14px; border: 1.5px solid var(--yellow);
+  transition: all 0.12s;
+}
+.pf-link:hover { background: var(--yellow); color: var(--ink); }
+.pf-right { display: flex; flex-direction: column; justify-content: space-between; }
+.pf-stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.pf-stat-box {
+  border: 1.5px solid #333; padding: 14px;
+}
+.pf-stat-n {
+  font-family: 'Syne', sans-serif; font-size: 28px; font-weight: 800;
+  letter-spacing: -0.03em; color: var(--yellow); line-height: 1;
+  margin-bottom: 3px;
+}
+.pf-stat-l {
+  font-family: 'JetBrains Mono', monospace; font-size: 8px;
+  color: #777; letter-spacing: 0.08em; text-transform: uppercase;
+}
+.pf-tech {
+  font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #666;
+  line-height: 1.7; margin-top: 12px;
+}
+
+/* Project grid */
+.proj-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 0;
+  border: 2.5px solid var(--ink);
+}
+.proj-card {
+  padding: 24px; border-right: 2px solid var(--ink); border-bottom: 2px solid var(--ink);
+  transition: background 0.12s; position: relative;
+}
+.proj-card:nth-child(even) { border-right: none; }
+.proj-card:nth-last-child(-n+2) { border-bottom: none; }
+.proj-card:hover { background: var(--yellow); }
+.pc-type {
+  font-family: 'JetBrains Mono', monospace; font-size: 8px; font-weight: 700;
+  letter-spacing: 0.15em; text-transform: uppercase; color: var(--red);
+  margin-bottom: 6px;
+}
+.pc-title {
+  font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 700;
+  letter-spacing: -0.01em; margin-bottom: 8px;
+}
+.pc-desc { font-size: 12px; color: #505050; line-height: 1.65; margin-bottom: 12px; }
+.pc-tags { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 12px; }
+.pc-tag {
+  font-family: 'JetBrains Mono', monospace; font-size: 8px; font-weight: 700;
+  border: 1.5px solid var(--ink); padding: 2px 6px; letter-spacing: 0.03em;
+}
+.pc-link {
+  font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 700;
+  letter-spacing: 0.08em; text-transform: uppercase; text-decoration: none;
+  color: var(--blue); display: flex; align-items: center; gap: 4px;
+}
+.pc-wip {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-family: 'JetBrains Mono', monospace; font-size: 8px; font-weight: 700;
+  letter-spacing: 0.08em; text-transform: uppercase; color: #aaa;
+  border: 1.5px dashed #ccc; padding: 3px 8px; margin-bottom: 8px;
+}
+.pc-wip::before { content: ''; width: 5px; height: 5px; border-radius: 50%; background: #aaa; }
+
+/* ── ACTIVITIES ─────────────────────────────────── */
+.activities-body { position: relative; z-index: 1; }
+.act-grid { display: grid; grid-template-columns: 1fr 1fr; }
+.act-card {
+  padding: 26px 32px;
+  border-right: var(--rule-t); border-bottom: var(--rule-t);
+  transition: background 0.12s;
+}
+.act-card:nth-child(even) { border-right: none; }
+.act-card:nth-last-child(-n+2) { border-bottom: none; }
+.act-card:hover { background: rgba(255,224,64,0.15); }
+.ac-title {
+  font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 700;
+  letter-spacing: -0.01em; margin-bottom: 2px;
+}
+.ac-role {
+  font-family: 'JetBrains Mono', monospace; font-size: 10px;
+  color: var(--blue); font-weight: 700; margin-bottom: 3px;
+}
+.ac-date { font-family: 'JetBrains Mono', monospace; font-size: 9px; color: #aaa; margin-bottom: 10px; }
+.ac-desc { font-size: 13px; color: #444; line-height: 1.65; }
+
+/* ── FOOTER ─────────────────────────────────────── */
+footer {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 18px 36px; flex-wrap: wrap; gap: 12px;
+  position: relative; overflow: hidden;
+}
+.foot-links { display: flex; gap: 0; }
+.foot-links a {
+  font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700;
+  letter-spacing: 0.08em; text-transform: uppercase; text-decoration: none;
+  color: var(--ink); padding: 7px 14px; border: 2px solid var(--ink); margin-right: -2px;
+  transition: all 0.12s;
+}
+.foot-links a:hover { background: var(--yellow); }
+.foot-copy {
+  font-family: 'JetBrains Mono', monospace; font-size: 9px; color: #aaa;
+  letter-spacing: 0.06em;
+}
+
+/* ── RESPONSIVE ─────────────────────────────────── */
+@media (max-width: 900px) {
+  .hero { grid-template-columns: 1fr; }
+  .hero-left { border-right: none; border-bottom: var(--rule); padding: 36px 24px 36px; min-height: auto; }
+  .hero-right {}
+  .hero-name { font-size: clamp(48px, 11vw, 72px); }
+  .hero-intro { max-width: 100%; }
+
+  .nav-links { display: none; }
+  .nav-hamburger { display: flex; }
+
+  .exp-row { grid-template-columns: 1fr; }
+  .exp-date { padding: 16px 24px 8px 24px; border-right: none; border-bottom: var(--rule-t); }
+  .exp-main { padding: 12px 24px 20px; }
+  .exp-top { flex-direction: column; gap: 8px; }
+  .exp-tags { justify-content: flex-start; }
+
+  .proj-featured { grid-template-columns: 1fr; gap: 20px; padding: 22px; }
+  .pf-stats-grid { grid-template-columns: repeat(4,1fr); }
+
+  .proj-grid { grid-template-columns: 1fr; border: 2.5px solid var(--ink); }
+  .proj-card { border-right: none; border-bottom: 2px solid var(--ink); }
+  .proj-card:last-child { border-bottom: none; }
+
+  .act-grid { grid-template-columns: 1fr; }
+  .act-card { border-right: none; border-bottom: var(--rule-t); }
+  .act-card:last-child { border-bottom: none; }
+
+  .section-head { padding: 12px 22px; }
+  .projects-body { padding: 24px 22px; }
+
+  footer { padding: 18px 24px; }
+}
+
+@media (max-width: 480px) {
+  .hero-left { padding: 28px 18px; }
+  .hero-name { font-size: clamp(40px, 13vw, 60px); }
+  .hero-ctas { flex-direction: column; }
+  .btn { text-align: center; margin-right: 0; }
+  .btn-fill { margin-right: 0; margin-bottom: -2.5px; }
+  .r-panel { padding: 20px 18px; }
+  .pf-stats-grid { grid-template-columns: 1fr 1fr; }
+  .foot-links { flex-wrap: wrap; }
+}
+</style>
+</head>
+<body>
+
+<!-- ── CUSTOM CURSOR ──────────────────── -->
+<div id="cursor">
+  <div class="c-v"></div>
+  <div class="c-h"></div>
+  <div class="c-sq"></div>
+</div>
+
+<!-- ── NAV ─────────────────────────────── -->
+<nav>
+  <a href="#" class="nav-logo">NG<span class="slash">/</span></a>
+  <div class="nav-links">
+    <a href="#about">About</a>
+    <a href="#experience">Experience</a>
+    <a href="#projects">Projects</a>
+    <a href="#activities">Activities</a>
+    <a href="#">Blog</a>
+    <a href="#">Content</a>
+  </div>
+  <div class="nav-end">
+    <div class="live-badge"><span class="live-dot"></span>Open to roles</div>
+    <a href="#" class="nav-cta">Resume ↗</a>
+    <button class="nav-hamburger" id="hamburgerBtn" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+<div class="mobile-menu" id="mobileMenu">
+  <a href="#about" onclick="closeMobileMenu()">About</a>
+  <a href="#experience" onclick="closeMobileMenu()">Experience</a>
+  <a href="#projects" onclick="closeMobileMenu()">Projects</a>
+  <a href="#activities" onclick="closeMobileMenu()">Activities</a>
+  <a href="#" onclick="closeMobileMenu()">Blog</a>
+  <a href="#" onclick="closeMobileMenu()">Content</a>
+  <a href="#" onclick="closeMobileMenu()" style="background:var(--ink);color:var(--bg);">Resume ↗</a>
+</div>
+
+<!-- ── HERO / ABOUT ──────────────────── -->
+<div class="hero" id="about">
+
+  <!-- Background SVGs — absolute, scroll with page -->
+  <div class="hero-bg">
+    <!-- Circuit board traces — top right -->
+    <svg style="position:absolute;top:30px;right:0;width:320px;height:260px;opacity:0.05;" viewBox="0 0 320 260" fill="none">
+      <path d="M320 30 H220 V90 H140 V170 H60 V230" stroke="#0c0c0c" stroke-width="1.5"/>
+      <path d="M320 90 H260 V150 H180 V210" stroke="#0c0c0c" stroke-width="1.5"/>
+      <circle cx="220" cy="30" r="4" fill="#0c0c0c"/>
+      <circle cx="220" cy="90" r="4" fill="#0c0c0c"/>
+      <circle cx="140" cy="90" r="4" fill="#0c0c0c"/>
+      <circle cx="140" cy="170" r="4" fill="#0c0c0c"/>
+      <circle cx="60"  cy="170" r="4" fill="#0c0c0c"/>
+      <circle cx="260" cy="90"  r="4" fill="#0c0c0c"/>
+      <circle cx="260" cy="150" r="4" fill="#0c0c0c"/>
+      <circle cx="180" cy="150" r="4" fill="#0c0c0c"/>
+      <rect x="208" y="18" width="24" height="24" rx="2" stroke="#0c0c0c" stroke-width="1.5" fill="none"/>
+      <rect x="248" y="78" width="24" height="24" rx="2" stroke="#0c0c0c" stroke-width="1.5" fill="none"/>
+      <rect x="128" y="78" width="24" height="24" rx="2" stroke="#0c0c0c" stroke-width="1.5" fill="none"/>
+    </svg>
+    <!-- Robot arm — bottom left -->
+    <svg style="position:absolute;bottom:20px;left:16px;width:170px;height:200px;opacity:0.05;" viewBox="0 0 170 200" fill="none">
+      <rect x="55" y="174" width="56" height="16" rx="2" stroke="#0c0c0c" stroke-width="2" fill="none"/>
+      <rect x="70" y="163" width="26" height="13" rx="1" stroke="#0c0c0c" stroke-width="2" fill="none"/>
+      <line x1="83" y1="163" x2="83" y2="118" stroke="#0c0c0c" stroke-width="2.5"/>
+      <circle cx="83" cy="116" r="7" stroke="#0c0c0c" stroke-width="2" fill="none"/>
+      <line x1="83" y1="109" x2="118" y2="72" stroke="#0c0c0c" stroke-width="2.5"/>
+      <circle cx="119" cy="70" r="6" stroke="#0c0c0c" stroke-width="2" fill="none"/>
+      <line x1="124" y1="66" x2="144" y2="44" stroke="#0c0c0c" stroke-width="2.5"/>
+      <circle cx="145" cy="42" r="5" stroke="#0c0c0c" stroke-width="2" fill="none"/>
+      <line x1="149" y1="39" x2="159" y2="29" stroke="#0c0c0c" stroke-width="2"/>
+      <line x1="149" y1="39" x2="139" y2="26" stroke="#0c0c0c" stroke-width="2"/>
+      <line x1="159" y1="29" x2="163" y2="16" stroke="#0c0c0c" stroke-width="1.5"/>
+      <line x1="139" y1="26" x2="135" y2="13" stroke="#0c0c0c" stroke-width="1.5"/>
+    </svg>
+    <!-- Code brackets — lower right -->
+    <svg style="position:absolute;bottom:60px;right:380px;width:50px;height:70px;opacity:0.05;" viewBox="0 0 50 70" fill="none">
+      <path d="M30 5 L15 20 L15 50 L30 65" stroke="#0c0c0c" stroke-width="3" stroke-linecap="round"/>
+      <path d="M20 5 L35 20 L35 50 L20 65" stroke="#0c0c0c" stroke-width="3" stroke-linecap="round"/>
+    </svg>
+    <!-- Coordinate axes + scatter — mid left -->
+    <svg style="position:absolute;top:42%;left:24px;width:90px;height:90px;opacity:0.055;" viewBox="0 0 90 90" fill="none">
+      <line x1="10" y1="78" x2="82" y2="78" stroke="#0c0c0c" stroke-width="1.8"/>
+      <line x1="10" y1="78" x2="10" y2="6"  stroke="#0c0c0c" stroke-width="1.8"/>
+      <polygon points="82,78 75,74 75,82" fill="#0c0c0c"/>
+      <polygon points="10,6 6,13 14,13" fill="#0c0c0c"/>
+      <circle cx="28" cy="64" r="2.5" fill="#0c0c0c"/>
+      <circle cx="42" cy="52" r="2.5" fill="#0c0c0c"/>
+      <circle cx="56" cy="36" r="2.5" fill="#0c0c0c"/>
+      <circle cx="70" cy="22" r="2.5" fill="#0c0c0c"/>
+      <line x1="28" y1="64" x2="42" y2="52" stroke="#0c0c0c" stroke-width="1" stroke-dasharray="2 2"/>
+      <line x1="42" y1="52" x2="56" y2="36" stroke="#0c0c0c" stroke-width="1" stroke-dasharray="2 2"/>
+      <line x1="56" y1="36" x2="70" y2="22" stroke="#0c0c0c" stroke-width="1" stroke-dasharray="2 2"/>
+    </svg>
+  </div>
+
+  <!-- LEFT -->
+  <div class="hero-left">
+    <div>
+      <div class="kicker"><span class="dot"></span>CS @ UMD · Class of 2027</div>
+      <div class="hero-name">
+        <span class="first">Nidhin</span>
+        <span class="last">Gangisetty.</span>
+      </div>
+      <p class="hero-intro">
+        I build systems that work in the real world — autonomous robots, AI pipelines,
+        and full-stack products used by thousands of real people. CS student at the
+        <strong>University of Maryland</strong>, minoring in Robotics & Entrepreneurship.
+        Researching human-guided robot manipulation at <strong>RAAS Lab</strong>.
+        Co-founder of <strong>Project Lift</strong>, a student consulting club
+        delivering $10k+ in value to small businesses.
+      </p>
+    </div>
+    <div class="hero-ctas">
+      <a href="#projects" class="btn btn-fill">View My Work</a>
+      <a href="#" class="btn btn-outline">Download Resume</a>
+    </div>
+  </div>
+
+  <!-- RIGHT -->
+  <div class="hero-right">
+    <!-- Vision — top, most prominent -->
+    <div class="r-panel">
+      <div class="panel-eyebrow">// Career Vision</div>
+      <div class="vision-headline">
+        Closing the loop between<br>perception and physical action.
+      </div>
+      <p class="vision-body">
+        I want to work at the frontier of <strong>robotics and embodied AI</strong> —
+        building software where the stakes are real and the code has to
+        survive contact with the physical world. Whether that's autonomous
+        manipulation, perception-to-action systems, or the infrastructure
+        that makes intelligent robots reliable at scale —
+        <strong>that's where I want to be.</strong>
+      </p>
+      <div class="vision-callout">
+        <span class="vc-label">→</span>
+        Seeking SWE / Robotics / AI roles where software meets the real world. Open to full-time & internships 2026.
+      </div>
+    </div>
+
+    <!-- Quick facts -->
+    <div class="r-panel">
+      <div class="panel-eyebrow">// At a Glance</div>
+      <div class="facts-list">
+        <div class="fact-row"><span class="fk">School</span><span class="fv">UMD College Park</span></div>
+        <div class="fact-row"><span class="fk">Lab</span><span class="fv">RAAS (Robotics & Autonomous Systems)</span></div>
+        <div class="fact-row"><span class="fk">Kato Users</span><span class="fv hot">11,000+</span></div>
+        <div class="fact-row"><span class="fk">Project Lift</span><span class="fv hot">$10k+ delivered</span></div>
+        <div class="fact-row"><span class="fk">Students Mentored</span><span class="fv">35+</span></div>
+        <div class="fact-row"><span class="fk">Email</span><span class="fv" style="font-size:9px;">nidhingangisetty@gmail.com</span></div>
+      </div>
+    </div>
+
+    <!-- Stack -->
+    <div class="r-panel">
+      <div class="panel-eyebrow">// Core Stack</div>
+      <div class="stack-wrap">
+        <span class="stag on">Python</span>
+        <span class="stag on">ROS 2</span>
+        <span class="stag on">React</span>
+        <span class="stag on">TypeScript</span>
+        <span class="stag on">PyTorch</span>
+        <span class="stag">Node.js</span>
+        <span class="stag">AWS</span>
+        <span class="stag">OpenCV</span>
+        <span class="stag">FastAPI</span>
+        <span class="stag">LlamaIndex</span>
+        <span class="stag">PostgreSQL</span>
+        <span class="stag">Supabase</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── EXPERIENCE ─────────────────────── -->
+<div class="section" id="experience">
+  <!-- Section bg decoration -->
+  <div class="section-bg">
+    <svg style="position:absolute;top:20px;right:20px;width:120px;height:80px;opacity:0.04;" viewBox="0 0 120 80" fill="none">
+      <text font-family="JetBrains Mono,monospace" font-size="10" fill="#0c0c0c">
+        <tspan x="0" dy="0">01101001</tspan>
+        <tspan x="8" dy="14">10010110</tspan>
+        <tspan x="0" dy="14">11001010</tspan>
+        <tspan x="4" dy="14">00110101</tspan>
+        <tspan x="0" dy="14">10101001</tspan>
+      </text>
+    </svg>
+  </div>
+  <div class="section-head">
+    <div class="sh-left"><span class="sh-num">01</span><span class="sh-title">Experience</span></div>
+    <div class="sh-right">3 roles</div>
+  </div>
+  <div class="exp-body">
+
+    <div class="exp-row">
+      <div class="exp-date">OCT 2025<br><span class="now">PRESENT</span><br><br>College Park<br>MD</div>
+      <div class="exp-main">
+        <div class="exp-top">
+          <div class="exp-titles">
+            <div class="exp-role">Undergraduate Researcher</div>
+            <div class="exp-org">RAAS Lab · University of Maryland</div>
+          </div>
+          <div class="exp-tags">
+            <span class="etag">ROS 2</span><span class="etag">Python</span>
+            <span class="etag">MuJoCo</span><span class="etag">CUDA</span>
+          </div>
+        </div>
+        <ul class="exp-bullets">
+          <li>Adapted the <strong>ITPS framework</strong> (MIT CSAIL) to a UR3 robotic arm block-stacking task in MuJoCo — enabling human-guided trajectory steering at inference time without retraining</li>
+          <li>Implemented and validated all 4 ITPS steering methods in 2D simulation, extending support to CPU and CUDA execution</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="exp-row">
+      <div class="exp-date">SEP 2025<br>DEC 2025<br><br>Ellicott City<br>MD</div>
+      <div class="exp-main">
+        <div class="exp-top">
+          <div class="exp-titles">
+            <div class="exp-role">Software Engineering Intern</div>
+            <div class="exp-org">Xprotege Institute of Technology</div>
+          </div>
+          <div class="exp-tags">
+            <span class="etag">LLM</span><span class="etag">RAG</span>
+            <span class="etag">Python</span><span class="etag">GPT-4</span>
+          </div>
+        </div>
+        <ul class="exp-bullets">
+          <li>Built a production-grade <strong>RAG system</strong> (LlamaIndex + Qdrant + GPT-4) for automated RFP analysis — <strong>75% faster</strong> evaluation, <strong>92%</strong> semantic retrieval accuracy</li>
+          <li>Architected prompt-engineering framework integrating proprietary scoring logic — boosted bid/no-bid classification accuracy by <strong>40%</strong></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="exp-row" style="border-bottom:none;">
+      <div class="exp-date">MAY 2025<br>SEP 2025<br><br>College Park<br>MD</div>
+      <div class="exp-main">
+        <div class="exp-top">
+          <div class="exp-titles">
+            <div class="exp-role">Software Engineering Intern</div>
+            <div class="exp-org">Craving Hour Halal</div>
+          </div>
+          <div class="exp-tags">
+            <span class="etag">React</span><span class="etag">Node.js</span>
+            <span class="etag">PostgreSQL</span><span class="etag">AWS</span>
+          </div>
+        </div>
+        <ul class="exp-bullets">
+          <li>Architected full-stack platform (React · Node.js · PostgreSQL · AWS) from scratch — <strong>43% efficiency gain</strong> across 150+ daily customers</li>
+          <li>Built REST API + S3 media pipeline + admin CRUD dashboard, eliminating developer dependency for content updates</li>
+        </ul>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ── PROJECTS ────────────────────────── -->
+<div class="section" id="projects">
+  <div class="section-bg">
+    <!-- Gear in bg of projects section -->
+    <svg style="position:absolute;top:50%;right:30px;transform:translateY(-50%);width:100px;height:100px;opacity:0.04;" viewBox="0 0 100 100" fill="none">
+      <circle cx="50" cy="50" r="22" stroke="#0c0c0c" stroke-width="2" fill="none"/>
+      <circle cx="50" cy="50" r="10" stroke="#0c0c0c" stroke-width="2" fill="none"/>
+      <rect x="46" y="4" width="8" height="16" rx="3" fill="#0c0c0c" opacity="0.6"/>
+      <rect x="46" y="80" width="8" height="16" rx="3" fill="#0c0c0c" opacity="0.6"/>
+      <rect x="4" y="46" width="16" height="8" rx="3" fill="#0c0c0c" opacity="0.6"/>
+      <rect x="80" y="46" width="16" height="8" rx="3" fill="#0c0c0c" opacity="0.6"/>
+      <rect x="16" y="16" width="8" height="16" rx="3" fill="#0c0c0c" opacity="0.6" transform="rotate(45 20 24)"/>
+      <rect x="76" y="16" width="8" height="16" rx="3" fill="#0c0c0c" opacity="0.6" transform="rotate(-45 80 24)"/>
+      <rect x="16" y="68" width="8" height="16" rx="3" fill="#0c0c0c" opacity="0.6" transform="rotate(-45 20 76)"/>
+      <rect x="76" y="68" width="8" height="16" rx="3" fill="#0c0c0c" opacity="0.6" transform="rotate(45 80 76)"/>
+    </svg>
+  </div>
+  <div class="section-head">
+    <div class="sh-left"><span class="sh-num">02</span><span class="sh-title">Projects</span></div>
+    <div class="sh-right">4 projects</div>
+  </div>
+
+  <div class="projects-body">
+    <!-- Number trail -->
+    <div class="proj-trail">
+      <div class="trail-node">
+        <div class="trail-num featured">01</div>
+        <div class="trail-label">Kato</div>
+        <div class="trail-line"></div>
+      </div>
+      <div class="trail-node">
+        <div class="trail-num">02</div>
+        <div class="trail-label">UR3e Arm</div>
+        <div class="trail-line"></div>
+      </div>
+      <div class="trail-node">
+        <div class="trail-num">03</div>
+        <div class="trail-label">RAG System</div>
+        <div class="trail-line"></div>
+      </div>
+      <div class="trail-node">
+        <div class="trail-num" style="border-style:dashed;color:#aaa;">04</div>
+        <div class="trail-label" style="color:#aaa;">ITPS Research</div>
+        <div class="trail-line last"></div>
+      </div>
+    </div>
+
+    <!-- Featured -->
+    <div class="proj-featured">
+      <div class="pf-left">
+        <div class="pf-type">Featured · Web App</div>
+        <div class="pf-title">Kato Apartment Finder</div>
+        <div class="pf-desc">Off-campus housing platform scraping real-time pricing and amenities from 18 apartments. Gives UMD students transparent, data-driven housing decisions through a unified map-based UI — built solo, shipped to production.</div>
+        <div class="pf-tags">
+          <span class="pf-tag">Next.js</span><span class="pf-tag">Supabase</span>
+          <span class="pf-tag">Mapbox</span><span class="pf-tag">PostgreSQL</span>
+          <span class="pf-tag">Firecrawl</span><span class="pf-tag">Vercel</span>
+        </div>
+        <div class="pf-links">
+          <a href="#" class="pf-link">Live Site ↗</a>
+          <a href="#" class="pf-link">GitHub ↗</a>
+        </div>
+      </div>
+      <div class="pf-right">
+        <div class="pf-stats-grid">
+          <div class="pf-stat-box">
+            <div class="pf-stat-n">11k+</div>
+            <div class="pf-stat-l">Total Visits</div>
+          </div>
+          <div class="pf-stat-box">
+            <div class="pf-stat-n">18</div>
+            <div class="pf-stat-l">Apartments</div>
+          </div>
+        </div>
+        <div class="pf-tech">Stack: Next.js · Vercel · Supabase · Mapbox · PostgreSQL · Firecrawl · Git</div>
+      </div>
+    </div>
+
+    <!-- Grid -->
+    <div class="proj-grid">
+      <div class="proj-card">
+        <div class="pc-type">Robotics · Computer Vision</div>
+        <div class="pc-title">UR3e Robotic Arm Manipulation</div>
+        <div class="pc-desc">ROS 2 vision-guided control for a UR3e arm using pose estimation and inverse kinematics. 98% stacking accuracy — demonstrates real-time manipulation for industrial automation.</div>
+        <div class="pc-tags">
+          <span class="pc-tag">Python</span><span class="pc-tag">ROS 2</span>
+          <span class="pc-tag">OpenCV</span><span class="pc-tag">Ubuntu</span>
+        </div>
+        <a href="#" class="pc-link">GitHub ↗</a>
+      </div>
+
+      <div class="proj-card">
+        <div class="pc-type">AI · NLP Pipeline</div>
+        <div class="pc-title">RAG RFP Analysis System</div>
+        <div class="pc-desc">Production RAG pipeline (LlamaIndex + Qdrant + GPT-4) for automated RFP analysis. 75% faster evaluation, 92% retrieval accuracy across 200+ page technical documents.</div>
+        <div class="pc-tags">
+          <span class="pc-tag">LlamaIndex</span><span class="pc-tag">GPT-4</span>
+          <span class="pc-tag">Qdrant</span><span class="pc-tag">Python</span>
+        </div>
+      </div>
+
+      <div class="proj-card" style="grid-column: 1 / -1; border-bottom: none;">
+        <div class="pc-wip">In Progress</div>
+        <div class="pc-type">Research · Robotics</div>
+        <div class="pc-title">ITPS on UR3 — RAAS Lab</div>
+        <div class="pc-desc">Adapting MIT CSAIL's ITPS (Inference-Time Policy Steering) framework to a UR3 robotic arm block-stacking task in MuJoCo. Implementing all 4 steering methods (Post-Hoc, Diffusion, Sampling, Initialization) with CPU & CUDA execution.</div>
+        <div class="pc-tags">
+          <span class="pc-tag">MuJoCo</span><span class="pc-tag">Python</span>
+          <span class="pc-tag">CUDA</span><span class="pc-tag">ROS 2</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── ACTIVITIES ─────────────────────── -->
+<div class="section" id="activities">
+  <div class="section-bg">
+    <svg style="position:absolute;bottom:20px;right:20px;width:80px;height:80px;opacity:0.04;" viewBox="0 0 80 80" fill="none">
+      <circle cx="40" cy="16" r="6" stroke="#0c0c0c" stroke-width="1.5" fill="none"/>
+      <circle cx="18" cy="56" r="6" stroke="#0c0c0c" stroke-width="1.5" fill="none"/>
+      <circle cx="62" cy="56" r="6" stroke="#0c0c0c" stroke-width="1.5" fill="none"/>
+      <line x1="37" y1="21" x2="21" y2="51" stroke="#0c0c0c" stroke-width="1.5"/>
+      <line x1="43" y1="21" x2="59" y2="51" stroke="#0c0c0c" stroke-width="1.5"/>
+      <line x1="24" y1="56" x2="56" y2="56" stroke="#0c0c0c" stroke-width="1.5"/>
+    </svg>
+  </div>
+  <div class="section-head">
+    <div class="sh-left"><span class="sh-num">03</span><span class="sh-title">Leadership & Activities</span></div>
+    <div class="sh-right">2 roles</div>
+  </div>
+  <div class="activities-body">
+    <div class="act-grid">
+      <div class="act-card">
+        <div class="ac-title">Project Lift</div>
+        <div class="ac-role">Co-Founder · President</div>
+        <div class="ac-date">May 2025 – Present</div>
+        <div class="ac-desc">Co-founded a student tech consulting club at UMD. Delivered customized tools across 5+ small business clients, generating $10K+ in digital transformation value. Mentored 35+ interdisciplinary members in full-stack development and end-to-end client management.</div>
+      </div>
+      <div class="act-card">
+        <div class="ac-title">Alpha Kappa Psi</div>
+        <div class="ac-role">VP of Professional Development</div>
+        <div class="ac-date">Apr 2025 – Present</div>
+        <div class="ac-desc">Spearheaded professional development and corporate outreach for 90+ members. Built relationships with Fortune 500 companies to drive recruitment pipelines and career opportunities for the chapter.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── FOOTER ─────────────────────────── -->
+<footer>
+  <div class="foot-links">
+    <a href="https://github.com/ngangi0195" target="_blank">GitHub</a>
+    <a href="https://linkedin.com/in/nidhingangisetty" target="_blank">LinkedIn</a>
+    <a href="mailto:nidhingangisetty@gmail.com">Email</a>
+    <a href="#">Blog</a>
+  </div>
+  <div class="foot-copy">© 2025 Nidhin Gangisetty</div>
+</footer>
+
+<script>
+/* ── CUSTOM CURSOR ── */
+const cursor = document.getElementById('cursor');
+let mx = -100, my = -100;
+document.addEventListener('mousemove', e => {
+  mx = e.clientX; my = e.clientY;
+  cursor.style.left = mx + 'px';
+  cursor.style.top  = my + 'px';
+});
+document.addEventListener('mouseleave', () => { cursor.style.opacity = '0'; });
+document.addEventListener('mouseenter', () => { cursor.style.opacity = '1'; });
+
+const hovers  = document.querySelectorAll('.exp-row, .proj-card, .act-card, .stag, .etag, .pc-tag, .pf-tag');
+const links   = document.querySelectorAll('a, button, .nav-cta, .btn');
+
+hovers.forEach(el => {
+  el.addEventListener('mouseenter', () => document.body.classList.add('cursor-hover'));
+  el.addEventListener('mouseleave', () => document.body.classList.remove('cursor-hover'));
+});
+links.forEach(el => {
+  el.addEventListener('mouseenter', () => { document.body.classList.add('cursor-link'); document.body.classList.remove('cursor-hover'); });
+  el.addEventListener('mouseleave', () => document.body.classList.remove('cursor-link'));
+});
+
+/* ── MOBILE MENU ── */
+const hamburgerBtn  = document.getElementById('hamburgerBtn');
+const mobileMenu    = document.getElementById('mobileMenu');
+hamburgerBtn.addEventListener('click', () => mobileMenu.classList.toggle('open'));
+function closeMobileMenu() { mobileMenu.classList.remove('open'); }
+
+/* ── ACTIVE NAV ── */
+const sections = document.querySelectorAll('[id]');
+const navLinks = document.querySelectorAll('.nav-links a');
+const io = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      navLinks.forEach(a => {
+        a.classList.toggle('active', a.getAttribute('href') === '#' + e.target.id);
+      });
+    }
+  });
+}, { threshold: 0.35 });
+sections.forEach(s => io.observe(s));
+</script>
+</body>
+</html>

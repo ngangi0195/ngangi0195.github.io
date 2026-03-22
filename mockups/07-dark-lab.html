@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>07 — Dark Lab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #080b10;
+    --surface: #0e1318;
+    --surface2: #131920;
+    --border: #1a2030;
+    --border2: #252f40;
+    --teal: #00d4aa;
+    --blue: #2979ff;
+    --red: #ff3d5a;
+    --text: #c8d8f0;
+    --muted: #4a5a75;
+    --bright: #e8f2ff;
+  }
+  body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; min-height: 100vh; }
+
+  /* Scan line effect */
+  body::after {
+    content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 999;
+    background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.03) 2px, rgba(0,0,0,0.03) 4px);
+  }
+
+  /* NAV */
+  nav {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 48px; height: 52px;
+    background: var(--surface); border-bottom: 1px solid var(--border);
+    position: sticky; top: 0; z-index: 100;
+  }
+  .logo-sys { display: flex; align-items: center; gap: 12px; }
+  .sys-indicator { display: flex; gap: 4px; align-items: center; }
+  .sys-dot { width: 7px; height: 7px; border-radius: 50%; }
+  .sys-dot.on { background: var(--teal); box-shadow: 0 0 6px var(--teal); animation: blink 3s step-end infinite; }
+  .sys-dot.warn { background: #f5a623; }
+  .sys-dot.off { background: var(--border2); }
+  @keyframes blink { 50% { opacity: 0.3; } }
+  .logo-text { font-family: 'JetBrains Mono', monospace; font-size: 13px; color: var(--teal); font-weight: 700; letter-spacing: 0.05em; }
+  .nav-tabs { display: flex; height: 100%; }
+  .nav-tab {
+    display: flex; align-items: center; padding: 0 20px; height: 100%;
+    font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 500;
+    color: var(--muted); text-decoration: none; letter-spacing: 0.05em;
+    border-left: 1px solid var(--border); transition: all 0.2s;
+  }
+  .nav-tab:hover { color: var(--teal); background: rgba(0,212,170,0.04); }
+  .nav-tab.active { color: var(--teal); border-bottom: 2px solid var(--teal); }
+  .nav-status { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--muted); display: flex; align-items: center; gap: 8px; }
+
+  /* Layout */
+  .layout { display: grid; grid-template-columns: 300px 1fr; min-height: calc(100vh - 52px); }
+
+  /* Sidebar */
+  .sidebar { background: var(--surface); border-right: 1px solid var(--border); padding: 32px 28px; display: flex; flex-direction: column; gap: 32px; }
+  .sidebar-section { }
+  .ss-label { font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--muted); letter-spacing: 0.2em; text-transform: uppercase; margin-bottom: 14px; border-bottom: 1px solid var(--border); padding-bottom: 8px; }
+
+  /* Profile */
+  .profile-avatar { width: 72px; height: 72px; background: linear-gradient(135deg, #1a2540, #0e3050); border: 1px solid var(--border2); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: 800; color: var(--teal); margin-bottom: 12px; font-family: 'JetBrains Mono', monospace; }
+  .profile-name { font-size: 16px; font-weight: 700; color: var(--bright); margin-bottom: 2px; letter-spacing: -0.01em; }
+  .profile-title { font-size: 11px; color: var(--muted); font-family: 'JetBrains Mono', monospace; line-height: 1.5; }
+
+  /* Metrics */
+  .metric-row { display: flex; justify-content: space-between; align-items: baseline; padding: 8px 0; border-bottom: 1px solid rgba(26,32,48,0.8); }
+  .metric-row:last-child { border-bottom: none; }
+  .metric-key { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--muted); }
+  .metric-val { font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 700; color: var(--teal); }
+
+  /* Status */
+  .status-item { display: flex; align-items: center; gap: 8px; padding: 6px 0; }
+  .s-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--teal); box-shadow: 0 0 5px var(--teal); }
+  .s-text { font-size: 12px; color: var(--text); }
+
+  /* Skills list */
+  .skill-item { display: flex; justify-content: space-between; align-items: center; padding: 5px 0; border-bottom: 1px solid rgba(26,32,48,0.6); }
+  .skill-item:last-child { border-bottom: none; }
+  .sk-name { font-size: 11px; font-family: 'JetBrains Mono', monospace; color: var(--text); }
+  .sk-bar { height: 3px; width: 80px; background: var(--border2); border-radius: 2px; overflow: hidden; }
+  .sk-fill { height: 100%; background: linear-gradient(90deg, var(--teal), var(--blue)); border-radius: 2px; }
+
+  /* Main */
+  .main { padding: 40px 52px; }
+  .main-header { margin-bottom: 48px; }
+  .mh-tag { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--muted); letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 16px; }
+  h1 { font-size: clamp(40px, 4vw, 60px); font-weight: 800; letter-spacing: -0.03em; line-height: 1.05; color: var(--bright); margin-bottom: 20px; }
+  h1 .teal { color: var(--teal); }
+  .hero-bio { font-size: 15px; color: var(--muted); line-height: 1.75; max-width: 560px; margin-bottom: 32px; }
+  .hero-bio strong { color: var(--text); font-weight: 500; }
+  .cta-row { display: flex; gap: 10px; }
+  .btn-lab { padding: 10px 22px; font-size: 12px; font-weight: 600; font-family: 'JetBrains Mono', monospace; border-radius: 6px; text-decoration: none; transition: all 0.2s; }
+  .btn-lab-primary { background: var(--teal); color: #000; }
+  .btn-lab-primary:hover { box-shadow: 0 0 20px rgba(0,212,170,0.4); }
+  .btn-lab-outline { border: 1px solid var(--border2); color: var(--text); }
+  .btn-lab-outline:hover { border-color: var(--teal); color: var(--teal); }
+
+  /* Panels */
+  .panels { display: grid; grid-template-columns: 1fr; gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+  .panel-header { background: var(--surface2); padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); }
+  .ph-title { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--teal); letter-spacing: 0.08em; }
+  .ph-meta { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--muted); }
+
+  .exp-panel { background: var(--surface); padding: 20px; display: grid; grid-template-columns: 1fr auto; gap: 20px; border-bottom: 1px solid var(--border); }
+  .ep-role { font-size: 14px; font-weight: 600; color: var(--bright); margin-bottom: 2px; }
+  .ep-org { font-size: 12px; color: var(--teal); font-family: 'JetBrains Mono', monospace; margin-bottom: 10px; }
+  .ep-bullets { list-style: none; }
+  .ep-bullets li { font-size: 12px; color: var(--muted); padding: 3px 0 3px 14px; position: relative; line-height: 1.6; }
+  .ep-bullets li::before { content: '>'; position: absolute; left: 0; color: var(--teal); font-family: 'JetBrains Mono', monospace; }
+  .ep-right { text-align: right; }
+  .ep-date { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--muted); margin-bottom: 8px; }
+  .ep-tags { display: flex; flex-direction: column; gap: 4px; align-items: flex-end; }
+  .ep-tag { background: rgba(0,212,170,0.06); border: 1px solid rgba(0,212,170,0.15); border-radius: 4px; padding: 2px 8px; font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--teal); letter-spacing: 0.05em; }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo-sys">
+    <div class="sys-indicator">
+      <div class="sys-dot on"></div>
+      <div class="sys-dot warn"></div>
+      <div class="sys-dot off"></div>
+    </div>
+    <div class="logo-text">NG.SYS v1.0</div>
+  </div>
+  <div class="nav-tabs">
+    <a href="#" class="nav-tab active">INDEX</a>
+    <a href="#" class="nav-tab">EXPERIENCE</a>
+    <a href="#" class="nav-tab">PROJECTS</a>
+    <a href="#" class="nav-tab">BLOG</a>
+    <a href="#" class="nav-tab">CONTENT</a>
+  </div>
+  <div class="nav-status">
+    <span style="color: var(--teal);">●</span> SYSTEM ONLINE
+  </div>
+</nav>
+
+<div class="layout">
+  <div class="sidebar">
+    <div class="sidebar-section">
+      <div class="ss-label">Operator</div>
+      <div class="profile-avatar">NG</div>
+      <div class="profile-name">Nidhin Gangisetty</div>
+      <div class="profile-title">CS @ UMD · Class of 2027<br>Robotics · Entrepreneurship Minor<br>Honors College</div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="ss-label">System Metrics</div>
+      <div class="metric-row"><span class="metric-key">GPA</span><span class="metric-val">3.756</span></div>
+      <div class="metric-row"><span class="metric-key">Kato Users</span><span class="metric-val">11,000+</span></div>
+      <div class="metric-row"><span class="metric-key">Project Lift Value</span><span class="metric-val">$10k+</span></div>
+      <div class="metric-row"><span class="metric-key">Members Mentored</span><span class="metric-val">35+</span></div>
+      <div class="metric-row"><span class="metric-key">RFP Eval Speedup</span><span class="metric-val">75%</span></div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="ss-label">Status</div>
+      <div class="status-item"><div class="s-dot"></div><span class="s-text">Researcher — RAAS Lab</span></div>
+      <div class="status-item"><div class="s-dot" style="background:#f5a623;box-shadow:0 0 5px #f5a623;"></div><span class="s-text">Open to Internships 2026</span></div>
+      <div class="status-item"><div class="s-dot"></div><span class="s-text">Co-founder — Project Lift</span></div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="ss-label">Core Skills</div>
+      <div class="skill-item"><span class="sk-name">Python</span><div class="sk-bar"><div class="sk-fill" style="width:92%"></div></div></div>
+      <div class="skill-item"><span class="sk-name">ROS 2</span><div class="sk-bar"><div class="sk-fill" style="width:85%"></div></div></div>
+      <div class="skill-item"><span class="sk-name">TypeScript</span><div class="sk-bar"><div class="sk-fill" style="width:82%"></div></div></div>
+      <div class="skill-item"><span class="sk-name">React</span><div class="sk-bar"><div class="sk-fill" style="width:88%"></div></div></div>
+      <div class="skill-item"><span class="sk-name">PyTorch</span><div class="sk-bar"><div class="sk-fill" style="width:75%"></div></div></div>
+      <div class="skill-item"><span class="sk-name">OpenCV</span><div class="sk-bar"><div class="sk-fill" style="width:80%"></div></div></div>
+    </div>
+  </div>
+
+  <div class="main">
+    <div class="main-header">
+      <div class="mh-tag">// PROFILE LOADED</div>
+      <h1>Building<br><span class="teal">Intelligent</span><br>Systems.</h1>
+      <p class="hero-bio">
+        CS student at <strong>University of Maryland</strong>, minoring in Robotics & Entrepreneurship.
+        Currently researching human-guided robot manipulation at <strong>RAAS Lab</strong>.
+        Building full-stack products and autonomous systems. Open to <strong>SWE & Robotics internships 2026</strong>.
+      </p>
+      <div class="cta-row">
+        <a href="#" class="btn-lab btn-lab-primary">./view_projects</a>
+        <a href="#" class="btn-lab btn-lab-outline">./download_resume</a>
+      </div>
+    </div>
+
+    <div style="margin-bottom: 12px; font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--muted); letter-spacing: 0.15em;">EXPERIENCE LOG</div>
+    <div class="panels">
+      <div>
+        <div class="panel-header">
+          <span class="ph-title">RAAS_LAB · UMD</span>
+          <span class="ph-meta">OCT 2025 – PRESENT</span>
+        </div>
+        <div class="exp-panel">
+          <div>
+            <div class="ep-role">Undergraduate Researcher</div>
+            <div class="ep-org">Robotics Algorithms & Autonomous Systems Lab</div>
+            <ul class="ep-bullets">
+              <li>Adapted ITPS framework (MIT CSAIL) to UR3 robotic arm block-stacking in MuJoCo</li>
+              <li>Implemented all 4 ITPS steering methods in 2D sim with CPU & CUDA support</li>
+            </ul>
+          </div>
+          <div class="ep-right">
+            <div class="ep-tags">
+              <span class="ep-tag">ROS 2</span><span class="ep-tag">Python</span><span class="ep-tag">MuJoCo</span><span class="ep-tag">CUDA</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="panel-header">
+          <span class="ph-title">XPROTEGE_INSTITUTE</span>
+          <span class="ph-meta">SEP – DEC 2025</span>
+        </div>
+        <div class="exp-panel">
+          <div>
+            <div class="ep-role">Software Engineering Intern</div>
+            <div class="ep-org">Xprotege Institute of Technology</div>
+            <ul class="ep-bullets">
+              <li>Production RAG system · LlamaIndex + Qdrant + GPT-4 · 75% faster RFP eval</li>
+              <li>Prompt-engineering framework · 40% better bid classification accuracy</li>
+            </ul>
+          </div>
+          <div class="ep-right">
+            <div class="ep-tags">
+              <span class="ep-tag">LLM</span><span class="ep-tag">RAG</span><span class="ep-tag">Python</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="panel-header">
+          <span class="ph-title">CRAVING_HOUR_HALAL</span>
+          <span class="ph-meta">MAY – SEP 2025</span>
+        </div>
+        <div class="exp-panel" style="border-bottom:none;">
+          <div>
+            <div class="ep-role">Software Engineering Intern</div>
+            <div class="ep-org">Craving Hour Halal</div>
+            <ul class="ep-bullets">
+              <li>Full-stack AWS platform · React + Node.js + PostgreSQL · 43% efficiency gain</li>
+              <li>REST API + S3 media pipeline · 150+ daily customers</li>
+            </ul>
+          </div>
+          <div class="ep-right">
+            <div class="ep-tags">
+              <span class="ep-tag">React</span><span class="ep-tag">AWS</span><span class="ep-tag">Node.js</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,198 @@
+---
+title: "The Missing ROS2 Navigation Guide"
+date: "2024-02-20"
+excerpt: "Everything the Nav2 docs don't tell you: costmap tuning, DWB planner parameters, lifecycle management, and diagnosing the most common navigation failures."
+tags: ["ROS2", "Navigation", "Nav2", "Systems"]
+---
+
+Nav2 is powerful. The documentation is... not always helpful. After spending six months debugging navigation failures, mis-tuned cost maps, and lifecycle deadlocks, I wrote down everything I wish I'd known from day one.
+
+This guide assumes you have Nav2 installed and a URDF/tf tree set up. We're going deep on the parts that actually trip people up.
+
+<Callout type="info" title="ROS2 Version">
+This guide targets **ROS2 Humble**. Most content applies to Iron and Jazzy, but parameter names may differ slightly.
+</Callout>
+
+## The Lifecycle Problem Nobody Warns You About
+
+Nav2 uses managed lifecycle nodes. If you've ever run `ros2 launch nav2_bringup navigation_launch.py` and watched it hang or crash silently, you've hit this.
+
+The lifecycle sequence is: `unconfigured → configured → active`
+
+If any node fails during `configure`, the whole stack often silently stays in `configured` without activating. Your robot won't move and no error is printed.
+
+**Diagnosis:**
+
+```bash title="Check lifecycle states"
+ros2 lifecycle list /bt_navigator
+ros2 lifecycle list /controller_server
+ros2 lifecycle list /planner_server
+```
+
+All nodes should show `active`. If any show `inactive` or `configured`, check that node's logs specifically:
+
+```bash
+ros2 run rqt_console rqt_console
+# Filter by node name, look for ERROR/FATAL
+```
+
+## Costmap Tuning: The Practical Guide
+
+### Inflation Radius
+
+The inflation radius is the single most impactful parameter. Set it too small and the robot clips walls. Too large and it can't navigate narrow corridors.
+
+```yaml title="nav2_params.yaml"
+local_costmap:
+  local_costmap:
+    ros__parameters:
+      inflation_layer:
+        plugin: "nav2_costmap_2d::InflationLayer"
+        inflation_radius: 0.35      # meters — start here
+        cost_scaling_factor: 3.0   # exponential decay rate
+```
+
+**Rule of thumb:** Set `inflation_radius` to `robot_radius + 0.1m`. For a 0.2m radius robot, use 0.3–0.35m.
+
+The `cost_scaling_factor` controls how fast the cost decays away from obstacles. Higher = steeper decay = robot hugs the inflation boundary more closely.
+
+<Callout type="warning" title="Footprint vs. radius">
+If your robot is non-circular, use a `footprint` polygon instead of `robot_radius`. An incorrect circular approximation for a rectangular robot causes it to think it fits in spaces it doesn't.
+</Callout>
+
+### Static vs. Local Map Size
+
+```yaml
+global_costmap:
+  global_costmap:
+    ros__parameters:
+      width: 10.0          # Must cover the full environment
+      height: 10.0
+      resolution: 0.05
+
+local_costmap:
+  local_costmap:
+    ros__parameters:
+      width: 3.0           # Only needs to see immediate surroundings
+      height: 3.0
+      resolution: 0.05
+      rolling_window: true # CRITICAL: must be true for local map
+```
+
+Forgetting `rolling_window: true` on the local costmap means it stays fixed at startup — your robot navigates based on a map centered on where it started, not where it is.
+
+## DWB Controller Deep Dive
+
+The DWB (Dynamic Window Approach B) controller is the default local planner. Most navigation jitter and "shaking in place" bugs come from poorly tuned DWB critics.
+
+### Critic Weights
+
+```yaml
+controller_server:
+  ros__parameters:
+    FollowPath:
+      plugin: "dwb_core::DWBLocalPlanner"
+      critics:
+        - "dwb_critics::RotateToGoal"
+        - "dwb_critics::Oscillation"
+        - "dwb_critics::BaseObstacle"
+        - "dwb_critics::GoalAlign"
+        - "dwb_critics::PathAlign"
+        - "dwb_critics::PathDist"
+        - "dwb_critics::GoalDist"
+      # Tune these weights:
+      PathAlign.scale: 32.0
+      GoalAlign.scale: 24.0
+      PathDist.scale: 32.0
+      GoalDist.scale: 24.0
+      BaseObstacle.scale: 0.02
+```
+
+**PathAlign vs GoalAlign:** `PathAlign` keeps the robot oriented along the global path. `GoalAlign` orients it toward the goal. High `GoalAlign` near the goal causes the robot to spin toward the goal point rather than following the path — useful sometimes, annoying in corridors.
+
+### Velocity Limits
+
+```yaml
+      min_vel_x: 0.0
+      max_vel_x: 0.5         # Tune for your robot
+      min_vel_theta: -1.0
+      max_vel_theta: 1.0
+      min_speed_xy: 0.0
+      max_speed_xy: 0.5
+      min_speed_theta: 0.0
+      # Acceleration limits — often forgotten:
+      acc_lim_x: 1.5
+      acc_lim_theta: 3.2
+      decel_lim_x: -2.5
+      decel_lim_theta: -3.2
+```
+
+Setting acceleration limits correctly is critical. Too high and the robot lurches. Too low and it's sluggish and may time out on goals.
+
+## The BehaviorTree Navigator
+
+Nav2 uses behavior trees (via `BehaviorTreeCPP`) to orchestrate recovery behaviors. The default tree handles most cases, but you'll want to customize it for production robots.
+
+```bash
+# Find the default BT XMLs
+find /opt/ros/humble/share/nav2_bt_navigator -name "*.xml"
+```
+
+Common customization: increase recovery attempts before giving up:
+
+```xml title="navigate_w_replanning_and_recovery.xml"
+<ReactiveFallback name="NavigateRecovery">
+  <RateController hz="1.0">
+    <GoalUpdater input_goal="{goal}" output_goal="{updated_goal}">
+      <PipelineSequence>
+        <ComputePathToPose .../>
+        <FollowPath .../>
+      </PipelineSequence>
+    </GoalUpdater>
+  </RateController>
+  <!-- Add more recovery behaviors here -->
+  <Spin spin_dist="1.57"/>
+  <Wait wait_duration="5"/>
+  <BackUp backup_dist="0.15" backup_speed="0.025"/>
+</ReactiveFallback>
+```
+
+<Callout type="tip" title="Behavior Tree Debugging">
+Use `groot2` (the BehaviorTreeCPP visualizer) to watch your BT execute in real time. It's invaluable for understanding why the robot gets stuck in recovery loops.
+</Callout>
+
+## Common Failure Modes
+
+| Symptom | Likely Cause | Fix |
+|---------|-------------|-----|
+| Robot spins in place at start | `RotateToGoal` critic weight too high | Reduce `RotateToGoal.scale` |
+| Robot stops 0.5m from goal | `xy_goal_tolerance` too loose | Tighten to 0.1m |
+| Oscillation in corridors | Inflation radius too large | Reduce by 0.05m increments |
+| Nav2 hangs on startup | Lifecycle activation failure | Check TF tree completeness |
+| Map drifts over time | SLAM not publishing `/map` at 1Hz | Check SLAM node health |
+| Path cuts corners | Global planner resolution too coarse | Use 0.025–0.05m resolution |
+
+## TF Tree: The Silent Killer
+
+Nav2 requires a complete, consistent TF tree:
+
+```
+map → odom → base_link → [sensor frames]
+```
+
+Missing transforms, or transforms published at low frequency, cause the costmap to glitch and the planner to fail.
+
+```bash
+# Visualize your TF tree
+ros2 run tf2_tools view_frames
+evince frames.pdf
+
+# Check transform latency
+ros2 run tf2_ros tf2_echo map base_link
+```
+
+Any latency above 0.1s on critical transforms will cause problems.
+
+## What's Next
+
+In a follow-up post, I'll cover integrating a custom local planner (replacing DWB with TEB or MPPI), and how to write a custom BT node for domain-specific recovery behaviors.

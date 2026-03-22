@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>04 — Brutalist</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #f5f0e8;
+    --ink: #0e0e0e;
+    --accent: #ff3b00;
+    --blue: #0047ff;
+    --yellow: #ffe600;
+    --rule: #0e0e0e;
+  }
+  body { background: var(--bg); color: var(--ink); font-family: 'Space Grotesk', sans-serif; }
+
+  /* NAV */
+  nav {
+    display: flex; align-items: stretch; height: 56px;
+    border-bottom: 3px solid var(--rule);
+    position: sticky; top: 0; background: var(--bg); z-index: 100;
+  }
+  .logo-block {
+    padding: 0 28px; display: flex; align-items: center;
+    border-right: 3px solid var(--rule); font-weight: 700; font-size: 15px;
+    letter-spacing: -0.02em; white-space: nowrap;
+  }
+  .nav-links { display: flex; flex: 1; }
+  .nav-links a {
+    display: flex; align-items: center; padding: 0 20px;
+    border-right: 1px solid rgba(14,14,14,0.15);
+    text-decoration: none; color: var(--ink); font-size: 12px;
+    font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase;
+    transition: background 0.15s;
+  }
+  .nav-links a:hover { background: var(--yellow); }
+  .nav-cta {
+    margin-left: auto; padding: 0 28px; display: flex; align-items: center;
+    background: var(--accent); color: #fff; font-size: 12px; font-weight: 700;
+    letter-spacing: 0.06em; text-transform: uppercase; text-decoration: none;
+    border-left: 3px solid var(--rule);
+  }
+
+  /* HERO */
+  .hero { display: grid; grid-template-columns: 1fr 420px; border-bottom: 3px solid var(--rule); min-height: calc(100vh - 56px); }
+  .hero-main { padding: 60px 56px; border-right: 3px solid var(--rule); display: flex; flex-direction: column; justify-content: space-between; }
+  .hero-side { padding: 40px 40px; display: flex; flex-direction: column; gap: 0; }
+
+  .kicker {
+    display: inline-block; background: var(--yellow); padding: 4px 12px;
+    font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
+    margin-bottom: 32px; border: 2px solid var(--ink);
+  }
+
+  h1 {
+    font-size: clamp(60px, 8vw, 112px); font-weight: 700; line-height: 0.88;
+    letter-spacing: -0.04em; margin-bottom: 40px;
+  }
+  h1 .line-accent { color: var(--accent); display: block; }
+  h1 .line-blue { color: var(--blue); display: block; }
+
+  .hero-bio {
+    max-width: 480px; font-size: 16px; line-height: 1.7; color: #333;
+    border-left: 4px solid var(--ink); padding-left: 20px; margin-bottom: 40px;
+  }
+
+  .cta-strip { display: flex; gap: 0; }
+  .btn-big {
+    padding: 14px 32px; font-size: 13px; font-weight: 700; letter-spacing: 0.04em;
+    text-transform: uppercase; text-decoration: none; border: 3px solid var(--ink);
+    display: inline-block; transition: all 0.15s;
+  }
+  .btn-big-fill { background: var(--ink); color: var(--bg); margin-right: -3px; }
+  .btn-big-fill:hover { background: var(--blue); border-color: var(--blue); }
+  .btn-big-out:hover { background: var(--yellow); }
+
+  /* Side panels */
+  .side-block { border-bottom: 3px solid var(--rule); padding: 28px 0; }
+  .side-block:last-child { border-bottom: none; flex: 1; }
+  .sb-label { font-size: 10px; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; color: #888; margin-bottom: 12px; }
+  .stat-big { font-size: 52px; font-weight: 700; letter-spacing: -0.04em; line-height: 1; }
+  .stat-big .unit { font-size: 22px; color: #888; }
+  .stat-sub { font-size: 12px; color: #888; margin-top: 4px; }
+
+  .ticker { display: flex; flex-direction: column; gap: 10px; }
+  .ticker-item { display: flex; justify-content: space-between; align-items: baseline; padding: 8px 0; border-bottom: 1px dashed rgba(14,14,14,0.2); }
+  .ticker-label { font-size: 13px; font-weight: 600; }
+  .ticker-val { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--accent); }
+
+  /* Sections */
+  .sections { display: grid; grid-template-columns: 1fr 1fr; border-top: 3px solid var(--rule); }
+  .sec { padding: 48px 56px; border-right: 3px solid var(--rule); }
+  .sec:last-child { border-right: none; }
+  .sec-num { font-size: 80px; font-weight: 700; color: rgba(14,14,14,0.06); line-height: 1; margin-bottom: -20px; letter-spacing: -0.05em; }
+  .sec-title { font-size: 22px; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 28px; border-bottom: 3px solid var(--rule); padding-bottom: 16px; }
+
+  .exp-item { padding: 20px 0; border-bottom: 1px dashed rgba(14,14,14,0.2); }
+  .exp-item:last-child { border-bottom: none; }
+  .exp-role-b { font-size: 14px; font-weight: 700; }
+  .exp-org-b { font-size: 12px; color: var(--accent); font-weight: 600; margin-bottom: 4px; }
+  .exp-date-b { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #888; margin-bottom: 8px; }
+  .exp-desc-b { font-size: 12px; color: #555; line-height: 1.6; }
+
+  .proj-card { border: 3px solid var(--rule); padding: 20px; margin-bottom: 16px; transition: all 0.15s; cursor: default; }
+  .proj-card:hover { background: var(--yellow); }
+  .proj-title-b { font-size: 14px; font-weight: 700; margin-bottom: 6px; }
+  .proj-desc-b { font-size: 12px; color: #555; line-height: 1.6; }
+  .proj-stack { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
+  .ps-tag { font-family: 'JetBrains Mono', monospace; font-size: 10px; background: rgba(14,14,14,0.08); padding: 2px 7px; font-weight: 500; }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo-block">NIDHIN GANGISETTY</div>
+  <div class="nav-links">
+    <a href="#">Experience</a>
+    <a href="#">Projects</a>
+    <a href="#">Activities</a>
+    <a href="#">Blog</a>
+    <a href="#">Content</a>
+  </div>
+  <a href="#" class="nav-cta">Résumé ↗</a>
+</nav>
+
+<div class="hero">
+  <div class="hero-main">
+    <div>
+      <div class="kicker">CS @ UMD · Class of 2027 · Honors College</div>
+      <h1>
+        NIDHIN<br>
+        <span class="line-accent">GANGI</span>
+        <span class="line-blue">SETTY</span>
+      </h1>
+      <p class="hero-bio">
+        Computer Science student at the University of Maryland, minoring in Robotics & Entrepreneurship.
+        Building autonomous systems, AI pipelines, and full-stack products. Researcher at RAAS Lab. Co-founder of Project Lift.
+      </p>
+    </div>
+    <div class="cta-strip">
+      <a href="#" class="btn-big btn-big-fill">View Projects</a>
+      <a href="#" class="btn-big btn-big-out">Download CV</a>
+    </div>
+  </div>
+
+  <div class="hero-side">
+    <div class="side-block">
+      <div class="sb-label">GPA</div>
+      <div class="stat-big">3.75<span class="unit">/4.00</span></div>
+      <div class="stat-sub">Honors College · UMD</div>
+    </div>
+    <div class="side-block">
+      <div class="sb-label">Impact</div>
+      <div class="ticker">
+        <div class="ticker-item"><span class="ticker-label">Kato App Users</span><span class="ticker-val">11,000+</span></div>
+        <div class="ticker-item"><span class="ticker-label">Students Mentored</span><span class="ticker-val">35+</span></div>
+        <div class="ticker-item"><span class="ticker-label">Business Value (Project Lift)</span><span class="ticker-val">$10K+</span></div>
+        <div class="ticker-item"><span class="ticker-label">RFP Eval Time Reduced</span><span class="ticker-val">75%</span></div>
+      </div>
+    </div>
+    <div class="side-block">
+      <div class="sb-label">Currently</div>
+      <div style="font-size: 13px; line-height: 1.7; color: #444;">
+        Undergraduate Researcher<br>
+        RAAS Lab · College Park, MD<br>
+        <span style="color: var(--accent); font-weight: 600;">→ Open to Internships 2026</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="sections">
+  <div class="sec">
+    <div class="sec-num">01</div>
+    <div class="sec-title">Experience</div>
+    <div class="exp-item">
+      <div class="exp-role-b">Undergraduate Researcher</div>
+      <div class="exp-org-b">RAAS Lab · UMD</div>
+      <div class="exp-date-b">OCT 2025 – PRESENT</div>
+      <div class="exp-desc-b">Adapted ITPS framework (MIT CSAIL) to UR3 robotic arm in MuJoCo. Implemented all 4 steering methods with CPU + CUDA support.</div>
+    </div>
+    <div class="exp-item">
+      <div class="exp-role-b">Software Engineering Intern</div>
+      <div class="exp-org-b">Xprotege Institute</div>
+      <div class="exp-date-b">SEP – DEC 2025</div>
+      <div class="exp-desc-b">Production RAG system · LlamaIndex + Qdrant + GPT-4 · 75% faster RFP evaluation · 92% retrieval accuracy.</div>
+    </div>
+    <div class="exp-item">
+      <div class="exp-role-b">Software Engineering Intern</div>
+      <div class="exp-org-b">Craving Hour Halal</div>
+      <div class="exp-date-b">MAY – SEP 2025</div>
+      <div class="exp-desc-b">Full-stack AWS platform · React + Node.js + PostgreSQL · 43% efficiency gain · 150+ daily users.</div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-num">02</div>
+    <div class="sec-title">Projects</div>
+    <div class="proj-card">
+      <div class="proj-title-b">UR3e Robotic Arm Manipulation</div>
+      <div class="proj-desc-b">ROS 2 vision-guided control using pose estimation & inverse kinematics. 98% stacking accuracy for industrial automation demos.</div>
+      <div class="proj-stack"><span class="ps-tag">Python</span><span class="ps-tag">ROS 2</span><span class="ps-tag">OpenCV</span><span class="ps-tag">Ubuntu</span></div>
+    </div>
+    <div class="proj-card">
+      <div class="proj-title-b">Kato Apartment Finder</div>
+      <div class="proj-desc-b">Off-campus housing platform scraping 18 apartments. 11,000+ visits. Real-time pricing in a unified map-based UI.</div>
+      <div class="proj-stack"><span class="ps-tag">Next.js</span><span class="ps-tag">Supabase</span><span class="ps-tag">Mapbox</span><span class="ps-tag">Firecrawl</span></div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

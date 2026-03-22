@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>04b — Refined Brutalist</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg:     #f3ede0;
+  --ink:    #0c0c0c;
+  --red:    #d93000;
+  --blue:   #0047cc;
+  --yellow: #ffe14d;
+  --cream:  #faf6ec;
+  --rule:   3px solid #0c0c0c;
+  --rule1:  1px solid rgba(12,12,12,0.15);
+}
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: 'Inter', sans-serif;
+  overflow-x: hidden;
+}
+
+/* ─── BACKGROUND DECORATION ─────────────────────────── */
+.bg-layer {
+  position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden;
+}
+
+/* ─── NAV ─────────────────────────────────────────────── */
+nav {
+  position: sticky; top: 0; z-index: 200;
+  background: var(--bg);
+  border-bottom: var(--rule);
+  display: flex; align-items: stretch; height: 52px;
+}
+.nav-logo {
+  padding: 0 24px; display: flex; align-items: center;
+  border-right: var(--rule);
+  font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 700;
+  white-space: nowrap; letter-spacing: -0.01em;
+}
+.nav-logo .slash { color: var(--red); margin: 0 2px; }
+.nav-links { display: flex; overflow-x: auto; scrollbar-width: none; }
+.nav-links::-webkit-scrollbar { display: none; }
+.nav-links a {
+  display: flex; align-items: center; padding: 0 18px;
+  border-right: 1px solid rgba(12,12,12,0.12);
+  font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700;
+  letter-spacing: 0.06em; text-transform: uppercase; text-decoration: none; color: var(--ink);
+  white-space: nowrap; transition: background 0.15s;
+}
+.nav-links a:hover { background: var(--yellow); }
+.nav-end {
+  margin-left: auto; display: flex; align-items: center;
+  padding: 0 20px; border-left: var(--rule);
+  gap: 12px; flex-shrink: 0;
+}
+.status-dot { width: 7px; height: 7px; border-radius: 50%; background: #22c55e; box-shadow: 0 0 6px #22c55e; flex-shrink: 0; }
+.nav-cta {
+  background: var(--ink); color: var(--bg);
+  font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700;
+  letter-spacing: 0.06em; text-transform: uppercase; text-decoration: none;
+  padding: 7px 16px; white-space: nowrap;
+  transition: background 0.15s;
+}
+.nav-cta:hover { background: var(--blue); }
+
+/* ─── HERO ─────────────────────────────────────────────── */
+.hero {
+  position: relative; z-index: 1;
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  border-bottom: var(--rule);
+  min-height: 88vh;
+}
+
+/* LEFT */
+.hero-left {
+  padding: 52px 48px 48px;
+  border-right: var(--rule);
+  display: flex; flex-direction: column; justify-content: space-between;
+  position: relative; overflow: hidden;
+}
+
+.hero-kicker {
+  display: inline-flex; align-items: center; gap: 10px;
+  font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  background: var(--yellow); padding: 5px 14px;
+  border: 2px solid var(--ink); margin-bottom: 32px;
+  width: fit-content;
+}
+
+.hero-name {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: clamp(52px, 6.5vw, 88px);
+  font-weight: 700; letter-spacing: -0.04em; line-height: 0.93;
+  margin-bottom: 28px;
+}
+.hero-name .first { display: block; }
+.hero-name .last  { display: block; color: var(--red); }
+
+.hero-intro {
+  font-size: clamp(15px, 1.5vw, 17px);
+  line-height: 1.75; color: #3a3a3a; max-width: 520px;
+  margin-bottom: 40px;
+  border-left: 4px solid var(--red); padding-left: 18px;
+}
+
+.hero-ctas { display: flex; gap: 0; flex-wrap: wrap; }
+.btn {
+  padding: 13px 28px; font-family: 'Space Grotesk', sans-serif;
+  font-size: 13px; font-weight: 700; letter-spacing: 0.01em;
+  text-decoration: none; display: inline-block;
+  border: 3px solid var(--ink); transition: all 0.15s; cursor: pointer;
+}
+.btn-fill { background: var(--ink); color: var(--bg); margin-right: -3px; }
+.btn-fill:hover { background: var(--red); border-color: var(--red); }
+.btn-outline:hover { background: var(--yellow); }
+
+/* RIGHT */
+.hero-right {
+  display: flex; flex-direction: column;
+}
+.hero-panel {
+  padding: 28px 28px;
+  border-bottom: var(--rule);
+  flex: 1;
+}
+.panel-label {
+  font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 700;
+  letter-spacing: 0.18em; text-transform: uppercase; color: #888;
+  margin-bottom: 14px;
+}
+
+/* Mission card */
+.mission-text {
+  font-size: 14px; line-height: 1.75; color: #3a3a3a;
+}
+.mission-text strong { color: var(--ink); font-weight: 600; }
+.vision-goal {
+  margin-top: 16px;
+  background: var(--ink); color: var(--bg);
+  padding: 12px 16px; font-size: 13px; line-height: 1.65;
+  font-family: 'JetBrains Mono', monospace;
+}
+.vision-goal .label { font-size: 9px; letter-spacing: 0.15em; text-transform: uppercase; color: #888; margin-bottom: 6px; }
+
+/* Quick facts */
+.facts-list { display: flex; flex-direction: column; gap: 0; }
+.fact-row {
+  display: flex; justify-content: space-between; align-items: baseline;
+  padding: 10px 0; border-bottom: var(--rule1);
+}
+.fact-row:last-child { border-bottom: none; }
+.fact-key { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #888; letter-spacing: 0.06em; text-transform: uppercase; }
+.fact-val { font-size: 12px; font-weight: 600; color: var(--ink); font-family: 'JetBrains Mono', monospace; }
+.fact-val.accent { color: var(--red); }
+
+/* Stack pills */
+.stack-pills { display: flex; flex-wrap: wrap; gap: 6px; }
+.sp { font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700;
+  padding: 4px 9px; border: 2px solid var(--ink); background: transparent;
+  letter-spacing: 0.03em; transition: all 0.15s; }
+.sp:hover { background: var(--yellow); }
+.sp.hot { background: var(--ink); color: var(--bg); }
+
+/* ─── SECTION WRAPPER ─────────────────────────────────── */
+.section {
+  position: relative; z-index: 1;
+  border-bottom: var(--rule);
+}
+.section-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 40px;
+  border-bottom: var(--rule);
+  background: var(--cream);
+}
+.sec-label {
+  font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700;
+  letter-spacing: 0.12em; text-transform: uppercase; display: flex; align-items: center; gap: 10px;
+}
+.sec-label .num { color: var(--red); }
+.sec-count { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #888; }
+
+/* ─── EXPERIENCE ─────────────────────────────────────── */
+.exp-body { }
+.exp-row {
+  display: grid;
+  grid-template-columns: 160px 1fr auto;
+  gap: 0;
+  border-bottom: var(--rule1);
+  transition: background 0.15s;
+}
+.exp-row:last-child { border-bottom: none; }
+.exp-row:hover { background: rgba(255,225,77,0.15); }
+
+.exp-date-col {
+  padding: 24px 24px 24px 40px;
+  border-right: var(--rule1);
+  font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #888;
+  letter-spacing: 0.05em; line-height: 1.6;
+}
+.exp-date-col .current { color: var(--red); font-weight: 700; }
+
+.exp-content { padding: 24px 32px; }
+.exp-role { font-family: 'Space Grotesk', sans-serif; font-size: 16px; font-weight: 700; margin-bottom: 2px; }
+.exp-org { font-size: 13px; color: var(--blue); font-weight: 600; margin-bottom: 12px; font-family: 'JetBrains Mono', monospace; }
+.exp-bullets { list-style: none; }
+.exp-bullets li {
+  font-size: 13px; color: #444; line-height: 1.65;
+  padding: 3px 0 3px 16px; position: relative;
+}
+.exp-bullets li::before { content: '▸'; position: absolute; left: 0; color: var(--red); font-size: 10px; top: 5px; }
+
+.exp-tags-col {
+  padding: 24px 32px 24px 0;
+  display: flex; flex-direction: column; align-items: flex-end; gap: 5px; justify-content: flex-start;
+}
+.etag {
+  font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 700;
+  letter-spacing: 0.05em; padding: 3px 8px; border: 2px solid var(--ink);
+  white-space: nowrap; transition: all 0.15s;
+}
+.etag:hover { background: var(--yellow); }
+
+/* ─── PROJECT ROADMAP ───────────────────────────────── */
+.roadmap-body { padding: 48px 40px; overflow-x: auto; }
+
+/* SVG roadmap track */
+.roadmap-svg-wrap { position: relative; min-width: 900px; }
+
+.roadmap-nodes {
+  display: flex;
+  align-items: flex-start;
+  gap: 0;
+  position: relative;
+  padding-top: 24px;
+}
+
+/* Connecting track */
+.roadmap-track {
+  position: absolute;
+  top: 44px; /* center of node */
+  left: 80px; right: 80px;
+  height: 3px;
+  background: repeating-linear-gradient(
+    90deg,
+    var(--ink) 0px, var(--ink) 12px,
+    transparent 12px, transparent 20px
+  );
+  z-index: 0;
+}
+
+/* Bracket ends */
+.roadmap-track::before,
+.roadmap-track::after {
+  content: '';
+  position: absolute; top: -6px;
+  width: 3px; height: 15px; background: var(--ink);
+}
+.roadmap-track::before { left: 0; }
+.roadmap-track::after  { right: 0; }
+
+.roadmap-node {
+  flex: 1; display: flex; flex-direction: column; align-items: center;
+  position: relative; z-index: 1; cursor: default;
+}
+
+.node-dot-wrap {
+  width: 44px; height: 44px; border: 3px solid var(--ink);
+  background: var(--bg); display: flex; align-items: center; justify-content: center;
+  margin-bottom: 20px; position: relative; transition: all 0.2s;
+  flex-shrink: 0;
+}
+.roadmap-node:hover .node-dot-wrap { background: var(--yellow); }
+.roadmap-node.featured .node-dot-wrap { background: var(--ink); }
+.roadmap-node.featured .node-num { color: var(--bg); }
+
+.node-num {
+  font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 700;
+  color: var(--ink);
+}
+
+.node-card {
+  width: 100%; max-width: 200px;
+  border: 3px solid var(--ink); padding: 16px;
+  background: var(--cream); transition: all 0.2s;
+}
+.roadmap-node:hover .node-card { background: var(--yellow); }
+.roadmap-node.featured .node-card { border-color: var(--red); background: var(--ink); color: var(--bg); }
+.roadmap-node.featured .node-card .nc-title { color: var(--bg); }
+.roadmap-node.featured .node-card .nc-desc { color: #bbb; }
+.roadmap-node.featured .node-card .nc-tag { border-color: #444; color: #999; }
+
+.nc-type {
+  font-family: 'JetBrains Mono', monospace; font-size: 8px; font-weight: 700;
+  letter-spacing: 0.15em; text-transform: uppercase; color: var(--red);
+  margin-bottom: 6px;
+}
+.roadmap-node.featured .nc-type { color: var(--yellow); }
+.nc-title { font-family: 'Space Grotesk', sans-serif; font-size: 13px; font-weight: 700; margin-bottom: 6px; }
+.nc-desc { font-size: 11px; color: #555; line-height: 1.55; margin-bottom: 10px; }
+.nc-tags { display: flex; flex-wrap: wrap; gap: 4px; }
+.nc-tag { font-family: 'JetBrains Mono', monospace; font-size: 8px; font-weight: 700; border: 1.5px solid var(--ink); padding: 2px 5px; }
+.nc-link { display: block; margin-top: 10px; font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--blue); text-decoration: none; font-weight: 700; letter-spacing: 0.06em; }
+.roadmap-node.featured .nc-link { color: var(--yellow); }
+
+/* Connector label above track */
+.roadmap-connector-label {
+  position: absolute; top: 54px; left: 50%; transform: translateX(-50%);
+  font-family: 'JetBrains Mono', monospace; font-size: 8px; color: #aaa;
+  letter-spacing: 0.1em; white-space: nowrap; pointer-events: none;
+}
+
+/* ─── ACTIVITIES ─────────────────────────────────────── */
+.activities-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 0;
+}
+.act-card {
+  padding: 28px 36px;
+  border-right: var(--rule1); border-bottom: var(--rule1);
+  transition: background 0.15s;
+}
+.act-card:nth-child(even) { border-right: none; }
+.act-card:hover { background: rgba(255,225,77,0.12); }
+.act-title { font-family: 'Space Grotesk', sans-serif; font-size: 15px; font-weight: 700; margin-bottom: 2px; }
+.act-role { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--blue); font-weight: 700; margin-bottom: 4px; }
+.act-date { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #999; margin-bottom: 10px; }
+.act-desc { font-size: 13px; color: #444; line-height: 1.65; }
+
+/* ─── FOOTER ─────────────────────────────────────────── */
+footer {
+  position: relative; z-index: 1;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 20px 40px; flex-wrap: wrap; gap: 16px;
+}
+.footer-links { display: flex; gap: 0; }
+.footer-links a {
+  font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700;
+  letter-spacing: 0.06em; text-transform: uppercase; text-decoration: none;
+  color: var(--ink); padding: 8px 16px; border: 2px solid var(--ink);
+  margin-right: -2px; transition: all 0.15s;
+}
+.footer-links a:hover { background: var(--yellow); }
+.footer-copy { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #999; }
+
+/* ─── BACKGROUND SVG DECORATIONS ─────────────────────── */
+
+/* ─── RESPONSIVE ─────────────────────────────────────── */
+@media (max-width: 860px) {
+  .hero { grid-template-columns: 1fr; }
+  .hero-left { border-right: none; border-bottom: var(--rule); padding: 36px 24px 36px; }
+  .hero-right { }
+  .hero-panel { padding: 22px 24px; }
+  .hero-name { font-size: clamp(44px, 10vw, 72px); }
+
+  .exp-row { grid-template-columns: 1fr; }
+  .exp-date-col { padding: 16px 24px 8px; border-right: none; border-bottom: var(--rule1); }
+  .exp-content { padding: 12px 24px 16px; }
+  .exp-tags-col { flex-direction: row; flex-wrap: wrap; justify-content: flex-start; padding: 0 24px 16px; }
+
+  .activities-grid { grid-template-columns: 1fr; }
+  .act-card { border-right: none; }
+
+  .section-header { padding: 12px 24px; }
+  .roadmap-body { padding: 32px 24px; }
+
+  .nav-links { display: none; }
+
+  footer { padding: 20px 24px; }
+}
+
+@media (max-width: 480px) {
+  .hero-left { padding: 28px 18px; }
+  .hero-name { font-size: clamp(38px, 12vw, 60px); }
+  .hero-ctas { flex-direction: column; }
+  .btn { width: 100%; text-align: center; margin-right: 0; }
+  .btn-fill { margin-right: 0; margin-bottom: -3px; }
+}
+</style>
+</head>
+<body>
+
+<!-- Background decoration layer -->
+<div class="bg-layer" aria-hidden="true">
+  <!-- Circuit traces top-right -->
+  <svg style="position:absolute;top:60px;right:0;width:340px;height:280px;opacity:0.055;" viewBox="0 0 340 280" fill="none">
+    <path d="M340 40 H240 V100 H160 V180 H80 V240" stroke="#0c0c0c" stroke-width="1.5" fill="none"/>
+    <path d="M340 100 H280 V160 H200 V220" stroke="#0c0c0c" stroke-width="1.5" fill="none"/>
+    <circle cx="240" cy="40" r="4" fill="#0c0c0c"/>
+    <circle cx="240" cy="100" r="4" fill="#0c0c0c"/>
+    <circle cx="160" cy="100" r="4" fill="#0c0c0c"/>
+    <circle cx="160" cy="180" r="4" fill="#0c0c0c"/>
+    <circle cx="80" cy="180" r="4" fill="#0c0c0c"/>
+    <circle cx="280" cy="100" r="4" fill="#0c0c0c"/>
+    <circle cx="280" cy="160" r="4" fill="#0c0c0c"/>
+    <circle cx="200" cy="160" r="4" fill="#0c0c0c"/>
+    <rect x="228" y="28" width="24" height="24" rx="2" stroke="#0c0c0c" stroke-width="1.5" fill="none"/>
+    <rect x="268" y="88" width="24" height="24" rx="2" stroke="#0c0c0c" stroke-width="1.5" fill="none"/>
+    <rect x="148" y="88" width="24" height="24" rx="2" stroke="#0c0c0c" stroke-width="1.5" fill="none"/>
+  </svg>
+
+  <!-- Robot arm silhouette — bottom left -->
+  <svg style="position:absolute;bottom:120px;left:20px;width:200px;height:220px;opacity:0.045;" viewBox="0 0 200 220" fill="none">
+    <!-- Base -->
+    <rect x="70" y="190" width="60" height="18" rx="2" stroke="#0c0c0c" stroke-width="2" fill="none"/>
+    <rect x="85" y="180" width="30" height="12" rx="1" stroke="#0c0c0c" stroke-width="2" fill="none"/>
+    <!-- Lower arm -->
+    <line x1="100" y1="180" x2="100" y2="130" stroke="#0c0c0c" stroke-width="2.5"/>
+    <circle cx="100" cy="128" r="8" stroke="#0c0c0c" stroke-width="2" fill="none"/>
+    <!-- Upper arm -->
+    <line x1="100" y1="120" x2="140" y2="80" stroke="#0c0c0c" stroke-width="2.5"/>
+    <circle cx="142" cy="78" r="7" stroke="#0c0c0c" stroke-width="2" fill="none"/>
+    <!-- Forearm -->
+    <line x1="148" y1="74" x2="170" y2="50" stroke="#0c0c0c" stroke-width="2.5"/>
+    <circle cx="170" cy="48" r="5" stroke="#0c0c0c" stroke-width="2" fill="none"/>
+    <!-- End effector / gripper -->
+    <line x1="174" y1="45" x2="186" y2="35" stroke="#0c0c0c" stroke-width="2"/>
+    <line x1="174" y1="45" x2="162" y2="30" stroke="#0c0c0c" stroke-width="2"/>
+    <line x1="186" y1="35" x2="190" y2="20" stroke="#0c0c0c" stroke-width="1.5"/>
+    <line x1="162" y1="30" x2="158" y2="15" stroke="#0c0c0c" stroke-width="1.5"/>
+    <!-- Shoulder joint detail -->
+    <rect x="92" y="122" width="16" height="16" rx="2" stroke="#0c0c0c" stroke-width="1.5" fill="none"/>
+  </svg>
+
+  <!-- Code brackets — mid left -->
+  <svg style="position:absolute;top:38%;left:30px;width:60px;height:80px;opacity:0.05;" viewBox="0 0 60 80" fill="none">
+    <path d="M35 5 L20 20 L20 60 L35 75" stroke="#0c0c0c" stroke-width="3" stroke-linecap="round" fill="none"/>
+    <path d="M25 5 L40 20 L40 60 L25 75" stroke="#0c0c0c" stroke-width="3" stroke-linecap="round" fill="none"/>
+  </svg>
+
+  <!-- Gear / cog — top left of hero area -->
+  <svg style="position:absolute;top:140px;left:50%;opacity:0.04;width:80px;height:80px;" viewBox="0 0 80 80" fill="none">
+    <circle cx="40" cy="40" r="18" stroke="#0c0c0c" stroke-width="2" fill="none"/>
+    <circle cx="40" cy="40" r="8" stroke="#0c0c0c" stroke-width="2" fill="none"/>
+    <rect x="37" y="4" width="6" height="12" rx="2" fill="#0c0c0c" opacity="0.5"/>
+    <rect x="37" y="64" width="6" height="12" rx="2" fill="#0c0c0c" opacity="0.5"/>
+    <rect x="4" y="37" width="12" height="6" rx="2" fill="#0c0c0c" opacity="0.5"/>
+    <rect x="64" y="37" width="12" height="6" rx="2" fill="#0c0c0c" opacity="0.5"/>
+    <rect x="14" y="14" width="6" height="12" rx="2" fill="#0c0c0c" opacity="0.5" transform="rotate(45 17 20)"/>
+    <rect x="60" y="14" width="6" height="12" rx="2" fill="#0c0c0c" opacity="0.5" transform="rotate(-45 63 20)"/>
+    <rect x="14" y="54" width="6" height="12" rx="2" fill="#0c0c0c" opacity="0.5" transform="rotate(-45 17 60)"/>
+    <rect x="60" y="54" width="6" height="12" rx="2" fill="#0c0c0c" opacity="0.5" transform="rotate(45 63 60)"/>
+  </svg>
+
+  <!-- Binary scatter — far right mid -->
+  <svg style="position:absolute;top:35%;right:10px;width:80px;height:200px;opacity:0.04;" viewBox="0 0 80 200" fill="none">
+    <text font-family="JetBrains Mono, monospace" font-size="11" fill="#0c0c0c">
+      <tspan x="0" dy="0">01101</tspan>
+      <tspan x="8" dy="18">10010</tspan>
+      <tspan x="2" dy="18">11001</tspan>
+      <tspan x="12" dy="18">00110</tspan>
+      <tspan x="0" dy="18">10101</tspan>
+      <tspan x="6" dy="18">01011</tspan>
+      <tspan x="0" dy="18">11010</tspan>
+      <tspan x="10" dy="18">00101</tspan>
+    </text>
+  </svg>
+
+  <!-- Coordinate axes — bottom right -->
+  <svg style="position:fixed;bottom:40px;right:40px;width:100px;height:100px;opacity:0.05;" viewBox="0 0 100 100" fill="none">
+    <line x1="20" y1="80" x2="90" y2="80" stroke="#0c0c0c" stroke-width="2"/>
+    <line x1="20" y1="80" x2="20" y2="10" stroke="#0c0c0c" stroke-width="2"/>
+    <polygon points="90,80 82,76 82,84" fill="#0c0c0c"/>
+    <polygon points="20,10 16,18 24,18" fill="#0c0c0c"/>
+    <text font-family="JetBrains Mono" font-size="9" fill="#0c0c0c" x="92" y="83">x</text>
+    <text font-family="JetBrains Mono" font-size="9" fill="#0c0c0c" x="10" y="10">y</text>
+    <!-- Data points -->
+    <circle cx="40" cy="65" r="2.5" fill="#0c0c0c"/>
+    <circle cx="55" cy="52" r="2.5" fill="#0c0c0c"/>
+    <circle cx="68" cy="38" r="2.5" fill="#0c0c0c"/>
+    <line x1="40" y1="65" x2="55" y2="52" stroke="#0c0c0c" stroke-width="1" stroke-dasharray="3 2"/>
+    <line x1="55" y1="52" x2="68" y2="38" stroke="#0c0c0c" stroke-width="1" stroke-dasharray="3 2"/>
+  </svg>
+</div>
+
+<!-- ─── NAV ─────────────────────────────────────────── -->
+<nav>
+  <div class="nav-logo">NG<span class="slash">/</span>dev</div>
+  <div class="nav-links">
+    <a href="#experience">Experience</a>
+    <a href="#roadmap">Projects</a>
+    <a href="#activities">Activities</a>
+    <a href="#">Blog</a>
+    <a href="#">Content</a>
+  </div>
+  <div class="nav-end">
+    <span class="status-dot"></span>
+    <a href="#" class="nav-cta">Resume ↗</a>
+  </div>
+</nav>
+
+<!-- ─── HERO ─────────────────────────────────────────── -->
+<div class="hero">
+  <!-- LEFT: identity + intro -->
+  <div class="hero-left">
+    <div>
+      <div class="hero-kicker">
+        CS @ UMD · Class of 2027
+      </div>
+      <div class="hero-name">
+        <span class="first">Nidhin</span>
+        <span class="last">Gangisetty.</span>
+      </div>
+      <p class="hero-intro">
+        I build systems that work in the real world — autonomous robots, AI pipelines,
+        and full-stack products used by real people. I'm a CS student at
+        <strong>University of Maryland</strong>, minoring in Robotics & Entrepreneurship,
+        currently researching robot manipulation at <strong>RAAS Lab</strong>.
+        I also co-founded <strong>Project Lift</strong>, a student tech consulting club
+        that has delivered $10k+ in digital transformation value to small businesses.
+      </p>
+    </div>
+    <div class="hero-ctas">
+      <a href="#roadmap" class="btn btn-fill">View My Work</a>
+      <a href="#" class="btn btn-outline">Download Resume</a>
+    </div>
+  </div>
+
+  <!-- RIGHT: mission + quick facts -->
+  <div class="hero-right">
+    <div class="hero-panel">
+      <div class="panel-label">// Career Vision</div>
+      <p class="mission-text">
+        I want to work at the frontier of <strong>robotics and intelligent systems</strong> —
+        building software that closes the loop between perception, decision-making, and physical action.
+        Whether that's autonomous manipulation, embodied AI, or the infrastructure that makes
+        intelligent systems reliable at scale.
+      </p>
+      <div class="vision-goal">
+        <div class="label">Looking For</div>
+        SWE / Robotics / AI roles where the code has to survive the real world.
+      </div>
+    </div>
+
+    <div class="hero-panel">
+      <div class="panel-label">// Quick Facts</div>
+      <div class="facts-list">
+        <div class="fact-row">
+          <span class="fact-key">School</span>
+          <span class="fact-val">UMD College Park</span>
+        </div>
+        <div class="fact-row">
+          <span class="fact-key">Degree</span>
+          <span class="fact-val">B.S. Computer Science</span>
+        </div>
+        <div class="fact-row">
+          <span class="fact-key">Lab</span>
+          <span class="fact-val">RAAS (Robotics &amp; Autonomous Systems)</span>
+        </div>
+        <div class="fact-row">
+          <span class="fact-key">Kato Users</span>
+          <span class="fact-val accent">11,000+</span>
+        </div>
+        <div class="fact-row">
+          <span class="fact-key">Project Lift</span>
+          <span class="fact-val accent">Co-Founder · $10k+ delivered</span>
+        </div>
+        <div class="fact-row">
+          <span class="fact-key">Status</span>
+          <span class="fact-val accent">Open — Internships 2026</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="hero-panel" style="border-bottom: none;">
+      <div class="panel-label">// Core Stack</div>
+      <div class="stack-pills">
+        <span class="sp hot">Python</span>
+        <span class="sp hot">ROS 2</span>
+        <span class="sp hot">React</span>
+        <span class="sp hot">TypeScript</span>
+        <span class="sp hot">PyTorch</span>
+        <span class="sp">Node.js</span>
+        <span class="sp">AWS</span>
+        <span class="sp">OpenCV</span>
+        <span class="sp">FastAPI</span>
+        <span class="sp">LlamaIndex</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── EXPERIENCE ─────────────────────────────────── -->
+<div class="section" id="experience">
+  <div class="section-header">
+    <div class="sec-label"><span class="num">01</span> Experience</div>
+    <div class="sec-count">3 roles</div>
+  </div>
+  <div class="exp-body">
+
+    <div class="exp-row">
+      <div class="exp-date-col">
+        Oct 2025<br><span class="current">Present</span>
+        <div style="margin-top:8px;font-size:9px;color:#aaa;">College Park, MD</div>
+      </div>
+      <div class="exp-content">
+        <div class="exp-role">Undergraduate Researcher</div>
+        <div class="exp-org">RAAS Lab · University of Maryland</div>
+        <ul class="exp-bullets">
+          <li>Adapted the <strong>ITPS framework</strong> (MIT CSAIL) to a UR3 robotic arm block-stacking task in MuJoCo, enabling human-guided trajectory steering at inference time without retraining</li>
+          <li>Implemented and validated all 4 ITPS steering methods in 2D simulation with CPU & CUDA execution support</li>
+        </ul>
+      </div>
+      <div class="exp-tags-col">
+        <span class="etag">ROS 2</span>
+        <span class="etag">Python</span>
+        <span class="etag">MuJoCo</span>
+        <span class="etag">CUDA</span>
+        <span class="etag">OpenCV</span>
+      </div>
+    </div>
+
+    <div class="exp-row">
+      <div class="exp-date-col">
+        Sep 2025<br>Dec 2025
+        <div style="margin-top:8px;font-size:9px;color:#aaa;">Ellicott City, MD</div>
+      </div>
+      <div class="exp-content">
+        <div class="exp-role">Software Engineering Intern</div>
+        <div class="exp-org">Xprotege Institute of Technology</div>
+        <ul class="exp-bullets">
+          <li>Built a production-grade <strong>RAG system</strong> (LlamaIndex + Qdrant + GPT-4) to automate RFP analysis — <strong>75% faster</strong> evaluation, <strong>92%</strong> semantic retrieval accuracy</li>
+          <li>Architected a scalable prompt-engineering framework integrating proprietary scoring logic, boosting bid/no-bid classification accuracy by <strong>40%</strong></li>
+        </ul>
+      </div>
+      <div class="exp-tags-col">
+        <span class="etag">LLM</span>
+        <span class="etag">RAG</span>
+        <span class="etag">Python</span>
+        <span class="etag">GPT-4</span>
+        <span class="etag">Qdrant</span>
+      </div>
+    </div>
+
+    <div class="exp-row" style="border-bottom:none;">
+      <div class="exp-date-col">
+        May 2025<br>Sep 2025
+        <div style="margin-top:8px;font-size:9px;color:#aaa;">College Park, MD</div>
+      </div>
+      <div class="exp-content">
+        <div class="exp-role">Software Engineering Intern</div>
+        <div class="exp-org">Craving Hour Halal</div>
+        <ul class="exp-bullets">
+          <li>Architected a full-stack platform (React · Node.js · PostgreSQL · AWS) from scratch — <strong>43% efficiency gain</strong> across 150+ daily customers</li>
+          <li>Developed REST API + S3-backed media pipeline; built admin CRUD dashboard eliminating developer dependency for content updates</li>
+        </ul>
+      </div>
+      <div class="exp-tags-col">
+        <span class="etag">React</span>
+        <span class="etag">Node.js</span>
+        <span class="etag">PostgreSQL</span>
+        <span class="etag">AWS</span>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ─── PROJECT ROADMAP ─────────────────────────────── -->
+<div class="section" id="roadmap">
+  <div class="section-header">
+    <div class="sec-label"><span class="num">02</span> Project Roadmap</div>
+    <div class="sec-count">scroll →</div>
+  </div>
+
+  <div class="roadmap-body">
+    <!-- Context label -->
+    <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:#aaa;letter-spacing:0.12em;text-transform:uppercase;margin-bottom:32px;">
+      ◀ Earlier &nbsp;&nbsp;────────────────────────────────────── &nbsp;&nbsp; Ongoing ▶
+    </div>
+
+    <div class="roadmap-svg-wrap">
+      <!-- The dashed connecting track -->
+      <div class="roadmap-track"></div>
+
+      <div class="roadmap-nodes">
+
+        <!-- Node 1 -->
+        <div class="roadmap-node">
+          <div class="node-dot-wrap">
+            <span class="node-num">01</span>
+          </div>
+          <div class="node-card">
+            <div class="nc-type">Web · Full-Stack</div>
+            <div class="nc-title">Craving Hour Halal Platform</div>
+            <div class="nc-desc">Production AWS platform for a local restaurant. React + Node.js + PostgreSQL + S3. 150+ daily users, 43% efficiency gain.</div>
+            <div class="nc-tags">
+              <span class="nc-tag">React</span>
+              <span class="nc-tag">AWS</span>
+              <span class="nc-tag">Node.js</span>
+            </div>
+            <a href="#" class="nc-link">LIVE SITE ↗</a>
+          </div>
+        </div>
+
+        <!-- Node 2 — FEATURED -->
+        <div class="roadmap-node featured">
+          <div class="node-dot-wrap">
+            <span class="node-num">02</span>
+          </div>
+          <div class="node-card">
+            <div class="nc-type">★ Featured · Web App</div>
+            <div class="nc-title">Kato Apartment Finder</div>
+            <div class="nc-desc">Off-campus housing platform scraping 18 apartments in real time. 11,000+ visits. Mapbox + Supabase + Firecrawl on Next.js.</div>
+            <div class="nc-tags">
+              <span class="nc-tag">Next.js</span>
+              <span class="nc-tag">Supabase</span>
+              <span class="nc-tag">Mapbox</span>
+            </div>
+            <a href="#" class="nc-link">LIVE SITE ↗</a>
+          </div>
+        </div>
+
+        <!-- Node 3 -->
+        <div class="roadmap-node">
+          <div class="node-dot-wrap">
+            <span class="node-num">03</span>
+          </div>
+          <div class="node-card">
+            <div class="nc-type">AI · NLP</div>
+            <div class="nc-title">RAG RFP Analysis System</div>
+            <div class="nc-desc">Production RAG pipeline. LlamaIndex + Qdrant + GPT-4. 75% faster RFP evaluation, 92% retrieval accuracy across 200+ page docs.</div>
+            <div class="nc-tags">
+              <span class="nc-tag">LlamaIndex</span>
+              <span class="nc-tag">GPT-4</span>
+              <span class="nc-tag">Qdrant</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Node 4 -->
+        <div class="roadmap-node">
+          <div class="node-dot-wrap">
+            <span class="node-num">04</span>
+          </div>
+          <div class="node-card">
+            <div class="nc-type">Robotics · Vision</div>
+            <div class="nc-title">UR3e Robotic Arm Manipulation</div>
+            <div class="nc-desc">ROS 2 vision-guided control using pose estimation & inverse kinematics. 98% stacking accuracy on a UR3e arm.</div>
+            <div class="nc-tags">
+              <span class="nc-tag">ROS 2</span>
+              <span class="nc-tag">Python</span>
+              <span class="nc-tag">OpenCV</span>
+            </div>
+            <a href="#" class="nc-link">GITHUB ↗</a>
+          </div>
+        </div>
+
+        <!-- Node 5 — ongoing -->
+        <div class="roadmap-node">
+          <div class="node-dot-wrap" style="border-style:dashed;">
+            <span class="node-num" style="color:#aaa;">05</span>
+          </div>
+          <div class="node-card" style="border-style:dashed;border-color:#aaa;background:transparent;">
+            <div class="nc-type" style="color:#aaa;">In Progress · Research</div>
+            <div class="nc-title" style="color:#888;">ITPS on UR3 (MuJoCo)</div>
+            <div class="nc-desc" style="color:#aaa;">Adapting MIT CSAIL's ITPS framework to UR3 arm manipulation. 4 steering methods, CPU + CUDA.</div>
+            <div class="nc-tags">
+              <span class="nc-tag" style="border-color:#aaa;color:#aaa;">MuJoCo</span>
+              <span class="nc-tag" style="border-color:#aaa;color:#aaa;">CUDA</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── ACTIVITIES ─────────────────────────────────── -->
+<div class="section" id="activities">
+  <div class="section-header">
+    <div class="sec-label"><span class="num">03</span> Leadership & Activities</div>
+    <div class="sec-count">2 roles</div>
+  </div>
+  <div class="activities-grid">
+    <div class="act-card">
+      <div class="act-title">Project Lift</div>
+      <div class="act-role">Co-Founder · President</div>
+      <div class="act-date">May 2025 – Present</div>
+      <div class="act-desc">Student tech consulting club at UMD. Delivered customized tools across 5+ small business clients, generating $10K+ in digital transformation value. Mentored 35+ interdisciplinary members in full-stack development and client management.</div>
+    </div>
+    <div class="act-card">
+      <div class="act-title">Alpha Kappa Psi</div>
+      <div class="act-role">VP of Professional Development</div>
+      <div class="act-date">Apr 2025 – Present</div>
+      <div class="act-desc">Spearheaded professional development initiatives and corporate outreach for 90+ members. Fostered relationships with Fortune 500 companies to drive recruitment pipelines and career opportunities.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── FOOTER ─────────────────────────────────────── -->
+<footer>
+  <div class="footer-links">
+    <a href="https://github.com/ngangi0195" target="_blank">GitHub</a>
+    <a href="https://linkedin.com/in/nidhingangisetty" target="_blank">LinkedIn</a>
+    <a href="mailto:nidhingangisetty@gmail.com">Email</a>
+    <a href="#">Blog</a>
+  </div>
+  <div class="footer-copy">© 2025 Nidhin Gangisetty · nidhingangisetty@gmail.com</div>
+</footer>
+
+</body>
+</html>
