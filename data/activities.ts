@@ -7,34 +7,32 @@ export interface Activity {
   tags?: string[]
   link?: string
   linkLabel?: string
+  logo?: string
 }
 
 export const activities: Activity[] = [
   {
-    title: 'Project Lift',
+    title: 'Project LIFT',
     role: 'Co-Founder & President',
     date: 'May 2025 – Present',
-    description:
-      'Co-founded a student tech consulting club at UMD. Delivered customized tools across 5+ small business clients, generating $10K+ in digital transformation value. Mentored 35+ interdisciplinary members in full-stack development and client management.',
+    description: 'Helping small businesses grow and optimize with custom technology.',
     highlights: [
-      '$10K+ in digital transformation value delivered',
-      '5+ small business clients served end-to-end',
-      '35+ interdisciplinary members mentored',
-      'Full project lifecycle: requirements → deployment',
+      'Co-founded a student tech consulting club at UMD, leading 40+ members to deliver $10K+ in digital transformation value across 5+ small business clients.',
     ],
+    logo: '/project-lift-logo.png',
+    link: 'https://www.projectliftumd.com/',
     tags: ['Leadership', 'Full-Stack', 'Consulting'],
   },
   {
     title: 'Alpha Kappa Psi',
     role: 'VP of Professional Development',
     date: 'Apr 2025 – Present',
-    description:
-      'Spearheaded professional development initiatives and corporate outreach for 90+ members. Fostered relationships with Fortune 500 companies to drive recruitment pipelines and career opportunities.',
+    description: 'Premier professional co-ed, interdisciplinary business fraternity.',
     highlights: [
-      'Managed professional dev programs for 90+ members',
-      'Established Fortune 500 recruiting pipelines',
-      'Organized workshops, speaker series & networking events',
+      'Spearheaded professional development and corporate outreach for 90+ members, building recruiting pipelines with Fortune 500 companies to drive chapter-wide career opportunities.',
     ],
+    logo: '/akpsi-logo.png',
+    link: 'https://www.instagram.com/akpsiot/',
     tags: ['Leadership', 'Professional Development'],
   },
   {

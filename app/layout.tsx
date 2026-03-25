@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { Inter, Space_Grotesk, JetBrains_Mono } from 'next/font/google'
 import { Providers } from '@/components/layout/Providers'
+import { CustomCursor } from '@/components/layout/CustomCursor'
 import './globals.css'
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter', display: 'swap' })
@@ -39,7 +40,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <head>
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" crossOrigin="anonymous" />
       </head>
-      <body><Providers>{children}</Providers></body>
+      <body><CustomCursor /><Providers>{children}</Providers></body>
     </html>
   )
 }

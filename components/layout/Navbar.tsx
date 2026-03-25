@@ -5,15 +5,11 @@ import { usePathname } from 'next/navigation'
 import { useState } from 'react'
 import { ThemeToggle } from '@/components/ui/ThemeToggle'
 
-const homeLinks = [
-  { href: '#experience', label: 'Experience' },
-  { href: '#projects',   label: 'Projects'   },
-  { href: '#activities', label: 'Activities'  },
-]
+const homeLinks: { href: string; label: string }[] = []
 
 const globalLinks = [
   { href: '/blog',    label: 'Blog'    },
-  { href: '/content', label: 'Content' },
+  { href: '/content', label: 'Personal' },
 ]
 
 export function Navbar() {

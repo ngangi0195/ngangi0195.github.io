@@ -1,275 +1,297 @@
-'use client'
+"use client";
 
-import { useState, useEffect } from 'react'
+import { Github as GithubIcon, Linkedin, Mail } from "lucide-react";
+import { experience } from "@/data/experience";
+import { projects } from "@/data/projects";
+import { activities } from "@/data/activities";
 
-const TAGLINES = [
-  'Building intelligent systems.',
-  'Autonomy · Perception · Systems.',
-  'From simulation to the real world.',
-  'ROS 2 · SLAM · Computer Vision.',
-]
+function bold(text: string) {
+  const parts = text.split(/\*\*(.+?)\*\*/g);
+  return parts.map((p, i) => (i % 2 === 1 ? <strong key={i}>{p}</strong> : p));
+}
+
+const SHORT_ORGS: Record<string, string> = {
+  "Robotics Algorithms & Autonomous Systems Lab (RAAS)": "RAAS Lab",
+  "Xprotege Institute of Technology and Management": "Xprotege",
+  "Craving Hour Halal": "Craving Hour",
+};
 
 export function Hero() {
-  const [idx, setIdx] = useState(0)
-  const [displayed, setDisplayed] = useState('')
-  const [deleting, setDeleting] = useState(false)
-
-  useEffect(() => {
-    const current = TAGLINES[idx]
-    let t: ReturnType<typeof setTimeout>
-
-    if (!deleting && displayed.length < current.length) {
-      t = setTimeout(() => setDisplayed(current.slice(0, displayed.length + 1)), 45)
-    } else if (!deleting && displayed.length === current.length) {
-      t = setTimeout(() => setDeleting(true), 2400)
-    } else if (deleting && displayed.length > 0) {
-      t = setTimeout(() => setDisplayed(current.slice(0, displayed.length - 1)), 25)
-    } else {
-      setDeleting(false)
-      setIdx((i) => (i + 1) % TAGLINES.length)
-    }
-
-    return () => clearTimeout(t)
-  }, [displayed, deleting, idx])
-
   return (
-    <section className="hero-root" id="hero">
-      {/* Background SVG decorations — absolute, scroll with page */}
-      <div className="hero-bg" aria-hidden="true">
-        {/* Circuit traces — top right */}
-        <svg
-          style={{ position: 'absolute', top: 60, right: 0, width: 340, height: 280, opacity: 0.055 }}
-          viewBox="0 0 340 280" fill="none"
-        >
-          <path d="M340 40 H240 V100 H160 V180 H80 V240" stroke="#0c0c0c" strokeWidth="1.5" />
-          <path d="M340 100 H280 V160 H200 V220" stroke="#0c0c0c" strokeWidth="1.5" />
-          <circle cx="240" cy="40" r="4" fill="#0c0c0c" />
-          <circle cx="240" cy="100" r="4" fill="#0c0c0c" />
-          <circle cx="160" cy="100" r="4" fill="#0c0c0c" />
-          <circle cx="160" cy="180" r="4" fill="#0c0c0c" />
-          <circle cx="80" cy="180" r="4" fill="#0c0c0c" />
-          <circle cx="280" cy="100" r="4" fill="#0c0c0c" />
-          <circle cx="200" cy="160" r="4" fill="#0c0c0c" />
-        </svg>
+    <section className="dash-root" id="hero">
+      {/* ── LEFT: full identity + vision + stack ── */}
+      <div className="dash-col-l">
+        <div className="kicker">
+          <span className="live-dot" />
+          CS Student · Robotics · Software Eng
+        </div>
 
-        {/* Robot arm silhouette — bottom left */}
-        <svg
-          style={{ position: 'absolute', bottom: 30, left: 20, width: 180, height: 160, opacity: 0.045 }}
-          viewBox="0 0 180 160" fill="none"
-        >
-          <rect x="75" y="130" width="30" height="20" rx="2" stroke="#0c0c0c" strokeWidth="2" />
-          <rect x="80" y="100" width="20" height="35" rx="2" stroke="#0c0c0c" strokeWidth="2" />
-          <line x1="90" y1="100" x2="60" y2="60" stroke="#0c0c0c" strokeWidth="2.5" />
-          <circle cx="60" cy="60" r="8" stroke="#0c0c0c" strokeWidth="2" />
-          <line x1="60" y1="52" x2="40" y2="20" stroke="#0c0c0c" strokeWidth="2.5" />
-          <circle cx="40" cy="20" r="6" stroke="#0c0c0c" strokeWidth="2" />
-          <line x1="90" y1="100" x2="120" y2="70" stroke="#0c0c0c" strokeWidth="2.5" />
-          <circle cx="120" cy="70" r="8" stroke="#0c0c0c" strokeWidth="2" />
-          <line x1="120" y1="62" x2="145" y2="30" stroke="#0c0c0c" strokeWidth="2.5" />
-          <circle cx="145" cy="30" r="6" stroke="#0c0c0c" strokeWidth="2" />
-        </svg>
+        <div className="hero-name-row">
+          <h1 className="hero-name">
+            <span className="first">Nidhin</span>
+            <span className="last">Gangisetty</span>
+          </h1>
+          <div className="hero-photo">
+            <img src="/headshot.jpg" alt="Nidhin Gangisetty" />
+            <span className="hero-photo-initials">NG</span>
+          </div>
+        </div>
 
-        {/* Coordinate axes — mid area */}
-        <svg
-          style={{ position: 'absolute', top: '45%', left: '28%', width: 90, height: 90, opacity: 0.04 }}
-          viewBox="0 0 100 100" fill="none"
-        >
-          <line x1="50" y1="90" x2="50" y2="10" stroke="#0c0c0c" strokeWidth="1.5" />
-          <line x1="10" y1="50" x2="90" y2="50" stroke="#0c0c0c" strokeWidth="1.5" />
-          <polygon points="50,6 46,14 54,14" fill="#0c0c0c" />
-          <polygon points="94,50 86,46 86,54" fill="#0c0c0c" />
-        </svg>
+        <p className="hero-intro">
+          Hi! I&apos;m an <strong>Honors College</strong> student studying{" "}
+          <strong>Computer Science</strong>,{" "}
+          <strong>Robotics and Autonomous Systems</strong>, and{" "}
+          <strong>Entrepreneurship</strong> at <strong>UMD</strong>.
+        </p>
 
-        {/* Scatter / point cloud — upper left */}
-        <svg
-          style={{ position: 'absolute', top: 80, left: '36%', width: 160, height: 120, opacity: 0.038 }}
-          viewBox="0 0 160 120" fill="none"
-        >
-          {[[20,30],[45,18],[70,55],[95,22],[120,70],[40,80],[80,95],[130,45],[155,15],[10,95],[60,40],[110,85]].map(([x,y],i) => (
-            <circle key={i} cx={x} cy={y} r="3" fill="#0c0c0c"/>
+        <div className="dash-label">Career Vision</div>
+
+        <p className="vision-headline">
+          Building the Intelligent Physical World
+        </p>
+
+        <p className="vision-body">
+          I aim to work at the intersection of{" "}
+          <strong>hardware and software</strong> and use my passion for{" "}
+          <strong>robotics</strong> to work towards the change I want to see in
+          the world. With the rapid progress being made in this field, I&apos;ve
+          become extremely motivated to become{" "}
+          <strong>technically adept</strong> and{" "}
+          <strong>intellectually prepared</strong> to pioneer such ambitious and
+          innovative efforts!
+          <br />
+          <span className="vision-domains-label">
+            Some domains that currently interest me:
+          </span>
+        </p>
+
+        <div className="vision-focus-chips">
+          {[
+            "Topsoil Degradation",
+            "Med-Tech",
+            "Marine Robotics",
+            "Space",
+            "Defense",
+          ].map((f) => (
+            <span key={f} className="vision-chip">
+              {f}
+            </span>
           ))}
-          <line x1="10" y1="100" x2="155" y2="10" stroke="#0c0c0c" strokeWidth="1" strokeDasharray="4 4"/>
-        </svg>
+        </div>
 
-        {/* Sine wave — bottom center */}
-        <svg
-          style={{ position: 'absolute', bottom: 50, left: '20%', width: 300, height: 60, opacity: 0.035 }}
-          viewBox="0 0 300 60" fill="none"
-        >
-          <path d="M0,30 C25,5 50,55 75,30 S125,5 150,30 S200,55 225,30 S275,5 300,30"
-            stroke="#0c0c0c" strokeWidth="1.5" fill="none"/>
-        </svg>
+        <div className="dash-label">Core Stack</div>
 
-        {/* Corner bracket marks */}
-        <svg
-          style={{ position: 'absolute', bottom: 24, right: 24, width: 48, height: 48, opacity: 0.06 }}
-          viewBox="0 0 48 48" fill="none"
-        >
-          <path d="M48,0 L48,48 L0,48" stroke="#0c0c0c" strokeWidth="2" fill="none"/>
-        </svg>
-        <svg
-          style={{ position: 'absolute', top: 24, left: 24, width: 48, height: 48, opacity: 0.06 }}
-          viewBox="0 0 48 48" fill="none"
-        >
-          <path d="M0,48 L0,0 L48,0" stroke="#0c0c0c" strokeWidth="2" fill="none"/>
-        </svg>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 5 }}>
+          {[
+            "Python",
+            "ROS 2",
+            "C++",
+            "PyTorch",
+            "Next.js",
+            "TypeScript",
+            "PostgreSQL",
+            "AWS",
+          ].map((s, i) => (
+            <span key={s} className={`stag${i < 3 ? " stag-on" : ""}`}>
+              {s}
+            </span>
+          ))}
+        </div>
+
+        <div style={{ flex: 1 }} />
+
+        <div className="hero-cta-row">
+          <a href="/resume.pdf" download className="btn-brut btn-fill">
+            Download Resume
+          </a>
+          <div className="contact-links">
+            <a
+              href="https://github.com/nidhingangisetty"
+              target="_blank"
+              rel="noreferrer"
+              className="contact-link"
+              aria-label="GitHub"
+            >
+              <GithubIcon size={15} />
+            </a>
+            <a
+              href="https://linkedin.com/in/nidhingangisetty"
+              target="_blank"
+              rel="noreferrer"
+              className="contact-link"
+              aria-label="LinkedIn"
+            >
+              <Linkedin size={15} />
+            </a>
+            <a
+              href="mailto:nidhin@umd.edu"
+              className="contact-link"
+              aria-label="Email"
+            >
+              <Mail size={15} />
+            </a>
+            <span className="contact-blurb">
+              Feel free to reach out, happy to chat!
+            </span>
+          </div>
+        </div>
       </div>
 
-      {/* ── LEFT COLUMN ── */}
-      <div className="hero-left">
-        <div>
-          <div className="kicker">
-            <span className="live-dot" />
-            CS Student · Robotics · Software Eng
-          </div>
-
-          {/* Name + headshot side by side */}
-          <div className="hero-name-row">
-            <h1 className="hero-name">
-              <span className="first">Nidhin</span>
-              <span className="last">Gangisetty</span>
-            </h1>
-            {/* Place your headshot at /public/headshot.jpg */}
-            <div className="hero-photo">
-              <img src="/headshot.jpg" alt="Nidhin Gangisetty" />
-              <span className="hero-photo-initials">NG</span>
+      {/* ── RIGHT: Experience, Projects, Activities stacked ── */}
+      <div className="dash-col-r">
+        {/* Experience */}
+        <div className="dash-panel">
+          <div className="dash-section-head">
+            <div className="sh-left">
+              <span className="sh-num">01</span>
+              <span className="sh-title">Experience</span>
             </div>
+            <span className="sh-right">{experience.length} roles</span>
           </div>
-
-          <p className="hero-intro">
-            CS student at <strong>UMD</strong> building autonomous systems, AI pipelines, and full-stack products.
-            Undergraduate researcher at <strong>RAAS Lab</strong>. Co-founder of <strong>Project Lift</strong>.
-            Focused on the intersection of <strong>robotics, systems, and applied AI</strong>.
-          </p>
-
-          <div style={{
-            marginBottom: 4,
-            fontFamily: 'var(--font-jetbrains), monospace',
-            fontSize: 13,
-            color: 'var(--muted)',
-            minHeight: 22,
-            letterSpacing: '0.02em',
-          }}>
-            {displayed}
-            <span className="animate-blink" style={{ borderRight: '2px solid var(--muted)', marginLeft: 2 }}>&nbsp;</span>
-          </div>
-
-          {/* Currently */}
-          <div className="hero-currently">
-            <div className="currently-label">Currently</div>
-            {[
-              { text: 'Researcher @ RAAS Lab — adapting ITPS to UR3 arm in MuJoCo' },
-              { text: 'President @ Project Lift — active client builds' },
-              { text: 'Open to SWE & Robotics internships — Summer 2026' },
-            ].map((item, i) => (
-              <div key={i} className="currently-item">
-                <span className="currently-arrow">▸</span>
-                <span>{item.text}</span>
+          <div className="dash-panel-body">
+            {experience.map((e, i) => (
+              <div key={i} className="de-row">
+                <div className="de-head">
+                  <span className="de-org">{SHORT_ORGS[e.org] ?? e.org}</span>
+                  <span className="de-date">
+                    {e.startDate} – {e.endDate}
+                  </span>
+                </div>
+                <div className="de-role">{e.role}</div>
+                <div className="de-bullet">{bold(e.bullets[0])}</div>
               </div>
             ))}
           </div>
         </div>
 
-        <div className="hero-ctas">
-          <a href="#projects"   className="btn-brut btn-fill">View Projects</a>
-          <a href="#experience" className="btn-brut btn-outline">Experience</a>
-        </div>
-      </div>
-
-      {/* ── RIGHT COLUMN ── */}
-      <div className="hero-right">
-
-        {/* ── Career Vision — dominant ── */}
-        <div className="r-panel-vision">
-          <div className="vision-kicker">
-            <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--red)', flexShrink: 0 }} />
-            Career Vision
-          </div>
-
-          <div className="vision-headline">
-            Building the Intelligent<br />Physical World
-          </div>
-
-          <div className="vision-body">
-            I want to work at the frontier of <strong>robotics and AI</strong> — on systems
-            that don&apos;t just process data but act in the physical world. My interest is in
-            problems where theory meets hardware: <strong>perception pipelines</strong> that
-            work in the wild, <strong>planners</strong> that generalize, and <strong>human-robot
-            interfaces</strong> that feel natural. I&apos;m drawn to the full stack from
-            simulation to deployment on real hardware.
-          </div>
-
-          <div className="vision-focus">
-            <div className="vision-focus-label">Focus Areas</div>
-            <div className="vision-focus-chips">
-              {['Perception', 'Motion Planning', 'Dexterous Manipulation', 'Human-Robot Interaction', 'Sim-to-Real', 'Policy Learning'].map((f) => (
-                <span key={f} className="vision-chip">{f}</span>
-              ))}
+        {/* Projects — roadmap timeline */}
+        <div className="dash-panel">
+          <div className="dash-section-head">
+            <div className="sh-left">
+              <span className="sh-num">02</span>
+              <span className="sh-title">Projects</span>
             </div>
+            <span className="sh-right">{projects.length} builds</span>
           </div>
-
-          {/* Callout — pushed to bottom, expanded to fill remaining space */}
-          <div className="vision-callout" style={{ marginTop: 'auto' }}>
-            <div style={{ width: '100%' }}>
-              <div style={{
-                fontFamily: 'var(--font-jetbrains), monospace',
-                fontSize: 8, letterSpacing: '0.18em',
-                textTransform: 'uppercase', color: '#888',
-                marginBottom: 10,
-              }}>
-                Long-Term Goal
-              </div>
-              <div style={{ fontSize: 13, lineHeight: 1.75, marginBottom: 16 }}>
-                Build manipulation systems that generalize across unstructured environments
-                without task-specific retraining — bridging the gap between simulation
-                and robust real-world deployment.
-              </div>
-              <div style={{ borderTop: '1px solid #2a2a2a', paddingTop: 12 }}>
-                <div style={{
-                  fontFamily: 'var(--font-jetbrains), monospace',
-                  fontSize: 8, letterSpacing: '0.18em',
-                  textTransform: 'uppercase', color: '#888',
-                  marginBottom: 8,
-                }}>
-                  Active Research
-                </div>
-                <div style={{ fontSize: 12, lineHeight: 1.7, color: '#bbb' }}>
-                  Adapting ITPS (MIT CSAIL) to UR3 robotic arm block-stacking in MuJoCo.
-                  Validated 4 steering methods with CPU + CUDA support — RAAS Lab, UMD.
-                </div>
+          <div className="roadmap-body">
+            <div className="roadmap-wrap">
+              <div className="roadmap-track" />
+              <div className="roadmap-nodes">
+                {projects.map((p, i) => {
+                  const isFeatured = !!p.featured;
+                  const typeLabel =
+                    p.status === "in-progress"
+                      ? "In Progress"
+                      : isFeatured
+                        ? "Featured"
+                        : "Build";
+                  return (
+                    <div
+                      key={p.id}
+                      className={`roadmap-node${isFeatured ? " rn-featured" : ""}`}
+                    >
+                      <div className="node-dot-wrap">
+                        <span className="node-num">
+                          {String(i + 1).padStart(2, "0")}
+                        </span>
+                      </div>
+                      <div className="node-card">
+                        <div className="nc-type">{typeLabel}</div>
+                        <div className="nc-title">
+                          {p.title.split("—")[0].split("·")[0].trim()}
+                        </div>
+                        <div className="nc-desc">{bold(p.description)}</div>
+                        <div className="nc-tags">
+                          {p.tags.slice(0, 3).map((t) => (
+                            <span key={t} className="nc-tag">
+                              {t}
+                            </span>
+                          ))}
+                        </div>
+                        {(p.demo || p.github) && (
+                          <a
+                            href={p.demo ?? p.github}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="nc-link"
+                          >
+                            {p.demo?.endsWith(".mov")
+                              ? "Video ↗"
+                              : p.demo
+                                ? "Live ↗"
+                                : "GitHub →"}
+                          </a>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             </div>
           </div>
         </div>
 
-        {/* ── Quick Facts + Stack — compact bottom row ── */}
-        <div className="r-panel-bottom">
-          <div>
-            <div className="panel-eyebrow">Quick Facts</div>
-            {[
-              { k: 'School',   v: 'UMD Honors', accent: false },
-              { k: 'Research', v: 'RAAS Lab',    accent: false },
-              { k: 'Kato',     v: '11k+ visits', accent: true  },
-              { k: 'Lift',     v: '$10K+ value', accent: true  },
-            ].map((f) => (
-              <div className="fact-row" key={f.k}>
-                <span className="fk">{f.k}</span>
-                <span className={`fv${f.accent ? ' fv-red' : ''}`}>{f.v}</span>
-              </div>
-            ))}
+        {/* Activities */}
+        <div className="dash-panel dash-panel-last">
+          <div className="dash-section-head">
+            <div className="sh-left">
+              <span className="sh-num">03</span>
+              <span className="sh-title">Activities</span>
+            </div>
+            <span className="sh-right">
+              {
+                activities.filter(
+                  (a) =>
+                    a.title !== "RAAS Lab — UMD" &&
+                    a.title !== "University of Maryland — Honors College",
+                ).length
+              }{" "}
+              entries
+            </span>
           </div>
-
-          <div>
-            <div className="panel-eyebrow">Core Stack</div>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5 }}>
-              {['Python', 'ROS 2', 'C++', 'PyTorch', 'Next.js', 'TypeScript', 'PostgreSQL', 'AWS'].map((s, i) => (
-                <span key={s} className={`stag${i < 3 ? ' stag-on' : ''}`}>{s}</span>
-              ))}
+          <div className="dash-panel-body">
+            <div className="da-grid">
+              {activities
+                .filter(
+                  (a) =>
+                    a.title !== "RAAS Lab — UMD" &&
+                    a.title !== "University of Maryland — Honors College",
+                )
+                .map((a, i) => (
+                  <div key={i} className="da-row">
+                    <div className="da-row-inner">
+                      <div className="da-row-text">
+                        {a.link ? (
+                          <a
+                            href={a.link}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="da-title da-title-link"
+                          >
+                            {a.title} <span className="da-link-arrow">↗</span>
+                          </a>
+                        ) : (
+                          <div className="da-title">{a.title}</div>
+                        )}
+                        {a.description && (
+                          <div className="da-tagline">{a.description}</div>
+                        )}
+                        <div className="da-role">{a.role}</div>
+                        <div className="da-date">{a.date}</div>
+                        {a.highlights?.[0] && (
+                          <div className="da-desc">{a.highlights[0]}</div>
+                        )}
+                      </div>
+                      {a.logo && (
+                        <img src={a.logo} alt={a.title} className="da-logo" />
+                      )}
+                    </div>
+                  </div>
+                ))}
             </div>
           </div>
         </div>
-
       </div>
     </section>
-  )
+  );
 }

@@ -4,7 +4,7 @@ import { Footer } from '@/components/layout/Footer'
 import { contentItems, ContentItem, ContentCategory } from '@/data/content'
 
 export const metadata: Metadata = {
-  title: 'Content',
+  title: 'Personal',
   description: "What I'm reading, watching, building, and writing.",
 }
 
@@ -69,25 +69,63 @@ export default function ContentPage() {
   return (
     <>
       <Navbar />
-      <main>
-        <div className="content-root">
+      <main style={{ position: 'relative', overflow: 'hidden' }}>
+
+        {/* ── Backdrop ── */}
+        <div aria-hidden="true" style={{ position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 0, overflow: 'hidden' }}>
+          {/* Stacked rectangles — top right (books/layers) */}
+          <svg style={{ position: 'absolute', top: 0, right: 0, width: 300, height: 360, opacity: 0.028 }}
+            viewBox="0 0 300 360" fill="none" preserveAspectRatio="xMaxYMin meet">
+            {[0,1,2,3,4,5,6].map((i) => (
+              <rect key={i} x={i * 6} y={i * 26 + 20} width={260 - i * 12} height="16"
+                stroke="#0c0c0c" strokeWidth="1" fill="none"/>
+            ))}
+            <line x1="0" y1="230" x2="260" y2="230" stroke="#0c0c0c" strokeWidth="1.5"/>
+          </svg>
+          {/* Grid dots — bottom left */}
+          <svg style={{ position: 'absolute', bottom: 40, left: 20, width: 200, height: 140, opacity: 0.03 }}
+            viewBox="0 0 200 140" fill="none">
+            {Array.from({ length: 5 }).map((_, row) =>
+              Array.from({ length: 9 }).map((_, col) => (
+                <circle key={`${row}-${col}`} cx={col * 22 + 10} cy={row * 28 + 14} r="2.5" fill="#0c0c0c"/>
+              ))
+            )}
+          </svg>
+          {/* Corner bracket — top left */}
+          <svg style={{ position: 'absolute', top: 32, left: 32, width: 40, height: 40, opacity: 0.06 }}
+            viewBox="0 0 40 40" fill="none">
+            <path d="M0,40 L0,0 L40,0" stroke="#0c0c0c" strokeWidth="2.5"/>
+          </svg>
+          {/* Corner bracket — bottom right */}
+          <svg style={{ position: 'absolute', bottom: 32, right: 32, width: 40, height: 40, opacity: 0.06 }}
+            viewBox="0 0 40 40" fill="none">
+            <path d="M40,0 L40,40 L0,40" stroke="#0c0c0c" strokeWidth="2.5"/>
+          </svg>
+        </div>
+
+        <div className="content-root" style={{ position: 'relative', zIndex: 1 }}>
+
+          {/* Header */}
           <div className="content-header">
-            <div className="content-eyebrow">content</div>
+            <div className="kicker" style={{ marginBottom: 20 }}>
+              <span className="live-dot" />
+              Personal · Continuously Updated
+            </div>
             <h1 className="content-h1">
-              What I&apos;m Into
-              <br />
-              &amp; Making
+              What I&apos;m Into<br />&amp; Making
             </h1>
             <p className="content-subtitle">
-              A curated snapshot of what I&apos;m reading, watching, and building — continuously updated.
+              A running snapshot of what I&apos;m reading, watching, and building —
+              books, papers, podcasts, and projects shaping how I think.
             </p>
           </div>
 
+          {/* Into */}
           <div className="content-section">
             <div className="content-section-head">
               <div className="content-section-title">What I&apos;m Into</div>
               <div className="content-section-sub">
-                Books, papers, podcasts, and channels shaping how I think right now.
+                {intoItems.length} items · books, papers, podcasts, channels
               </div>
             </div>
             <div className="content-grid">
@@ -99,11 +137,12 @@ export default function ContentPage() {
 
           <div className="content-divider" />
 
+          {/* Making */}
           <div className="content-section">
             <div className="content-section-head">
               <div className="content-section-title">What I&apos;m Making</div>
               <div className="content-section-sub">
-                Videos, write-ups, and projects I&apos;m actively working on or have shipped.
+                {makingItems.length} items · videos, write-ups, projects
               </div>
             </div>
             <div className="content-grid">
@@ -112,6 +151,7 @@ export default function ContentPage() {
               ))}
             </div>
           </div>
+
         </div>
       </main>
       <Footer />
