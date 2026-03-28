@@ -326,41 +326,6 @@ export function Hero() {
             </div>
           </div>
 
-          <div className="v-cta-row">
-            <a href="/resume.pdf" download className="btn-brut btn-fill">
-              Download Resume
-            </a>
-            <div className="contact-links">
-              <a
-                href="https://github.com/nidhingangisetty"
-                target="_blank"
-                rel="noreferrer"
-                className="contact-link"
-                aria-label="GitHub"
-              >
-                <GithubIcon size={15} />
-              </a>
-              <a
-                href="https://linkedin.com/in/nidhingangisetty"
-                target="_blank"
-                rel="noreferrer"
-                className="contact-link"
-                aria-label="LinkedIn"
-              >
-                <Linkedin size={15} />
-              </a>
-              <a
-                href="mailto:nidhin@umd.edu"
-                className="contact-link"
-                aria-label="Email"
-              >
-                <Mail size={15} />
-              </a>
-              <span className="contact-blurb">
-                Feel free to reach out, happy to chat!
-              </span>
-            </div>
-          </div>
         </div>
 
         <div
@@ -372,15 +337,29 @@ export function Hero() {
             alt="Nidhin Gangisetty"
             className="v-headshot"
           />
+          <div className="v-hero-under-headshot">
+            <a href="/resume.pdf" download className="btn-brut btn-fill">
+              Download Resume
+            </a>
+            <div className="contact-links">
+              <a href="https://github.com/nidhingangisetty" target="_blank" rel="noreferrer" className="contact-link" aria-label="GitHub">
+                <GithubIcon size={15} />
+              </a>
+              <a href="https://linkedin.com/in/nidhingangisetty" target="_blank" rel="noreferrer" className="contact-link" aria-label="LinkedIn">
+                <Linkedin size={15} />
+              </a>
+              <a href="mailto:nidhin@umd.edu" className="contact-link" aria-label="Email">
+                <Mail size={15} />
+              </a>
+            </div>
+          </div>
         </div>
       </section>
 
       {/* ── EXPERIENCE ── */}
       <section className="v-section" id="experience">
         <div className="v-section-head">
-          <span className="sh-num">01</span>
           <span className="sh-title">Experience</span>
-          <span className="v-section-count">{experience.length} roles</span>
         </div>
         {experience.map((e, i) => (
           <div key={i} className="v-exp-row">
@@ -413,9 +392,7 @@ export function Hero() {
       {/* ── PROJECTS ── */}
       <section className="v-section" id="projects">
         <div className="v-section-head">
-          <span className="sh-num">02</span>
           <span className="sh-title">Projects</span>
-          <span className="v-section-count">{projects.length} builds</span>
         </div>
         <div className="v-roadmap-body">
           <div className="roadmap-wrap">
@@ -478,18 +455,7 @@ export function Hero() {
       {/* ── ACTIVITIES ── */}
       <section className="v-section v-section-last" id="activities">
         <div className="v-section-head">
-          <span className="sh-num">03</span>
           <span className="sh-title">Activities</span>
-          <span className="v-section-count">
-            {
-              activities.filter(
-                (a) =>
-                  a.title !== "RAAS Lab — UMD" &&
-                  a.title !== "University of Maryland — Honors College",
-              ).length
-            }{" "}
-            entries
-          </span>
         </div>
         <div className="v-act-grid">
           {activities
@@ -520,7 +486,7 @@ export function Hero() {
                     <div className="da-role">{a.role}</div>
                     <div className="da-date">{a.date}</div>
                     {a.highlights?.[0] && (
-                      <div className="da-desc">{a.highlights[0]}</div>
+                      <div className="da-desc">{bold(a.highlights[0])}</div>
                     )}
                   </div>
                   {a.logo && (

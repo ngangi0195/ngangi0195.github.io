@@ -3,7 +3,6 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useState } from 'react'
-import { ThemeToggle } from '@/components/ui/ThemeToggle'
 
 const homeLinks: { href: string; label: string }[] = []
 
@@ -46,8 +45,6 @@ export function Navbar() {
             <span className="live-dot" />
             OPEN TO WORK
           </div>
-          <ThemeToggle />
-          <a href="/resume.pdf" download className="nav-cta">Resume</a>
         </div>
 
         <button

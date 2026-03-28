@@ -711,7 +711,8 @@ body.cursor-link #cursor {
 .nc-desc  { font-size: 10px; color: var(--text2); line-height: 1.4; margin-bottom: 6px; }
 .nc-tags  { display: flex; flex-wrap: wrap; gap: 3px; }
 .nc-tag   { font-family: var(--font-jetbrains), monospace; font-size: 7px; font-weight: 700; border: 1px solid var(--ink); padding: 2px 4px; }
-.nc-link  { display: block; margin-top: 6px; font-family: var(--font-jetbrains), monospace; font-size: 8px; font-weight: 700; letter-spacing: 0.06em; color: var(--blue); text-decoration: none; }
+.nc-link  { display: block; margin-top: 6px; font-family: var(--font-jetbrains), monospace; font-size: 8px; font-weight: 700; letter-spacing: 0.06em; color: var(--blue); text-decoration: none; border-bottom: 1px solid transparent; transition: border-color 0.12s; }
+.nc-link:hover { border-bottom-color: var(--blue); }
 
 /* ─── ACTIVITIES ────────────────────────────────── */
 .act-grid { display: grid; grid-template-columns: 1fr 1fr; position: relative; z-index: 1; }
@@ -1544,6 +1545,17 @@ body.cursor-link #cursor {
   border: 3px solid var(--ink);
   display: block;
 }
+.v-hero-under-headshot {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: var(--rule-light);
+  width: clamp(200px, 26vw, 340px);
+}
+.v-hero-under-headshot .btn-brut { flex-shrink: 0; font-size: 11px; padding: 7px 14px; }
+.v-hero-under-headshot .contact-links { display: flex; gap: 4px; }
 .v-name {
   font-family: var(--font-space-grotesk), sans-serif;
   font-size: clamp(52px, 5vw, 76px);
@@ -1583,7 +1595,7 @@ body.cursor-link #cursor {
 
 /* ── Section shell ────────────────────────────── */
 .v-section { border-bottom: var(--rule); }
-.v-section-last { border-bottom: none; }
+.v-section-last { border-bottom: none; padding-bottom: 64px; }
 .v-section-head {
   display: flex;
   align-items: baseline;
@@ -1592,6 +1604,11 @@ body.cursor-link #cursor {
   background: var(--surface);
   width: 100%;
   padding: 20px 48px;
+}
+.v-section-head .sh-title {
+  font-size: clamp(14px, 1.2vw, 18px) !important;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 .v-section-count {
   font-family: var(--font-jetbrains), monospace;
