@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { Inter, Space_Grotesk, JetBrains_Mono } from 'next/font/google'
 import { Providers } from '@/components/layout/Providers'
 import { CustomCursor } from '@/components/layout/CustomCursor'
+import { Navbar } from '@/components/layout/Navbar'
 import './globals.css'
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter', display: 'swap' })
@@ -36,11 +37,11 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${inter.variable} ${spaceGrotesk.variable} ${jetbrains.variable}`}>
+    <html lang="en" className={`${inter.variable} ${spaceGrotesk.variable} ${jetbrains.variable}`} suppressHydrationWarning>
       <head>
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" crossOrigin="anonymous" />
       </head>
-      <body><CustomCursor /><Providers>{children}</Providers></body>
+      <body><CustomCursor /><Providers><Navbar /><div className="page-frame">{children}</div></Providers></body>
     </html>
   )
 }

@@ -1,5 +1,4 @@
 import type { Metadata } from 'next'
-import { Navbar } from '@/components/layout/Navbar'
 import { Footer } from '@/components/layout/Footer'
 import { contentItems, ContentItem, ContentCategory } from '@/data/content'
 
@@ -68,8 +67,7 @@ export default function ContentPage() {
 
   return (
     <>
-      <Navbar />
-      <main style={{ position: 'relative', overflow: 'hidden' }}>
+    <main style={{ position: 'relative', overflow: 'hidden' }}>
 
         {/* ── Backdrop ── */}
         <div aria-hidden="true" style={{ position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 0, overflow: 'hidden' }}>
@@ -153,8 +151,8 @@ export default function ContentPage() {
           </div>
 
         </div>
-      </main>
-      <Footer />
+    </main>
+    <Footer />
     </>
   )
 }

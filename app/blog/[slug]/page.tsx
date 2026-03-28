@@ -7,7 +7,6 @@ import rehypeSlug from 'rehype-slug'
 import rehypeAutolinkHeadings from 'rehype-autolink-headings'
 import rehypePrettyCode from 'rehype-pretty-code'
 import { getAllPosts, getPostBySlug } from '@/lib/mdx'
-import { Navbar } from '@/components/layout/Navbar'
 import { Footer } from '@/components/layout/Footer'
 import { TableOfContents } from '@/components/blog/TableOfContents'
 import { mdxComponents } from '@/components/mdx/MDXComponents'
@@ -35,7 +34,6 @@ export default function BlogPostPage({ params }: Props) {
 
   return (
     <>
-      <Navbar />
       <main>
         <div className="blog-post-root">
           <div className="blog-post-layout">

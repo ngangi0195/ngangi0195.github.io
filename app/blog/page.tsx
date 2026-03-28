@@ -1,5 +1,4 @@
 import type { Metadata } from 'next'
-import { Navbar } from '@/components/layout/Navbar'
 
 export const metadata: Metadata = {
   title: 'Blog — Coming Soon',
@@ -8,9 +7,7 @@ export const metadata: Metadata = {
 
 export default function BlogIndexPage() {
   return (
-    <>
-      <Navbar />
-      <main className="blog-soon-root">
+    <main className="blog-soon-root">
 
         {/* Corner brackets */}
         <svg aria-hidden="true" className="blog-soon-bracket blog-soon-bracket-tl" viewBox="0 0 40 40" fill="none">
@@ -35,7 +32,6 @@ export default function BlogIndexPage() {
           </p>
 
         </div>
-      </main>
-    </>
+    </main>
   )
 }
