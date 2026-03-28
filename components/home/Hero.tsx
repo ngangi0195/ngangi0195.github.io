@@ -353,6 +353,7 @@ export function Hero() {
               </a>
             </div>
           </div>
+          <p className="contact-blurb" style={{ marginTop: 10 }}>Feel free to reach out, happy to chat!</p>
         </div>
       </section>
 

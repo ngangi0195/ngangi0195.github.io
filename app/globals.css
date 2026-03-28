@@ -1606,9 +1606,17 @@ body.cursor-link #cursor {
   padding: 20px 48px;
 }
 .v-section-head .sh-title {
-  font-size: clamp(14px, 1.2vw, 18px) !important;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  display: inline-flex;
+  align-items: center;
+  font-family: var(--font-jetbrains), monospace !important;
+  font-size: 9px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.12em !important;
+  text-transform: uppercase !important;
+  background: var(--yellow);
+  border: 2px solid var(--ink);
+  padding: 4px 10px;
+  color: #0c0c0c;
 }
 .v-section-count {
   font-family: var(--font-jetbrains), monospace;
