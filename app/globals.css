@@ -1809,11 +1809,16 @@ body.cursor-link #cursor {
 }
 .v-act-text { flex: 1; min-width: 0; }
 .v-act-logo {
-  width: 80px;
-  height: 80px;
+  width: 150px;
+  height: 150px;
   object-fit: contain;
   flex-shrink: 0;
 }
+.v-act-card .da-title   { font-size: 24px; }
+.v-act-card .da-tagline { font-size: 11px; line-height: 1.4; color: var(--muted); }
+.v-act-card .da-role    { font-size: 11px; }
+.v-act-card .da-date    { font-size: 10px; }
+.v-act-card .da-desc    { font-size: 16px; line-height: 1.65; -webkit-line-clamp: 4; }
 
 .v-reach-out {
   font-family: var(--font-jetbrains), monospace;
