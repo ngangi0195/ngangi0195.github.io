@@ -284,11 +284,8 @@ export function Hero() {
               extremely motivated to become <strong>technically adept</strong>{" "}
               and <strong>intellectually prepared</strong> to pioneer such
               ambitious and innovative efforts!
-              <br />
-              <span className="vision-domains-label">
-                Some domains that currently interest me:
-              </span>
             </p>
+            <div className="vision-domains-label">Some domains that currently interest me:</div>
             <div className="v-chips">
               {[
                 "Topsoil Degradation",
@@ -308,7 +305,7 @@ export function Hero() {
             <div className="dash-label" style={{ marginBottom: 8 }}>
               Core Stack
             </div>
-            <div style={{ display: "flex", flexWrap: "wrap", gap: 5 }}>
+            <div style={{ display: "flex", flexWrap: "nowrap", gap: 4, overflow: "hidden" }}>
               {[
                 "Python",
                 "ROS 2",
@@ -353,7 +350,7 @@ export function Hero() {
               </a>
             </div>
           </div>
-          <p className="contact-blurb" style={{ marginTop: 10 }}>Feel free to reach out, happy to chat!</p>
+          <p className="v-reach-out">Feel free to reach out, happy to chat!</p>
         </div>
       </section>
 

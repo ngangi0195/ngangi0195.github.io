@@ -362,9 +362,9 @@ body.cursor-link #cursor {
 }
 .vision-focus-chips { display: flex; flex-wrap: wrap; gap: 5px; }
 .vision-chip {
-  font-family: var(--font-jetbrains), monospace; font-size: 12px; font-weight: 700;
-  padding: 6px 13px; border: 1.5px solid var(--ink); letter-spacing: 0.04em;
-  background: var(--surface2); transition: background 0.12s;
+  font-family: var(--font-jetbrains), monospace; font-size: clamp(9px, 0.85vw, 12px); font-weight: 700;
+  padding: 4px 10px; border: 1.5px solid var(--ink); letter-spacing: 0.03em;
+  background: var(--surface2); transition: background 0.12s; white-space: nowrap; flex-shrink: 0;
 }
 .vision-chip:hover { background: var(--yellow); }
 .vision-callout {
@@ -383,9 +383,9 @@ body.cursor-link #cursor {
 .fv { font-family: var(--font-jetbrains), monospace; font-size: 11px; font-weight: 700; text-align: right; }
 .fv-red { color: var(--red); }
 .stag {
-  font-family: var(--font-jetbrains), monospace; font-size: 11px; font-weight: 700;
-  padding: 4px 9px; border: 2px solid var(--ink); letter-spacing: 0.03em;
-  transition: background 0.12s;
+  font-family: var(--font-jetbrains), monospace; font-size: clamp(9px, 0.85vw, 12px); font-weight: 700;
+  padding: 4px 10px; border: 2px solid var(--ink); letter-spacing: 0.03em;
+  transition: background 0.12s; white-space: nowrap; flex-shrink: 0;
 }
 .stag:hover { background: var(--yellow); }
 .stag-on { background: var(--ink); color: var(--bg); }
@@ -1506,26 +1506,29 @@ body.cursor-link #cursor {
 /* ── Hero ─────────────────────────────────────── */
 .v-hero {
   display: grid;
-  grid-template-columns: 55fr 45fr;
+  grid-template-columns: 62fr 38fr;
   min-height: calc(100vh - 50px);
   border-bottom: var(--rule);
   position: relative;
   overflow: hidden;
 }
 .v-hero-left {
-  padding: 52px 48px;
+  padding: clamp(28px, 3.5vh, 52px) 48px;
   border-right: var(--rule);
   display: flex;
   flex-direction: column;
-  gap: 28px;
+  gap: clamp(14px, 2.2vh, 28px);
 }
 .v-hero-right {
   position: relative;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   background: var(--surface);
   overflow: hidden;
+  padding: 48px 40px;
+  gap: 0;
 }
 .v-hero-right::before {
   content: '';
@@ -1539,7 +1542,7 @@ body.cursor-link #cursor {
 .v-headshot {
   position: relative;
   z-index: 1;
-  width: clamp(200px, 26vw, 340px);
+  width: clamp(170px, 21vw, 270px);
   aspect-ratio: 3/4;
   object-fit: cover;
   border: 3px solid var(--ink);
@@ -1547,42 +1550,52 @@ body.cursor-link #cursor {
 }
 .v-hero-under-headshot {
   display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-top: 20px;
-  padding-top: 20px;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 10px;
+  margin-top: 16px;
+  padding-top: 16px;
   border-top: var(--rule-light);
-  width: clamp(200px, 26vw, 340px);
+  width: clamp(170px, 21vw, 270px);
 }
-.v-hero-under-headshot .btn-brut { flex-shrink: 0; font-size: 11px; padding: 7px 14px; }
-.v-hero-under-headshot .contact-links { display: flex; gap: 4px; }
+.v-hero-under-headshot .btn-brut {
+  width: 100%; text-align: center; display: block;
+  font-size: 11px; padding: 9px 0;
+}
+.v-hero-under-headshot .contact-links {
+  display: flex; justify-content: center; gap: 0;
+}
+.v-hero-under-headshot .contact-link {
+  flex: 1; display: flex; align-items: center; justify-content: center;
+}
 .v-name {
   font-family: var(--font-space-grotesk), sans-serif;
-  font-size: clamp(52px, 5vw, 76px);
+  font-size: clamp(60px, 6vw, 96px);
   font-weight: 800;
   letter-spacing: -0.04em;
   line-height: 0.9;
 }
 .v-name-first { display: block; }
 .v-name-last  { display: block; color: var(--red); }
+.v-hero-left .kicker { margin-bottom: 10px; }
+.v-hero-left .v-name { margin-bottom: 10px; }
 .v-intro {
-  font-size: clamp(14px, 1.1vw, 16px);
+  font-size: clamp(15px, 1.25vw, 18px);
   line-height: 1.75;
   color: var(--text2);
-  max-width: 540px;
 }
 .v-vision-block { display: flex; flex-direction: column; gap: 10px; }
 .v-vision-headline {
   font-family: var(--font-space-grotesk), sans-serif;
-  font-size: clamp(16px, 1.3vw, 20px);
+  font-size: clamp(18px, 1.55vw, 24px);
   font-weight: 800;
 }
 .v-vision-body {
-  font-size: clamp(13px, 1.05vw, 15px);
-  line-height: 1.75;
+  font-size: clamp(14px, 1.2vw, 16px);
+  line-height: 1.65;
   color: var(--text2);
 }
-.v-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 2px; }
+.v-chips { display: flex; flex-wrap: nowrap; gap: 5px; margin-top: 2px; overflow: hidden; }
 .v-cta-row {
   display: flex;
   align-items: center;
@@ -1751,15 +1764,14 @@ body.cursor-link #cursor {
 
 /* ── Projects roadmap (vertical context) ─────── */
 .v-roadmap-body {
-  overflow-x: auto;
-  overflow-y: hidden;
+  overflow: hidden;
   padding: 40px 48px 48px;
   display: flex;
   align-items: center;
 }
-.v-roadmap-body .roadmap-wrap { min-width: 1100px; width: 100%; }
+.v-roadmap-body .roadmap-wrap { min-width: 0; width: 100%; }
 .v-roadmap-body .roadmap-nodes { gap: 16px; }
-.v-roadmap-body .node-card     { max-width: 220px; padding: 12px 14px; }
+.v-roadmap-body .node-card     { max-width: none; width: 100%; padding: 12px 14px; }
 .v-roadmap-body .nc-title      { font-size: 15px !important; margin-bottom: 6px !important; }
 .v-roadmap-body .nc-desc       { font-size: 12px !important; line-height: 1.5; margin-bottom: 8px !important; }
 .v-roadmap-body .nc-type       { font-size: 9px !important; margin-bottom: 5px !important; }
@@ -1792,6 +1804,13 @@ body.cursor-link #cursor {
   height: 80px;
   object-fit: contain;
   flex-shrink: 0;
+}
+
+.v-reach-out {
+  font-family: var(--font-jetbrains), monospace;
+  font-size: 9px; color: var(--muted); font-style: italic;
+  text-align: center; margin-top: 12px;
+  width: clamp(170px, 21vw, 270px);
 }
 
 /* ── Mobile ───────────────────────────────────── */
