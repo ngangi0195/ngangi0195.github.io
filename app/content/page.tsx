@@ -12,6 +12,7 @@ const categoryLabel: Record<ContentCategory, string> = {
   paper:    'Paper',
   podcast:  'Podcast',
   youtube:  'YouTube',
+  music:    'Music',
   course:   'Course',
   video:    'Video',
   writeup:  'Write-up',
@@ -140,7 +141,7 @@ export default function ContentPage() {
             <div className="content-section-head">
               <div className="content-section-title">What I&apos;m Making</div>
               <div className="content-section-sub">
-                {makingItems.length} items · videos, write-ups, projects
+                {makingItems.length} items · projects in progress
               </div>
             </div>
             <div className="content-grid">
