@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { Github as GithubIcon, Linkedin, Mail } from "lucide-react";
 import { experience } from "@/data/experience";
 import { projects } from "@/data/projects";
@@ -11,6 +12,22 @@ function bold(text: string) {
 }
 
 export function Hero() {
+  useEffect(() => {
+    const els = document.querySelectorAll("[data-fade]");
+    const obs = new IntersectionObserver(
+      (entries) =>
+        entries.forEach((e) => {
+          if (e.isIntersecting) {
+            e.target.classList.add("in-view");
+            obs.unobserve(e.target);
+          }
+        }),
+      { threshold: 0.08 }
+    );
+    els.forEach((el) => obs.observe(el));
+    return () => obs.disconnect();
+  }, []);
+
   return (
     <div className="v-root">
       {/* ── HERO ── */}
@@ -253,24 +270,24 @@ export function Hero() {
           className="v-hero-left"
           style={{ position: "relative", zIndex: 1 }}
         >
-          <div className="kicker">
+          <div className="kicker" data-fade style={{ transitionDelay: "0.05s" }}>
             <span className="live-dot" />
             CS Student · Robotics · Software Eng
           </div>
 
-          <h1 className="v-name">
+          <h1 className="v-name" data-fade style={{ transitionDelay: "0.15s" }}>
             <span className="v-name-first">Nidhin</span>
             <span className="v-name-last">Gangisetty</span>
           </h1>
 
-          <p className="v-intro">
+          <p className="v-intro" data-fade style={{ transitionDelay: "0.25s" }}>
             Hi! I&apos;m an <strong>Honors College</strong> student studying{" "}
             <strong>Computer Science</strong>,{" "}
             <strong>Robotics and Autonomous Systems</strong>, and{" "}
             <strong>Entrepreneurship</strong> at <strong>UMD</strong>.
           </p>
 
-          <div className="v-vision-block">
+          <div className="v-vision-block" data-fade style={{ transitionDelay: "0.35s" }}>
             <div className="dash-label">Career Vision</div>
             <p className="v-vision-headline">
               Building the Intelligent Physical World
@@ -301,11 +318,11 @@ export function Hero() {
             </div>
           </div>
 
-          <div>
+          <div data-fade style={{ transitionDelay: "0.45s" }}>
             <div className="dash-label" style={{ marginBottom: 8 }}>
               Core Stack
             </div>
-            <div style={{ display: "flex", flexWrap: "nowrap", gap: 4, overflow: "hidden" }}>
+            <div className="v-stack-row" style={{ display: "flex", flexWrap: "nowrap", gap: 4, overflow: "hidden" }}>
               {[
                 "Python",
                 "ROS 2",
@@ -327,7 +344,8 @@ export function Hero() {
 
         <div
           className="v-hero-right"
-          style={{ position: "relative", zIndex: 1 }}
+          data-fade
+          style={{ position: "relative", zIndex: 1, transitionDelay: "0.2s" }}
         >
           <img
             src="/headshot.jpg"
@@ -335,8 +353,8 @@ export function Hero() {
             className="v-headshot"
           />
           <div className="v-hero-under-headshot">
-            <a href="/resume.pdf" download className="btn-brut btn-fill">
-              Download Resume
+            <a href="/resume.pdf" target="_blank" rel="noreferrer" className="btn-brut btn-fill">
+              View Resume
             </a>
             <div className="contact-links">
               <a href="https://github.com/nidhingangisetty" target="_blank" rel="noreferrer" className="contact-link" aria-label="GitHub">
@@ -356,11 +374,11 @@ export function Hero() {
 
       {/* ── EXPERIENCE ── */}
       <section className="v-section" id="experience">
-        <div className="v-section-head">
+        <div className="v-section-head" data-fade>
           <span className="sh-title">Experience</span>
         </div>
         {experience.map((e, i) => (
-          <div key={i} className="v-exp-row">
+          <div key={i} className="v-exp-row" data-fade style={{ transitionDelay: `${i * 0.08}s` }}>
             <div className="v-exp-meta">
               <div className="v-exp-org">{e.org}</div>
               <div className="v-exp-role">{e.role}</div>
@@ -408,6 +426,8 @@ export function Hero() {
                   <div
                     key={p.id}
                     className={`roadmap-node${isFeatured ? " rn-featured" : ""}`}
+                    data-fade
+                    style={{ transitionDelay: `${i * 0.07}s` }}
                   >
                     <div className="node-dot-wrap">
                       <span className="node-num">
@@ -463,7 +483,7 @@ export function Hero() {
                 a.title !== "University of Maryland — Honors College",
             )
             .map((a, i) => (
-              <div key={i} className="v-act-card">
+              <div key={i} className="v-act-card" data-fade style={{ transitionDelay: `${i * 0.07}s` }}>
                 <div className="v-act-inner">
                   <div className="v-act-text">
                     {a.link ? (

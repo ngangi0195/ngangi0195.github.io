@@ -48,7 +48,7 @@ export function Navbar() {
         </div>
 
         <button
-          className="nav-hamburger"
+          className={`nav-hamburger${open ? ' open' : ''}`}
           onClick={() => setOpen((v) => !v)}
           aria-label="Toggle menu"
         >
