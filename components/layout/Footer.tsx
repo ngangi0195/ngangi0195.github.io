@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { Github, Linkedin, Mail } from 'lucide-react'
 
 export function Footer() {
   const [easter, setEaster] = useState(false)
@@ -8,25 +9,27 @@ export function Footer() {
   return (
     <footer className="border-t-rule" style={{ position: 'relative' }}>
       <div className="footer-root">
-        <div style={{ display: 'flex', gap: 0 }}>
+        <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
           <a
             href="https://github.com/ngangi0195"
             target="_blank"
             rel="noreferrer"
             className="foot-link"
+            aria-label="GitHub"
           >
-            GitHub
+            <Github size={16} />
           </a>
           <a
             href="https://linkedin.com/in/nidhingangisetty"
             target="_blank"
             rel="noreferrer"
             className="foot-link"
+            aria-label="LinkedIn"
           >
-            LinkedIn
+            <Linkedin size={16} />
           </a>
-          <a href="mailto:nidhin@umd.edu" className="foot-link">
-            Email
+          <a href="mailto:nidhin@umd.edu" className="foot-link" aria-label="Email">
+            <Mail size={16} />
           </a>
         </div>
 
@@ -36,7 +39,7 @@ export function Footer() {
           onClick={() => setEaster((v) => !v)}
           title="psst..."
         >
-          © {new Date().getFullYear()} Nidhin Gangisetty — Built with Next.js &amp; Tailwind
+          &copy; {new Date().getFullYear()} Nidhin Gangisetty
         </span>
       </div>
 

@@ -840,9 +840,9 @@ body.cursor-link #cursor {
   position: relative; overflow: hidden;
 }
 .foot-link {
-  font-family: var(--font-jetbrains), monospace; font-size: 9px; font-weight: 700;
-  letter-spacing: 0.08em; text-transform: uppercase; text-decoration: none;
-  color: var(--ink); padding: 6px 13px; border: 2px solid var(--ink); margin-right: -2px;
+  display: inline-flex; align-items: center; justify-content: center;
+  text-decoration: none; color: var(--ink);
+  padding: 6px 10px; border: 2px solid var(--ink); margin-right: -2px;
   transition: all 0.12s;
 }
 .foot-link:hover { background: var(--yellow); }

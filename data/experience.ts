@@ -11,6 +11,17 @@ export interface ExperienceEntry {
 
 export const experience: ExperienceEntry[] = [
   {
+    role: 'Software Engineering Intern',
+    org: 'The Aerospace Corporation',
+    location: 'El Segundo, CA',
+    startDate: 'May 2026',
+    endDate: 'Aug 2026',
+    bullets: [
+      'Incoming software engineering intern for Summer 2026.',
+    ],
+    tags: [],
+  },
+  {
     role: 'Undergraduate Researcher',
     org: 'Robotics Algorithms & Autonomous Systems Lab (RAAS)',
     location: 'College Park, MD',
