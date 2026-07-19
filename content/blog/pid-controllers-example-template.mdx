@@ -1,0 +1,284 @@
+---
+title: "PID Controllers: Building Intuition from Scratch"
+date: "2024-09-01"
+excerpt: "A ground-up explanation of proportional-integral-derivative control — what each term does, why you need all three, and how to tune them without losing your mind."
+tags: ["Control Theory", "Robotics", "Python"]
+draft: true
+---
+
+<Keyword def="Proportional-Integral-Derivative controller. A feedback control loop that computes a correction based on current error, accumulated past error, and rate of error change.">PID controllers</Keyword> are everywhere — drones, thermostats, cruise control, robot arms. They're also one of those things that *sounds* simple until you actually try to tune one. This post builds up the intuition from scratch, starting with the core idea and ending with a working implementation.
+
+{/* =========================================================
+    CALLOUT — use for prerequisites, key takeaways, warnings
+    type options: info | warning | tip | danger
+    ========================================================= */}
+
+<Callout type="info" title="Prerequisites">
+You should be comfortable with basic calculus (derivatives and integrals conceptually) and have seen some Python before. No control theory background needed.
+</Callout>
+
+## The Core Idea
+
+A PID controller answers one question: **given where you are and where you want to be, how hard should you push?**
+
+We call the gap between the target and the current state the <Keyword def="The difference between the desired setpoint and the actual measured value at a given moment. The controller's entire job is to drive this to zero.">**error**</Keyword>:
+
+{/* =========================================================
+    INLINE MATH — wrap in single dollar signs
+    ========================================================= */}
+
+$$
+e(t) = \text{setpoint} - \text{measured value}
+$$
+
+The controller's output — how much to actuate — is a weighted sum of three terms:
+
+$$
+u(t) = K_p \, e(t) \;+\; K_i \int_0^t e(\tau)\,d\tau \;+\; K_d \,\frac{de}{dt}
+$$
+
+Each term does something different. Let's break them down.
+
+---
+
+## The Three Terms
+
+### P — Proportional
+
+The proportional term pushes proportional to the current error. Big error → big push. Simple.
+
+The problem: pure P control almost always has <Keyword def="A persistent, non-zero error that remains after the system has settled. The controller stops correcting once output balances the disturbance, but that requires a nonzero error to sustain.">**steady-state error**</Keyword>. If you're holding a drone at altitude, the P term stops pushing when error = 0, but gravity is still pulling. You need some nonzero error to keep the drone up — so it settles slightly below target.
+
+### I — Integral
+
+The integral term accumulates error over time. If you've been slightly off for a long time, the I term builds up and eventually overcorrects to compensate. This *eliminates* steady-state error.
+
+The problem: <Keyword def="When the integral term accumulates unbounded because the system is saturated (can't respond further). Once saturation clears, the built-up integral causes a large, sudden overshoot.">**integrator windup**</Keyword>. If the system is saturated (e.g., motor at max throttle) and still not reaching setpoint, the integral keeps accumulating. When the saturation clears, you get a massive overshoot.
+
+<Callout type="warning" title="Integrator Windup">
+Always clamp your integral term to a maximum value in real implementations. Unclamped integrators in safety-critical systems can cause dangerous oscillations or actuator damage.
+</Callout>
+
+### D — Derivative
+
+The derivative term reacts to *how fast* the error is changing. It acts like a brake — if error is shrinking rapidly, D damps the response before you overshoot.
+
+The problem: <Keyword def="A sharp output spike caused by an instantaneous jump in the setpoint. Since the D term reacts to rate-of-change of error, a sudden step change creates a near-infinite derivative.">**derivative kick**</Keyword>. If the setpoint suddenly jumps, the derivative of error spikes instantaneously, causing a harsh output spike. You can fix this by differentiating the *measurement* instead of the error (called "derivative on measurement").
+
+{/* =========================================================
+    DIAGRAM — images go in public/blog/[slug]/
+    Use src prop for real images, omit for placeholder
+    ========================================================= */}
+
+<Diagram
+  alt="PID step response showing P, PD, and PID comparison"
+  caption="Figure 1: Step response of a P-only controller (oscillates), PD (damped), and PID (damped with zero steady-state error). The setpoint is the dashed line."
+/>
+
+---
+
+## A Minimal Python Implementation
+
+{/* =========================================================
+    CODE BLOCK — add title="filename.py" for the header tab
+    Supported: python, javascript, typescript, bash, cpp, yaml, json, rust
+    ========================================================= */}
+
+```python title="pid.py"
+class PID:
+    def __init__(self, kp: float, ki: float, kd: float, dt: float):
+        self.kp = kp
+        self.ki = ki
+        self.kd = kd
+        self.dt = dt
+        self._integral = 0.0
+        self._prev_error = 0.0
+
+    def step(self, setpoint: float, measurement: float) -> float:
+        error = setpoint - measurement
+
+        self._integral += error * self.dt
+        self._integral = max(-10.0, min(10.0, self._integral))  # clamp windup
+
+        derivative = (error - self._prev_error) / self.dt
+        self._prev_error = error
+
+        return self.kp * error + self.ki * self._integral + self.kd * derivative
+
+    def reset(self):
+        self._integral = 0.0
+        self._prev_error = 0.0
+```
+
+Running it on a simple simulated system:
+
+```python title="simulate.py"
+import numpy as np
+
+pid = PID(kp=2.0, ki=0.5, kd=0.1, dt=0.01)
+position = 0.0
+setpoint = 1.0
+
+for step in range(500):
+    force = pid.step(setpoint, position)
+    position += force * 0.01  # simplified plant: position += force * dt
+```
+
+---
+
+## Before / After: Naive vs. Clamped Integral
+
+{/* =========================================================
+    CODE COMPARISON — before/after side-by-side
+    lang sets syntax highlighting (default: python)
+    Use backtick template literals for multiline
+    ========================================================= */}
+
+<CodeComparison
+  lang="python"
+  before={`# No windup protection
+self._integral += error * self.dt
+return self.ki * self._integral`}
+  after={`# Clamped integral
+self._integral += error * self.dt
+self._integral = max(-10.0, min(10.0, self._integral))
+return self.ki * self._integral`}
+/>
+
+---
+
+## Tuning Rules of Thumb
+
+There are formal methods (<Keyword def="A heuristic method for tuning PID gains by first finding the gain at which the system oscillates (ultimate gain) and the oscillation period, then deriving Kp, Ki, Kd from those values.">Ziegler-Nichols</Keyword>, IMC tuning), but in practice most engineers use heuristics:
+
+{/* =========================================================
+    TABLE — standard markdown table syntax
+    ========================================================= */}
+
+| Start with | Set | Effect |
+|------------|-----|--------|
+| $K_p$ only | $K_i = 0$, $K_d = 0$ | Get close to setpoint, accept some steady-state error |
+| Add $K_i$ | Small value | Eliminate steady-state error; watch for oscillation |
+| Add $K_d$ | Small value | Damp oscillation and overshoot |
+| Increase $K_p$ | Carefully | Faster response, but more oscillation risk |
+
+The general sequence:
+
+1. Tune $K_p$ until the system responds quickly but doesn't oscillate badly
+2. Add $K_i$ to push residual error to zero
+3. Add $K_d$ to tame overshoot
+
+<Callout type="tip" title="Start in Simulation">
+Always tune in simulation first. A poorly tuned $K_p$ on a real drone means a crash. On a sim, it means you restart the script.
+</Callout>
+
+---
+
+## When PID Isn't Enough
+
+PID assumes the system is roughly <Keyword def="A system whose output is directly proportional to its input. Doubling the input doubles the output. Most real systems are only approximately linear within a limited operating range.">*linear*</Keyword> around the operating point. For nonlinear systems — like a pendulum swung to full inversion — PID will struggle.
+
+Common extensions:
+
+- **Gain scheduling** — different PID gains at different operating points
+- **Feedforward** — add a model-based term to handle known disturbances (gravity, friction)
+- **Model Predictive Control (MPC)** — optimize over a future horizon instead of reacting to current error
+
+> PID is the workhorse of industrial control. It handles ~95% of real-world applications. But understanding *why* it works — and *where* it breaks — is what separates someone who can tune a loop from someone who understands control.
+
+---
+
+## Flow Diagrams
+
+### Linear pipeline
+
+<FlowDiagram
+  nodes={[
+    { id: "sp",     label: "Setpoint",    tag: "input",    row: 0, col: 0 },
+    { id: "pid",    label: "PID",         tag: "compute",  row: 0, col: 1 },
+    { id: "act",    label: "Actuator",    tag: "output",   row: 0, col: 2 },
+    { id: "plant",  label: "Plant",       tag: "system",   row: 0, col: 3 },
+  ]}
+  edges={[
+    { from: "sp",    to: "pid",   label: "r(t)"  },
+    { from: "pid",   to: "act",   label: "u(t)"  },
+    { from: "act",   to: "plant"                  },
+  ]}
+/>
+
+### Closed-loop with feedback
+
+<FlowDiagram
+  nodes={[
+    { id: "sp",     label: "Setpoint",    tag: "input",    row: 0, col: 0 },
+    { id: "pid",    label: "PID",         tag: "compute",  row: 0, col: 1 },
+    { id: "plant",  label: "Plant",       tag: "system",   row: 0, col: 2 },
+    { id: "sensor", label: "Sensor",      tag: "feedback", row: 1, col: 2 },
+  ]}
+  edges={[
+    { from: "sp",     to: "pid",    label: "r(t)"  },
+    { from: "pid",    to: "plant",  label: "u(t)"  },
+    { from: "plant",  to: "sensor"                  },
+    { from: "sensor", to: "pid",    label: "y(t)"  },
+  ]}
+/>
+
+---
+
+## Summary
+
+- **P** reacts to current error — fast but leaves steady-state offset
+- **I** accumulates past error — eliminates offset but risks windup
+- **D** reacts to error rate — damps overshoot but amplifies noise
+
+The inline math for error is $e(t) = r(t) - y(t)$ where $r$ is the reference (setpoint) and $y$ is the measured output.
+
+Full control law: $u(t) = K_p e(t) + K_i \int e\,dt + K_d \dot{e}$
+
+The `PID` class above is production-ready for simple systems — add anti-windup clamping, derivative filtering, and setpoint ramping as your application demands.
+
+---
+
+## Colored Text + Legend
+
+The three terms each do something different:
+<C color="blue">**P** pushes proportional to current error</C>,
+<C color="green">**I** accumulates past error to kill steady-state offset</C>, and
+<C color="red">**D** brakes based on how fast error is changing</C>.
+
+<Legend items={[
+  { color: "blue",  label: "P — proportional" },
+  { color: "green", label: "I — integral" },
+  { color: "red",   label: "D — derivative" },
+]} />
+
+---
+
+## Citations
+
+The PID algorithm was formalized by Ziegler and Nichols<Ref n={1} /> and remains the most widely deployed control strategy in industry<Ref n={2} />. The integrator windup problem and its clamping solutions are covered in depth by Åström and Hägglund<Ref n={3} />.
+
+<References items={[
+  {
+    n: 1,
+    authors: "Ziegler, J.G. & Nichols, N.B.",
+    year: 1942,
+    title: "Optimum Settings for Automatic Controllers",
+    source: "Transactions of the ASME, 64(8), 759–765",
+  },
+  {
+    n: 2,
+    authors: "Åström, K.J. & Hägglund, T.",
+    year: 1995,
+    title: "PID Controllers: Theory, Design, and Tuning",
+    source: "Instrument Society of America",
+  },
+  {
+    n: 3,
+    authors: "Åström, K.J. & Hägglund, T.",
+    year: 2006,
+    title: "Advanced PID Control",
+    source: "ISA — The Instrumentation, Systems, and Automation Society",
+    url: "https://www.isa.org",
+  },
+]} />

@@ -13,13 +13,14 @@ export const experience: ExperienceEntry[] = [
   {
     role: 'Software Engineering Intern',
     org: 'The Aerospace Corporation',
-    location: 'El Segundo, CA',
+    location: 'Chantilly, VA',
     startDate: 'May 2026',
     endDate: 'Aug 2026',
     bullets: [
-      'Incoming software engineering intern for Summer 2026.',
+      'Built a **Rust** de-serialization engine to parse **XML**-formatted requests for a mission-critical space system — flagging malicious and invalid inputs, outperforming alternative implementations by **35%**.',
+      'Trained a **CNN** signal classifier (**BPSK/QPSK/8PSK**) on IQ data using **PyTorch/TorchSig** at **97.8% accuracy** — live inference from drone antenna visualized via **COSMOS** dashboard at **200 packets/sec**.',
     ],
-    tags: [],
+    tags: ['Rust', 'Python', 'PyTorch', 'COSMOS', 'TCP'],
   },
   {
     role: 'Undergraduate Researcher',

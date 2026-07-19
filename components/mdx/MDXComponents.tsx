@@ -1,5 +1,8 @@
 import { Callout } from '@/components/ui/Callout'
 import { Tag } from '@/components/ui/Tag'
+import { FlowDiagram } from '@/components/mdx/FlowDiagram'
+import { KalmanDiagram } from '@/components/mdx/KalmanDiagram'
+import { SituationDiagram } from '@/components/mdx/SituationDiagram'
 import type { MDXComponents as MDXComponentsType } from 'mdx/types'
 
 function Diagram({ src, alt, caption }: { src?: string; alt?: string; caption?: string }) {
@@ -20,6 +23,96 @@ function Diagram({ src, alt, caption }: { src?: string; alt?: string; caption?: 
   )
 }
 
+interface RefItem {
+  n: number
+  authors: string
+  year: string | number
+  title: string
+  source?: string
+  url?: string
+}
+
+function Ref({ n }: { n: number }) {
+  return (
+    <a href={`#ref-${n}`} id={`cite-${n}`} className="ref-inline">
+      [{n}]
+    </a>
+  )
+}
+
+function References({ items }: { items: RefItem[] }) {
+  const sorted = [...items].sort((a, b) => a.n - b.n)
+  return (
+    <div className="references-root">
+      <p className="references-heading">References</p>
+      <ol className="references-list">
+        {sorted.map((item) => (
+          <li key={item.n} id={`ref-${item.n}`} className="references-item">
+            <a href={`#cite-${item.n}`} className="references-n">[{item.n}]</a>
+            <span className="references-body">
+              <span className="references-authors">{item.authors}</span>
+              {' '}
+              <span className="references-year">({item.year}).</span>
+              {' '}
+              {item.url
+                ? <a href={item.url} target="_blank" rel="noopener noreferrer" className="references-title">{item.title}</a>
+                : <span className="references-title">{item.title}</span>
+              }
+              {item.source && <span className="references-source">. {item.source}</span>}
+            </span>
+          </li>
+        ))}
+      </ol>
+    </div>
+  )
+}
+
+const COLOR_MAP: Record<string, string> = {
+  red:    'var(--red)',
+  blue:   'var(--blue)',
+  yellow: 'var(--yellow)',
+  green:  '#22c55e',
+  purple: '#a855f7',
+  orange: '#f97316',
+  teal:   '#14b8a6',
+  pink:   '#ec4899',
+  muted:  'var(--muted)',
+}
+
+function Keyword({ children, def }: { children: React.ReactNode; def: string }) {
+  return (
+    <span className="kw-root">
+      {/* tabIndex lets touch/keyboard users open the tooltip via focus */}
+      <span className="kw-trigger" tabIndex={0}>{children}</span>
+      <span className="kw-tooltip" role="tooltip">
+        <span className="kw-arrow" />
+        {def}
+      </span>
+    </span>
+  )
+}
+
+function C({ color = 'red', children }: { color?: string; children: React.ReactNode }) {
+  return (
+    <span style={{ color: COLOR_MAP[color] ?? color, fontWeight: 600 }}>
+      {children}
+    </span>
+  )
+}
+
+function Legend({ items }: { items: { color: string; label: string }[] }) {
+  return (
+    <div className="legend-root">
+      {items.map(({ color, label }) => (
+        <div key={label} className="legend-item">
+          <span className="legend-swatch" style={{ background: COLOR_MAP[color] ?? color }} />
+          <span className="legend-label">{label}</span>
+        </div>
+      ))}
+    </div>
+  )
+}
+
 function CodeComparison({
   before,
   after,
@@ -32,8 +125,8 @@ function CodeComparison({
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 my-6">
       {[
-        { label: 'Before', code: before, color: 'text-red-400', border: 'border-red-500/20' },
-        { label: 'After', code: after, color: 'text-green-400', border: 'border-green-500/20' },
+        { label: 'Before', code: before, color: 'text-red-400', border: 'border-2 border-red-500/50' },
+        { label: 'After', code: after, color: 'text-green-400', border: 'border-2 border-green-500/50' },
       ].map(({ label, code, color, border }) => (
         <div key={label} className={`rounded-xl border ${border} overflow-hidden`}>
           <div className={`px-4 py-2 text-xs font-mono-accent ${color} bg-[var(--bg-surface-2)] border-b border-[var(--border)]`}>
@@ -52,13 +145,21 @@ export const mdxComponents: MDXComponentsType = {
   Callout,
   Diagram,
   CodeComparison,
+  Ref,
+  References,
+  C,
+  Legend,
+  Keyword,
+  KalmanDiagram,
+  SituationDiagram,
+  FlowDiagram,
   Tag,
   // Prose overrides
   h1: ({ children }) => (
     <h1 className="text-3xl font-bold tracking-tight text-primary mt-8 mb-4">{children}</h1>
   ),
   h2: ({ children, id }) => (
-    <h2 id={id} className="text-2xl font-bold tracking-tight text-primary mt-12 mb-4 pb-2 border-b border-[var(--border)] scroll-mt-24">
+    <h2 id={id} className="text-2xl font-bold tracking-tight text-primary mt-12 mb-4 scroll-mt-24">
       {children}
     </h2>
   ),
@@ -108,7 +209,7 @@ export const mdxComponents: MDXComponentsType = {
       return <code className={className}>{children}</code>
     }
     return (
-      <code className="px-1.5 py-0.5 rounded text-sm font-mono-accent bg-[var(--bg-surface-2)] text-cyan-400">
+      <code className="px-1.5 py-0.5 rounded text-sm font-mono-accent bg-[var(--bg-surface-2)] text-[var(--red)]">
         {children}
       </code>
     )

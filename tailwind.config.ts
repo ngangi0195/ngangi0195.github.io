@@ -27,7 +27,7 @@ const config: Config = {
         mono:    ['var(--font-jetbrains)', 'monospace'],
       },
       borderWidth: {
-        rule: '2.5px',
+        rule: '0.15625rem',
       },
       animation: {
         'pulse-dot': 'pulseDot 2.5s ease-in-out infinite',

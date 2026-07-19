@@ -319,10 +319,10 @@ export function Hero() {
           </div>
 
           <div data-fade style={{ transitionDelay: "0.45s" }}>
-            <div className="dash-label" style={{ marginBottom: 8 }}>
+            <div className="dash-label" style={{ marginBottom: "0.5rem" }}>
               Core Stack
             </div>
-            <div className="v-stack-row" style={{ display: "flex", flexWrap: "nowrap", gap: 4, overflow: "hidden" }}>
+            <div className="v-stack-row">
               {[
                 "Python",
                 "ROS 2",
@@ -454,10 +454,11 @@ export function Hero() {
                           rel="noreferrer"
                           className="nc-link"
                         >
+                          {/* ︎ forces text presentation — iOS renders bare U+2197 as an emoji */}
                           {p.demo?.endsWith(".mov")
-                            ? "Video ↗"
+                            ? "Video ↗︎"
                             : p.demo
-                              ? "Live ↗"
+                              ? "Live ↗︎"
                               : "GitHub →"}
                         </a>
                       )}
@@ -493,7 +494,7 @@ export function Hero() {
                         rel="noreferrer"
                         className="da-title da-title-link"
                       >
-                        {a.title} <span className="da-link-arrow">↗</span>
+                        {a.title} <span className="da-link-arrow">{"↗︎"}</span>
                       </a>
                     ) : (
                       <div className="da-title">{a.title}</div>

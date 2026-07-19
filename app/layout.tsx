@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { Inter, Space_Grotesk, JetBrains_Mono } from 'next/font/google'
+import Script from 'next/script'
 import { Providers } from '@/components/layout/Providers'
 import { CustomCursor } from '@/components/layout/CustomCursor'
 import { Navbar } from '@/components/layout/Navbar'
@@ -37,9 +38,9 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${inter.variable} ${spaceGrotesk.variable} ${jetbrains.variable}`} suppressHydrationWarning>
+    <html lang="en" className={`${inter.variable} ${spaceGrotesk.variable} ${jetbrains.variable}`} data-scroll-behavior="smooth" suppressHydrationWarning>
       <head>
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" crossOrigin="anonymous" />
+        <Script id="js-detect" strategy="beforeInteractive">{`document.documentElement.classList.add('js')`}</Script>
       </head>
       <body><CustomCursor /><Providers><Navbar /><div className="page-frame">{children}</div></Providers></body>
     </html>

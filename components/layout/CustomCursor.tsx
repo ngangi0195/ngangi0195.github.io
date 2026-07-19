@@ -7,6 +7,9 @@ export function CustomCursor() {
     const el = document.getElementById('cursor')
     if (!el) return
 
+    // Touch devices keep the native cursor behavior (CSS hides #cursor too)
+    if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches) return
+
     const onMove = (e: MouseEvent) => {
       el.style.left = e.clientX + 'px'
       el.style.top  = e.clientY + 'px'
@@ -15,7 +18,7 @@ export function CustomCursor() {
     const onOver = (e: MouseEvent) => {
       const t = e.target as Element
       const isLink    = !!t.closest('a, button, [role="button"], label')
-      const isHover   = !!t.closest('article, .exp-row, .act-card, .proj-card, .roadmap-node, .hover-yellow')
+      const isHover   = !!t.closest('article, .v-exp-row, .v-act-card, .roadmap-node, .hover-yellow')
       document.body.classList.toggle('cursor-link',  isLink)
       document.body.classList.toggle('cursor-hover', !isLink && isHover)
     }

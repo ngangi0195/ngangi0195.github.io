@@ -25,7 +25,6 @@ export function TableOfContents() {
 
   useEffect(() => {
     if (headings.length === 0) return
-
     const observer = new IntersectionObserver(
       (entries) => {
         for (const entry of entries) {
@@ -34,12 +33,10 @@ export function TableOfContents() {
       },
       { rootMargin: '-80px 0px -60% 0px', threshold: 0 }
     )
-
     headings.forEach(({ id }) => {
       const el = document.getElementById(id)
       if (el) observer.observe(el)
     })
-
     return () => observer.disconnect()
   }, [headings])
 
@@ -47,14 +44,24 @@ export function TableOfContents() {
 
   return (
     <nav className="toc-root" aria-label="Table of contents">
-      <p className="toc-label">On this page</p>
-      <ul className="toc-list">
-        {headings.map(({ id, text, level }) => (
-          <li key={id} className={`toc-item${active === id ? ' active' : ''}${level === 3 ? ' h3' : ''}`}>
-            <a href={`#${id}`}>{text}</a>
-          </li>
+      {/* always-visible dot track */}
+      <div className="toc-track">
+        {headings.map(({ id, level }) => (
+          <div key={id} className={`toc-dot${active === id ? ' active' : ''}${level === 3 ? ' h3' : ''}`} />
         ))}
-      </ul>
+      </div>
+
+      {/* hover panel — floats left over the article margin */}
+      <div className="toc-panel">
+        <p className="toc-label">On this page</p>
+        <ul className="toc-list">
+          {headings.map(({ id, text, level }) => (
+            <li key={id} className={`toc-item${active === id ? ' active' : ''}${level === 3 ? ' h3' : ''}`}>
+              <a href={`#${id}`}>{text}</a>
+            </li>
+          ))}
+        </ul>
+      </div>
     </nav>
   )
 }

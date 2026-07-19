@@ -1,0 +1,279 @@
+---
+title: "Understanding Kalman Filters"
+date: "2026-07-14"
+excerpt: "breaking down how Kalman filters work intuitively and the genius behind them through my perspective"
+tags: ["Kalman Filter", "Robotics", "Estimation", "Math"]
+---
+
+It seems like Kalman Filters have a wide variety of applications – the general quality of being able to minimize <Keyword def="How much we distrust a value — driven by sensor noise, model imperfection, and real-world disturbances, quantified as standard deviation.">uncertainty</Keyword> when making estimates has its benefits. This can include things like weather prediction, financial market analysis (quant), and most importantly, robotics optimization. In this post, I want to dive into how this algorithm works, its nuances, genius, and capabilities, all in a way that I understand it.
+
+## The Background
+
+First off, the Kalman Filter actually describes an *algorithm* used for <Keyword def="Considering both a measurement and a prediction based on their respective uncertainties to make the best guess about the system's state.">estimating</Keyword> and <Keyword def="Making an educated guess of the system's state using a model (ex: guessing where a car will be in 10 seconds based on its current speed).">predicting</Keyword> the <Keyword def="A vector of variables representing the true conditions/properties of a system at a given time (ex: [pos, vel]) that you want to estimate and predict with noise.">state</Keyword> of a <Keyword def="A subject that has attributes to be measured (ex: plane, car, ball).">system</Keyword> in the presence of uncertainty, such as measurement noise or other external factors.
+
+This is where the Kalman Filter comes in. When I think of filters, I think of air filters that let clean air through and capture dirt. In a traditional "filter", what gets let through is discrete and the threshold of particle size that is allowed through is constant. Now, unlike an air filter, the Kalman Filter *dynamically determines* how much we should value new information at each step when determining the next step. Let's use our air filter example: this would be similar to being able to toggle how strong I want my filter to be; if I have a filter that can actively read incoming air quality and it seems to be good, then I won't filter as much, but if the air quality is terrible, then I can increase the strength of my filter *based on the information I received*. If our air filter was powered, a dynamic system that changes its output based on new information optimizes the way we use power – this dynamism is what makes the Kalman Filter a great algorithm.
+
+Before continuing, we have to clarify what a *<Keyword def="A single draw from a random variable — not ground truth, but an observation with inherent uncertainty. The draw is the expected value and the uncertainty is the standard deviation.">measurement</Keyword>* is; it is not a "one and done" where whatever we measure is ground truth, but is rather a single draw of a random variable that has some uncertainty, where the draw is the expected value and the uncertainty is the standard deviation.
+
+In static contexts, this could cause your data to constantly jump around (measuring temperature in a room, for example), and in dynamic contexts, could cause a large amount of drift from your *desired* and *actual* outcome.
+
+Here is a silly example: Say you buy a shirt for \$117.84 and eat a 541-calorie meal, but shrug and log it as *"eh, spent \$100 and ate 500 calories."* If your goal is to save money and get fit, these small discrepancies between your rough measurements and actual truth accumulate. Over time, that compounding error drifts your expected outcome away from reality—leaving you broke and out of shape instead of rich and healthy.
+
+
+## The Technical(ish)
+
+Here, I will not go deeply into the derivations and linear algebra behind the calculations, but rather explain the intuition behind each calculation and how it plays into the algorithm. I highly suggest going to [KalmanFilter.net](https://www.kalmanfilter.net) to get the full depth and understanding of the algorithm, as this is where I learned for myself.
+
+<Diagram src="/blog/understanding-kalman-filters/kalman-step-diagram.png" alt="one time-step of the Kalman Filter" caption="Fig. 1: One complete time-step of the Kalman Filter. Noisy measurements and the dynamic model (with process noise) feed into the State Estimation Algorithm, outputting the current state estimate and uncertainty, and a prediction of the future state and its uncertainty." />
+
+This image describes one time-step of the Kalman Filter. Let's break it down with an analogy (big fan of analogies):
+
+Think of a perfect lifeguard robot that aims to monitor the sea level of a local beach to protect the families and children looking to make lifelong memories from harm. It does this by pinging a buoy in the water for its reading for sea level + rate of change and uses it to see if there are any inconsistencies with the expected trend.
+
+**System:** is local body of water
+
+**State:** is the true sea level height ($h$) and rate of change ($v$) we are trying to accurately <Keyword def="The best guess of the system's state, formed by considering both a measurement and a prediction based on their respective uncertainties.">estimate</Keyword>
+
+Our goal is to predict the next <Keyword def="A vector of variables representing the true conditions/properties of a system at a given time (ex: [pos, vel]) that you want to estimate and predict with noise.">state</Keyword> given the current <Keyword def="A vector of variables representing the true conditions/properties of a system at a given time (ex: [pos, vel]) that you want to estimate and predict with noise.">state</Keyword> all while integrating the real world inconsistencies. However, to predict the next <Keyword def="A vector of variables representing the true conditions/properties of a system at a given time (ex: [pos, vel]) that you want to estimate and predict with noise.">state</Keyword> generally, we need a model that describes the pattern of how our <Keyword def="A vector of variables representing the true conditions/properties of a system at a given time (ex: [pos, vel]) that you want to estimate and predict with noise.">state</Keyword> behaves. This is called our <Keyword def="A mathematical description of how the system's state evolves over time — the best-guess rule for how estimates change from one step to the next.">dynamic model</Keyword>, modeling out the best-guess for how our estimates change over time. In our case, the sea level rises and falls throughout the day, and we can model it as follows:
+
+$$
+h_{k+1} = h_k + v_k \cdot \Delta t \qquad v_k = A\omega\cos(\omega k)
+$$
+
+In our case, the sea level follows a sine wave — $A\sin(\omega t_k)$, as shown in the diagram — and we take its derivative ($A\omega\cos(\omega t_k)$) for the rate of change at each time step and add it to our current position. We can set $A$ (amplitude) $= 2$, resembling a $\pm 2$ meter sea level change, and $\omega$ (frequency) to $\pi/6$, since 1 full cycle $= 12$ hours, so $2\pi/12 = \pi/6$. We will take measurements every hour. That is it for the setup:
+
+<SituationDiagram labeled />
+
+### Iteration 0
+
+At our first ping ($t = 0$), we will take our first read:
+
+$$
+\mathbf{z}_0 = \begin{bmatrix} 1.50 \\ 0.1 \end{bmatrix} \qquad
+\mathbf{R}_0 = \begin{bmatrix} 0.01 & 0 \\ 0 & 0.04 \end{bmatrix}
+$$
+
+Along with this, since each <Keyword def="A single draw from a random variable — not ground truth, but an observation with inherent uncertainty. The draw is the expected value and the uncertainty is the standard deviation.">measurement</Keyword> is a sample from a random variable, we get the standard deviations for each variable, which describe their uncertainty. In practice, we square these values to avoid negatives in computations, defined as <Keyword def="The square of the standard deviation. Used instead of standard deviation in computations to avoid sign issues when combining uncertainties.">variance</Keyword>. Let's say we had an uncertainty $\sigma_h = 0.1$ m for our height <Keyword def="A single draw from a random variable — not ground truth, but an observation with inherent uncertainty. The draw is the expected value and the uncertainty is the standard deviation.">measurement</Keyword> and an uncertainty $\sigma_v = 0.2$ m/h for our rate of change <Keyword def="A single draw from a random variable — not ground truth, but an observation with inherent uncertainty. The draw is the expected value and the uncertainty is the standard deviation.">measurement</Keyword>, which could come from sensor imperfection, choppy waters, etc. – basically anything that could cause a disturbance in the <Keyword def="A single draw from a random variable — not ground truth, but an observation with inherent uncertainty. The draw is the expected value and the uncertainty is the standard deviation.">measurement</Keyword>, and our <Keyword def="Represents the accumulation of uncertainty² for each variable across the diagonal, with uncertainty dependence on the off-diagonal (0 = independent).">covariance matrix</Keyword> represents those uncertainties. Our <Keyword def="Represents the accumulation of uncertainty² for each variable across the diagonal, with uncertainty dependence on the off-diagonal (0 = independent).">covariance matrix</Keyword> would then be described as shown above, where the diagonal contains each respective covariance, and the off-diagonal values represent how correlated values are. In this case, the values are 0, hence their uncertainties are independent of one another.
+
+Since we have no prior info, we can make our initial <Keyword def="A vector of variables representing the true conditions/properties of a system at a given time (ex: [pos, vel]) that you want to estimate and predict with noise.">state</Keyword> + <Keyword def="Represents the accumulation of uncertainty² for each variable across the diagonal, with uncertainty dependence on the off-diagonal (0 = independent).">covariance matrix</Keyword> <Keyword def="The best guess of the system's state, formed by considering both a measurement and a prediction based on their respective uncertainties.">estimate</Keyword>:
+
+$$
+\hat{x}_{0,0} = \begin{bmatrix} 1.50 \\ 0 \end{bmatrix} \qquad
+P_{0,0} = \begin{bmatrix} 0.01 & 0 \\ 0 & 0.04 \end{bmatrix}
+$$
+
+The notation $_{0,0}$ means the first subscript is the time being estimated, and the second is the latest measurement used to make it.
+
+### Iteration 1
+
+**Step 1: Prediction** — make predictions for your next <Keyword def="A vector of variables representing the true conditions/properties of a system at a given time (ex: [pos, vel]) that you want to estimate and predict with noise.">state</Keyword> given your previous <Keyword def="A vector of variables representing the true conditions/properties of a system at a given time (ex: [pos, vel]) that you want to estimate and predict with noise.">state</Keyword>'s values + models, purely computation; often referred to as state and covariance <Keyword def="Using the dynamic model and previous state + covariance estimates to predict the next ones.">extrapolation</Keyword>
+
+For every step in time (<Keyword def="Taking initial data through a pass of a computational process to transform into another.">propagation</Keyword>), we use our <Keyword def="A mathematical description of how the system's state evolves over time — the best-guess rule for how estimates change from one step to the next.">dynamic model</Keyword> to make the prediction, and at $t = 1$:
+
+$$
+h_{1,0} = h_{0,0} + v_{0,0} \cdot (1) = 1.60
+$$
+
+$$
+v_{1,0} = 2 \cdot \frac{\pi}{6}\cos\!\left(\frac{\pi}{6} \cdot 1\right) = 0.91 \text{ m/h}
+$$
+
+$$
+\hat{x}_{1,0} = \begin{bmatrix} 1.60 \\ 0.91 \end{bmatrix}
+$$
+
+To extrapolate our <Keyword def="Represents the accumulation of uncertainty² for each variable across the diagonal, with uncertainty dependence on the off-diagonal (0 = independent).">covariance matrix</Keyword>, we must compute linear algebra:
+
+$$
+P_{1,0} = F P_{0,0} F^T + Q
+= \begin{bmatrix} 1 & 1 \\ 0 & 1 \end{bmatrix}
+\begin{bmatrix} 0.01 & 0 \\ 0 & 0.04 \end{bmatrix}
+\begin{bmatrix} 1 & 0 \\ 1 & 1 \end{bmatrix}
++ \begin{bmatrix} 0.005 & 0 \\ 0 & 0.005 \end{bmatrix}
+= \begin{bmatrix} 0.055 & 0.040 \\ 0.040 & 0.045 \end{bmatrix}
+$$
+
+The first part essentially wraps our original <Keyword def="Represents the accumulation of uncertainty² for each variable across the diagonal, with uncertainty dependence on the off-diagonal (0 = independent).">covariance matrix</Keyword> in a <Keyword def="Takes current values and updates them one step in time based on physical laws (ex: $h = v \cdot \Delta t$).">state transition matrix</Keyword>, allowing a <Keyword def="Taking initial data through a pass of a computational process to transform into another.">propagation</Keyword> of $\Delta t$ (in this case 1) to occur. This "stacks" the uncertainties of each value on itself *and* amongst one another based on how the variables interact physically. If you take a look at our output, we notice that the uncertainty in our height increased way more than our uncertainty in our velocity, as height is dependent on velocity, also captured in the off-diagonal values indicating there is correlation between our two variables.
+
+The second part of our calculation ($+Q$) accounts for any noise (wind, boat disturbance, huge shark in the water, etc.) representing unpredictable changes to our "perfect-world" <Keyword def="A mathematical description of how the system's state evolves over time — the best-guess rule for how estimates change from one step to the next.">dynamic model</Keyword> being a sine wave. There is a derivation for $Q$ that we will skip here, but just know that it accounts for real-world disturbances during prediction. It seems like an additional step where we add $Q$ (process noise) for our estimations that gets skipped during measurements, but recognizing that measurements are already noisy, even just a little bit and are not perfectly the exact state.
+
+**Step 2: Estimation** — using a <Keyword def="A single draw from a random variable — not ground truth, but an observation with inherent uncertainty. The draw is the expected value and the uncertainty is the standard deviation.">measurement</Keyword> as new information to inform our prediction to result in a final <Keyword def="A vector of variables representing the true conditions/properties of a system at a given time (ex: [pos, vel]) that you want to estimate and predict with noise.">state</Keyword> <Keyword def="The best guess of the system's state, formed by considering both a measurement and a prediction based on their respective uncertainties.">estimate</Keyword>
+
+Let's ping our buoy to get the measured height, velocity, and <Keyword def="Represents the accumulation of uncertainty² for each variable across the diagonal, with uncertainty dependence on the off-diagonal (0 = independent).">covariance matrix</Keyword> (uncertainties):
+
+$$
+\mathbf{z}_1 = \begin{bmatrix} 1.72 \\ 1.08 \end{bmatrix} \qquad
+\mathbf{R}_1 = \begin{bmatrix} 0.04 & 0 \\ 0 & 0.10 \end{bmatrix}
+$$
+
+Looks like we got heavy rain in the last hour, as shown by our general increases in $h$ and rate of change *as well as* uncertainties, indicating our measurements are less accurate. Now, we want to <Keyword def="The best guess of the system's state, formed by considering both a measurement and a prediction based on their respective uncertainties.">estimate</Keyword> $\hat{x}_{1,1}$, and at $t = 1$, we have:
+
+- $\hat{x}_{1,0}$ — an <Keyword def="The best guess of the system's state, formed by considering both a measurement and a prediction based on their respective uncertainties.">estimate</Keyword> of what our <Keyword def="A vector of variables representing the true conditions/properties of a system at a given time (ex: [pos, vel]) that you want to estimate and predict with noise.">state</Keyword> is based on our <Keyword def="A mathematical description of how the system's state evolves over time — the best-guess rule for how estimates change from one step to the next.">dynamic model</Keyword>
+- $z_1, R_1$ — measured values at the instant we are trying to <Keyword def="The best guess of the system's state, formed by considering both a measurement and a prediction based on their respective uncertainties.">estimate</Keyword> our <Keyword def="A vector of variables representing the true conditions/properties of a system at a given time (ex: [pos, vel]) that you want to estimate and predict with noise.">state</Keyword>
+
+Now, which do we use as our $\hat{x}_{1,1}$ <Keyword def="The best guess of the system's state, formed by considering both a measurement and a prediction based on their respective uncertainties.">estimate</Keyword>? We could use $\hat{x}_{1,0}$, but that entirely ignores the information we got at the moment we are trying to measure. But if we use $z_1$, we will have a lot of uncertainty with our values, indicating less accuracy.
+
+So, the genius of the Kalman Filter (and my favorite part) is utilizing **Kalman Gain**. At every time step, the Kalman Filter blends two things: what your model predicts the <Keyword def="A vector of variables representing the true conditions/properties of a system at a given time (ex: [pos, vel]) that you want to estimate and predict with noise.">state</Keyword> should be, and what your sensor actually measured. How much weight each gets depends on their relative uncertainties in order to *minimize* the uncertainty of the estimated <Keyword def="A vector of variables representing the true conditions/properties of a system at a given time (ex: [pos, vel]) that you want to estimate and predict with noise.">state</Keyword>. This can be expressed as the following:
+
+$$
+\hat{x}_{1,1} = K_1 z_1 + (1 - K_1)\hat{x}_{1,0}
+$$
+
+$$
+K_1 = \frac{P_{1,0}}{P_{1,0} + R_1} = P_{n,n-1} H^T \left( H P_{n,n-1} H^T + R_n \right)^{-1}
+$$
+
+As you can see, the first expression combines both forms of estimation with some weight $K$, where $K$ is calculated by figuring the proportion of how significant our estimated uncertainty is compared to our total uncertainty, where the inverse handles the matrix division to solve for $K$. Since division in matrix math is not a thing, I have provided the expanded version as reference that does the same thing, but finds the original equation more intuitive to understand.
+
+Notice that $K_1$ is completely composed of the predicted and measurement <Keyword def="Represents the accumulation of uncertainty² for each variable across the diagonal, with uncertainty dependence on the off-diagonal (0 = independent).">covariance matrices</Keyword>. We can see that when our measured uncertainties are extremely high ($R_1$), $K_1$ diverges to 0 and our <Keyword def="The best guess of the system's state, formed by considering both a measurement and a prediction based on their respective uncertainties.">estimate</Keyword> more heavily relies on our prediction. On the other hand, the closer $R_1$ is to a zero matrix, or has minimal uncertainty, the higher we rely on our <Keyword def="A single draw from a random variable — not ground truth, but an observation with inherent uncertainty. The draw is the expected value and the uncertainty is the standard deviation.">measurement</Keyword> to make our <Keyword def="The best guess of the system's state, formed by considering both a measurement and a prediction based on their respective uncertainties.">estimate</Keyword>. Now with a little re-arranging:
+
+$$
+\hat{x}_{1,1} = \hat{x}_{1,0} + K_1(z_1 - H\hat{x}_{1,0})
+$$
+
+where $H$ (<Keyword def="A matrix that transforms state information into measurements, putting them in the same scale/domain (ex: a digital thermometer monitors temperature as state, but measures electrical signal).">measurement matrix</Keyword>) $= I$
+
+The expression $z_1 - H\hat{x}_{1,0}$ is referred to as <Keyword def="The difference between measured and predicted values.">"new information."</Keyword> Kalman gain basically tells you how important <Keyword def="The difference between measured and predicted values.">new information</Keyword> is based on the difference between the accumulation of uncertainty and the measured uncertainty, and how much to let it bias the final <Keyword def="A vector of variables representing the true conditions/properties of a system at a given time (ex: [pos, vel]) that you want to estimate and predict with noise.">state</Keyword> <Keyword def="The best guess of the system's state, formed by considering both a measurement and a prediction based on their respective uncertainties.">estimate</Keyword>. By using this approach, we actually minimize the estimated <Keyword def="A vector of variables representing the true conditions/properties of a system at a given time (ex: [pos, vel]) that you want to estimate and predict with noise.">state</Keyword>'s uncertainty. Now with the real values:
+
+$$
+\hat{x}_{1,1} = \hat{x}_{1,0} + K_1(z_1 - \hat{x}_{1,0})
+$$
+
+$$
+K_1 = \begin{bmatrix} 0.521 & 0.132 \\ 0.324 & 0.221 \end{bmatrix}
+$$
+
+$$
+\hat{x}_{1,1} = \begin{bmatrix} 1.60 \\ 0.91 \end{bmatrix} + \begin{bmatrix} 0.521 & 0.132 \\ 0.324 & 0.221 \end{bmatrix} \left( \begin{bmatrix} 1.72 \\ 1.08 \end{bmatrix} - \begin{bmatrix} 1.60 \\ 0.91 \end{bmatrix} \right)
+$$
+
+$$
+\hat{x}_{1,1} = \begin{bmatrix} 1.60 \\ 0.91 \end{bmatrix} + \begin{bmatrix} 0.521 & 0.132 \\ 0.324 & 0.221 \end{bmatrix} \begin{bmatrix} +0.12 \\ +0.17 \end{bmatrix}
+$$
+
+$$
+\hat{x}_{1,1} = \begin{bmatrix} 1.60 + (0.521 \cdot 0.12) + (0.132 \cdot 0.17) \\ 0.91 + (0.324 \cdot 0.12) + (0.221 \cdot 0.17) \end{bmatrix} = \begin{bmatrix} 1.60 + 0.0625 + 0.0224 \\ 0.91 + 0.0389 + 0.0376 \end{bmatrix} \approx \begin{bmatrix} 1.685 \\ 0.987 \end{bmatrix}
+$$
+
+Now that we have our estimated <Keyword def="A vector of variables representing the true conditions/properties of a system at a given time (ex: [pos, vel]) that you want to estimate and predict with noise.">state</Keyword>, we need to apply the same Kalman logic to our uncertainty matrix. Since we recalculate $K$ every iteration using our ratio math, we can avoid the verbose Joseph form and stick to this:
+
+$$
+P_{1,1} = (I - K_1)P_{1,0}
+$$
+
+$$
+P_{1,1} = \left( \begin{bmatrix} 1 & 0 \\ 0 & 1 \end{bmatrix} - \begin{bmatrix} 0.521 & 0.132 \\ 0.324 & 0.221 \end{bmatrix} \right) \begin{bmatrix} 0.055 & 0.040 \\ 0.040 & 0.045 \end{bmatrix}
+$$
+
+$$
+P_{1,1} = \begin{bmatrix} 0.479 & -0.132 \\ -0.324 & 0.779 \end{bmatrix} \begin{bmatrix} 0.055 & 0.040 \\ 0.040 & 0.045 \end{bmatrix} \approx \begin{bmatrix} 0.021 & 0.013 \\ 0.013 & 0.022 \end{bmatrix}
+$$
+
+Now, let's take a look at the <Keyword def="Represents the accumulation of uncertainty² for each variable across the diagonal, with uncertainty dependence on the off-diagonal (0 = independent).">covariance matrix</Keyword> (uncertainty) of each of our 3 <Keyword def="A vector of variables representing the true conditions/properties of a system at a given time (ex: [pos, vel]) that you want to estimate and predict with noise.">state</Keyword> <Keyword def="The best guess of the system's state, formed by considering both a measurement and a prediction based on their respective uncertainties.">estimate</Keyword> options:
+
+1. $\hat{x}_{1,0}$ (predicted): $P_{1,0} = \begin{bmatrix} 0.055 & 0.040 \\ 0.040 & 0.045 \end{bmatrix}$
+2. $z_1$ (measured): $R_1 = \begin{bmatrix} 0.04 & 0 \\ 0 & 0.10 \end{bmatrix}$
+3. Combined using Kalman Gain: $P_{1,1} \approx \begin{bmatrix} 0.021 & 0.013 \\ 0.013 & 0.022 \end{bmatrix}$
+
+We have a clear winner! $P_{1,1} < R_1 < P_{1,0}$, goes to show that our estimated <Keyword def="A vector of variables representing the true conditions/properties of a system at a given time (ex: [pos, vel]) that you want to estimate and predict with noise.">state</Keyword> has the lowest uncertainty — most likely to be accurate amongst our options. Not only is it the lowest, but it is guaranteed to be the absolute minimum based on the way we compute Kalman Gain and recompute our <Keyword def="Represents the accumulation of uncertainty² for each variable across the diagonal, with uncertainty dependence on the off-diagonal (0 = independent).">covariance matrix</Keyword>.
+
+In the next iteration we will see where the rest of the genius in this algorithm lies.
+
+### Iteration 2
+
+**Step 1: Prediction** — make predictions for your next <Keyword def="A vector of variables representing the true conditions/properties of a system at a given time (ex: [pos, vel]) that you want to estimate and predict with noise.">state</Keyword> given your previous <Keyword def="A vector of variables representing the true conditions/properties of a system at a given time (ex: [pos, vel]) that you want to estimate and predict with noise.">state</Keyword>'s values + models, purely computation
+
+For <Keyword def="A vector of variables representing the true conditions/properties of a system at a given time (ex: [pos, vel]) that you want to estimate and predict with noise.">state</Keyword> <Keyword def="Using the dynamic model and previous state + covariance estimates to predict the next ones.">extrapolation</Keyword> at ($t = 2$):
+
+$$
+h_{2,1} = h_{1,1} + v_{1,1} \cdot (1) = 2.672 \text{ m}
+$$
+
+$$
+v_{2,1} = 2 \cdot \frac{\pi}{6}\cos\!\left(\frac{\pi}{6} \cdot 2\right) = 0.524 \text{ m/h}
+$$
+
+$$
+\hat{x}_{2,1} = \begin{bmatrix} 2.672 \\ 0.524 \end{bmatrix}
+$$
+
+Now for covariance <Keyword def="Using the dynamic model and previous state + covariance estimates to predict the next ones.">extrapolation</Keyword>:
+
+$$
+P_{2,1} = F P_{1,1} F^T + Q
+= \begin{bmatrix} 1 & 1 \\ 0 & 1 \end{bmatrix}
+\begin{bmatrix} 0.021 & 0.013 \\ 0.013 & 0.022 \end{bmatrix}
+\begin{bmatrix} 1 & 0 \\ 1 & 1 \end{bmatrix}
++ \begin{bmatrix} 0.005 & 0 \\ 0 & 0.005 \end{bmatrix}
+\approx \begin{bmatrix} 0.074 & 0.048 \\ 0.048 & 0.027 \end{bmatrix}
+$$
+
+**Step 2: Estimation** — using a <Keyword def="A single draw from a random variable — not ground truth, but an observation with inherent uncertainty. The draw is the expected value and the uncertainty is the standard deviation.">measurement</Keyword> as new information to inform our prediction to result in a final <Keyword def="A vector of variables representing the true conditions/properties of a system at a given time (ex: [pos, vel]) that you want to estimate and predict with noise.">state</Keyword> <Keyword def="The best guess of the system's state, formed by considering both a measurement and a prediction based on their respective uncertainties.">estimate</Keyword>:
+
+$$
+\mathbf{z}_2 = \begin{bmatrix} 2.65 \\ 0.50 \end{bmatrix} \qquad
+\mathbf{R}_2 = \begin{bmatrix} 0.03 & 0 \\ 0 & 0.08 \end{bmatrix}
+$$
+
+Now to compute $K$:
+
+$$
+K_2 = \frac{P_{2,1}}{P_{2,1} + R_2} \to \begin{bmatrix} 0.508 & 0.186 \\ 0.245 & 0.119 \end{bmatrix}
+$$
+
+And now apply to final <Keyword def="A vector of variables representing the true conditions/properties of a system at a given time (ex: [pos, vel]) that you want to estimate and predict with noise.">state</Keyword> <Keyword def="The best guess of the system's state, formed by considering both a measurement and a prediction based on their respective uncertainties.">estimate</Keyword> formula:
+
+$$
+\hat{x}_{2,2} = \hat{x}_{2,1} + K_2(z_2 - \hat{x}_{2,1})
+$$
+
+$$
+\hat{x}_{2,2} = \begin{bmatrix} 2.672 \\ 0.524 \end{bmatrix} + \begin{bmatrix} 0.508 & 0.186 \\ 0.245 & 0.119 \end{bmatrix} \left( \begin{bmatrix} 2.65 \\ 0.50 \end{bmatrix} - \begin{bmatrix} 2.672 \\ 0.524 \end{bmatrix} \right) = \begin{bmatrix} \mathbf{2.656} \text{ meters} \\ \mathbf{0.516} \text{ m/h} \end{bmatrix}
+$$
+
+And then recompute this new <Keyword def="A vector of variables representing the true conditions/properties of a system at a given time (ex: [pos, vel]) that you want to estimate and predict with noise.">state</Keyword> estimation's accumulated uncertainty <Keyword def="Represents the accumulation of uncertainty² for each variable across the diagonal, with uncertainty dependence on the off-diagonal (0 = independent).">covariance matrix</Keyword>:
+
+$$
+P_{2,2} = (I - K_2)P_{2,1}
+$$
+
+$$
+P_{2,2} = \left( \begin{bmatrix} 1 & 0 \\ 0 & 1 \end{bmatrix} - \begin{bmatrix} 0.508 & 0.186 \\ 0.245 & 0.119 \end{bmatrix} \right) \begin{bmatrix} 0.074 & 0.048 \\ 0.048 & 0.027 \end{bmatrix} \approx \begin{bmatrix} \mathbf{0.025} & \mathbf{0.015} \\ \mathbf{0.015} & \mathbf{0.012} \end{bmatrix}
+$$
+
+And that is the whole algorithm! Notice the similarities between iteration 1 and iteration 2 and how they are basically identical. This would hold up if we continued between iteration 2 and 3, 3 and 4, and so on. So, not only is this algorithm optimal, but it is also recursive.
+
+Here is a recap image that summarizes the algorithmic flow:
+
+<KalmanDiagram />
+
+---
+
+## The Conclusion
+
+There are many many many different applications for the Kalman Filter in the robotics context. Everything from <Keyword def="Considering both a measurement and a prediction based on their respective uncertainties to make the best guess about the system's state.">estimating</Keyword> movement of joints to traversing across terrain to perception to swarm robotics. There also exists Extended Kalman Filters, which allow for non-linear state transition functions and use Jacobians of your non-linear function, so we would get $P_{n,n-1} = JP_{n-1,n-1}J^T + Q$ instead of $P_{n,n-1} = FP_{n-1,n-1}F^T + Q$. Personally, I find it super cool and satisfying that this form of algorithmic learning doesn't require a massive dataset or training — it takes a dynamic approach instead. I'd love to try and apply this in a personal project and see how it works in the near future.
+
+---
+
+<References items={[
+  {
+    n: 1,
+    authors: "MathWorks",
+    year: "n.d.",
+    title: "Extended Kalman Filters",
+    url: "https://www.mathworks.com/help/fusion/ug/extended-kalman-filters.html",
+  },
+  {
+    n: 2,
+    authors: "KalmanFilter.net",
+    year: "n.d.",
+    title: "Kalman Filter Tutorial",
+    url: "https://kalmanfilter.net/",
+  },
+  {
+    n: 3,
+    authors: "Google",
+    year: "2025",
+    title: "Gemini",
+  },
+]} />

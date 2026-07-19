@@ -1,20 +1,15 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
-import { MDXRemote } from 'next-mdx-remote/rsc'
-import remarkMath from 'remark-math'
-import rehypeKatex from 'rehype-katex'
-import rehypeSlug from 'rehype-slug'
-import rehypeAutolinkHeadings from 'rehype-autolink-headings'
-import rehypePrettyCode from 'rehype-pretty-code'
 import { getAllPosts, getPostBySlug } from '@/lib/mdx'
+import { compileMDX } from '@/lib/compile-mdx'
+import { mdxComponents } from '@/components/mdx/MDXComponents'
 import { Footer } from '@/components/layout/Footer'
 import { TableOfContents } from '@/components/blog/TableOfContents'
-import { mdxComponents } from '@/components/mdx/MDXComponents'
 import { formatDate } from '@/lib/utils'
 import Link from 'next/link'
 
 interface Props {
-  params: { slug: string }
+  params: Promise<{ slug: string }>
 }
 
 export async function generateStaticParams() {
@@ -23,21 +18,26 @@ export async function generateStaticParams() {
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const post = getPostBySlug(params.slug)
+  const { slug } = await params
+  const post = getPostBySlug(slug)
   if (!post) return {}
   return { title: post.title, description: post.excerpt }
 }
 
-export default function BlogPostPage({ params }: Props) {
-  const post = getPostBySlug(params.slug)
+export default async function BlogPostPage({ params }: Props) {
+  const { slug } = await params
+  const post = getPostBySlug(slug)
   if (!post) notFound()
+
+  const Content = await compileMDX(post.content)
 
   return (
     <>
+      <link rel="preconnect" href="https://cdn.jsdelivr.net" />
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" crossOrigin="anonymous" />
       <main>
         <div className="blog-post-root">
           <div className="blog-post-layout">
-            {/* Main content */}
             <div>
               <Link href="/blog" className="blog-back">Back to Blog</Link>
 
@@ -69,31 +69,10 @@ export default function BlogPostPage({ params }: Props) {
               </div>
 
               <article className="prose">
-                <MDXRemote
-                  source={post.content}
-                  components={mdxComponents}
-                  options={{
-                    mdxOptions: {
-                      remarkPlugins: [remarkMath],
-                      rehypePlugins: [
-                        rehypeKatex as never,
-                        rehypeSlug,
-                        [rehypeAutolinkHeadings, { behavior: 'wrap' }],
-                        [
-                          rehypePrettyCode,
-                          {
-                            theme: { dark: 'github-dark-dimmed', light: 'github-light' },
-                            keepBackground: false,
-                          },
-                        ],
-                      ],
-                    },
-                  }}
-                />
+                <Content components={mdxComponents} />
               </article>
             </div>
 
-            {/* TOC sidebar */}
             <TableOfContents />
           </div>
         </div>

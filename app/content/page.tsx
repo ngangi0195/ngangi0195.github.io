@@ -106,7 +106,7 @@ export default function ContentPage() {
 
           {/* Header */}
           <div className="content-header">
-            <div className="kicker" style={{ marginBottom: 20 }}>
+            <div className="kicker" style={{ marginBottom: '1.25rem' }}>
               <span className="live-dot" />
               Personal · Continuously Updated
             </div>

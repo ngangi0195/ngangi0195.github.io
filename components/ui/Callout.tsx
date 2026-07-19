@@ -46,7 +46,7 @@ export function Callout({ type = 'info', title, children, className }: CalloutPr
   return (
     <div
       className={cn(
-        'rounded-xl border p-4 my-6 flex gap-3',
+        'rounded-xl border-2 p-4 my-6 flex gap-3',
         bg,
         border,
         className

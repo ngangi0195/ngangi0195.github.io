@@ -11,6 +11,7 @@ export interface BlogPost {
   tags: string[]
   readingTime: string
   content: string
+  draft?: boolean
 }
 
 const BLOG_DIR = path.join(process.cwd(), 'content', 'blog')
@@ -35,8 +36,10 @@ export function getAllPosts(): BlogPost[] {
         tags: data.tags ?? [],
         readingTime: stats.text,
         content,
+        draft: data.draft ?? false,
       }
     })
+    .filter((p) => !p.draft)
     .sort((a, b) => (a.date < b.date ? 1 : -1))
 }
 
@@ -59,9 +62,3 @@ export function getPostBySlug(slug: string): BlogPost | null {
   }
 }
 
-export function getAllTags(): string[] {
-  const posts = getAllPosts()
-  const tagSet = new Set<string>()
-  posts.forEach((p) => p.tags.forEach((t) => tagSet.add(t)))
-  return Array.from(tagSet).sort()
-}
