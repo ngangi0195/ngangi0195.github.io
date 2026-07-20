@@ -1,3 +1,4 @@
+import katex from 'katex'
 import { Callout } from '@/components/ui/Callout'
 import { Tag } from '@/components/ui/Tag'
 import { FlowDiagram } from '@/components/mdx/FlowDiagram'
@@ -79,14 +80,27 @@ const COLOR_MAP: Record<string, string> = {
   muted:  'var(--muted)',
 }
 
+function renderDefMath(def: string): string {
+  return def.replace(/\$([^$\n]+)\$/g, (_, latex) => {
+    try {
+      return katex.renderToString(latex.trim(), { throwOnError: false, displayMode: false })
+    } catch {
+      return latex
+    }
+  })
+}
+
 function Keyword({ children, def }: { children: React.ReactNode; def: string }) {
+  const hasMath = def.includes('$')
   return (
     <span className="kw-root">
       {/* tabIndex lets touch/keyboard users open the tooltip via focus */}
       <span className="kw-trigger" tabIndex={0}>{children}</span>
       <span className="kw-tooltip" role="tooltip">
         <span className="kw-arrow" />
-        {def}
+        {hasMath
+          ? <span dangerouslySetInnerHTML={{ __html: renderDefMath(def) }} />
+          : def}
       </span>
     </span>
   )
