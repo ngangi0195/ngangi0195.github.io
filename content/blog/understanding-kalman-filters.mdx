@@ -24,7 +24,7 @@ Here is a silly example: Say you buy a shirt for \$117.84 and eat a 541-calorie 
 
 Here, I will not go deeply into the derivations and linear algebra behind the calculations, but rather explain the intuition behind each calculation and how it plays into the algorithm. I highly suggest going to [KalmanFilter.net](https://www.kalmanfilter.net) to get the full depth and understanding of the algorithm, as this is where I learned for myself.
 
-<Diagram src="/blog/understanding-kalman-filters/kalman-step-diagram.png" alt="one time-step of the Kalman Filter" caption="Fig. 1: One complete time-step of the Kalman Filter. Noisy measurements and the dynamic model (with process noise) feed into the State Estimation Algorithm, outputting the current state estimate and uncertainty, and a prediction of the future state and its uncertainty." />
+<Diagram src="/blog/understanding-kalman-filters/kalman-step-diagram.png" alt="one time-step of the Kalman Filter" caption="Fig. 1: One time-step of the Kalman Filter — noisy measurements and the dynamic model feed the State Estimation Algorithm, outputting the current state estimate and a future prediction. Image from kalmanfilter.net." />
 
 This image describes one time-step of the Kalman Filter. Let's break it down with an analogy (big fan of analogies):
 
