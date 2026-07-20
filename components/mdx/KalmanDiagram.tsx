@@ -1,33 +1,37 @@
 'use client'
 
 export function KalmanDiagram() {
-  const W = 540
+  const W = 400
 
-  // Layout constants
-  const BOX_X = 60
-  const BOX_W = 418
-  const BOX_RIGHT = BOX_X + BOX_W // 478
-  const INIT_W = 220
-  const INIT_X = (W - INIT_W) / 2 // centered
-  const BOX_H = 60
-  const INIT_H = 38
-  const ARROW_H = 20
+  // Box geometry
+  const BOX_X = 54
+  const BOX_W = 302
+  const BOX_RIGHT = BOX_X + BOX_W   // 356
+  const BOX_H = 76
+  const INIT_W = 188
+  const INIT_H = 42
+  const INIT_X = BOX_X + (BOX_W - INIT_W) / 2  // centered on box column
+  const ARROW_H = 18
   const GROUP_GAP = 10
 
   // Y positions
-  const initY  = 10
-  const s1Y    = initY + INIT_H + ARROW_H           // 68
-  const s2Y    = s1Y + BOX_H + ARROW_H              // 148
-  const s3Y    = s2Y + BOX_H + ARROW_H + GROUP_GAP  // 238
-  const s4Y    = s3Y + BOX_H + ARROW_H              // 318
-  const s5Y    = s4Y + BOX_H + ARROW_H              // 398
-  const H      = s5Y + BOX_H + 20                   // 478
+  const initY = 10
+  const s1Y = initY + INIT_H + ARROW_H    // 70
+  const s2Y = s1Y + BOX_H + ARROW_H       // 164
+  const s3Y = s2Y + BOX_H + ARROW_H + GROUP_GAP  // 268
+  const s4Y = s3Y + BOX_H + ARROW_H       // 362
+  const s5Y = s4Y + BOX_H + ARROW_H       // 456
+  const H   = s5Y + BOX_H + 20            // 552
 
-  // Group spans
+  // Group bracket spans
   const predictTop = s1Y
-  const predictBot = s2Y + BOX_H  // 208
+  const predictBot = s2Y + BOX_H   // 240
   const updateTop  = s3Y
-  const updateBot  = s5Y + BOX_H  // 458
+  const updateBot  = s5Y + BOX_H   // 532
+
+  const boxCx  = BOX_X + BOX_W / 2   // 205 — vertical arrow x
+  const loopX  = BOX_RIGHT + 17      // 373 — right-side loop arrow x
+  const loopMidY = (s1Y + BOX_H / 2 + s5Y + BOX_H / 2) / 2
 
   // Colors
   const blue   = '#5b9cf6'
@@ -37,176 +41,143 @@ export function KalmanDiagram() {
   const muted  = 'var(--muted, #888)'
   const border = 'var(--border, #444)'
   const surf   = 'var(--surface, #1c1c1e)'
+  const text2  = 'var(--text2, #aaa)'
 
-  const xhat = 'x̂'
-  const sub = (t: string) => <sub style={{ fontSize: '0.72em' }}>{t}</sub>
-  const sup = (t: string) => <sup style={{ fontSize: '0.72em' }}>{t}</sup>
+  const X = 'x̂'
+  const am = 'url(#kf-a)'
 
-  // Box center x (for vertical arrows)
-  const boxCx = BOX_X + BOX_W / 2
-  const initBotCx = W / 2
+  // Sub/superscript helpers — pure SVG tspan, scales with viewBox
+  const sub = (t: string) => (
+    <tspan baselineShift="sub" fontSize="8.5">{t}</tspan>
+  )
+  const sup = (t: string) => (
+    <tspan baselineShift="super" fontSize="8.5">{t}</tspan>
+  )
 
-  // Loop arrow geometry
-  const loopX   = BOX_RIGHT + 18  // 496
-  const loopMidY = (s1Y + BOX_H / 2 + s5Y + BOX_H / 2) / 2
+  // Y-offsets within a step box
+  const LBL = 24   // label baseline
+  const FML = 50   // formula baseline
 
   return (
-    <figure className="my-8">
+    <figure className="my-8" style={{ maxWidth: 560, margin: '2rem auto 1rem' }}>
       <svg
         viewBox={`0 0 ${W} ${H}`}
         width="100%"
         style={{ display: 'block', overflow: 'visible' }}
-        aria-label="Kalman Filter vertical process flow: Predict and Update steps"
+        aria-label="Kalman Filter algorithmic flow: Predict and Update steps"
       >
         <defs>
-          <marker id="kf-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
-            <polygon points="0 0, 8 3, 0 6" fill="var(--muted, #888)" />
+          <marker id="kf-a" markerWidth="7" markerHeight="5" refX="6" refY="2.5" orient="auto">
+            <polygon points="0 0,7 2.5,0 5" fill="var(--muted, #888)" />
           </marker>
         </defs>
 
         {/* ── Initial estimate (dashed) ── */}
-        <rect
-          x={INIT_X} y={initY} width={INIT_W} height={INIT_H} rx="7"
-          fill={surf} stroke={border} strokeWidth="1.5" strokeDasharray="4 3"
-        />
-        <foreignObject x={INIT_X} y={initY} width={INIT_W} height={INIT_H}>
-          <div style={{
-            height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontStyle: 'italic', fontSize: 12, color: 'var(--text2, #aaa)', fontFamily: 'inherit',
-          }}>
-            Initial: {xhat}{sub('0,0')}, P{sub('0,0')}
-          </div>
-        </foreignObject>
-
-        {/* Initial → S1 */}
-        <line
-          x1={initBotCx} y1={initY + INIT_H}
-          x2={initBotCx} y2={s1Y - 2}
-          stroke={muted} strokeWidth="1.5" markerEnd="url(#kf-arrow)"
-        />
-
-        {/* ── PREDICT bracket (left) ── */}
-        <line x1={40} y1={predictTop} x2={40} y2={predictBot} stroke={blue} strokeWidth="2.5" />
-        <line x1={35} y1={predictTop} x2={45} y2={predictTop} stroke={blue} strokeWidth="1.5" />
-        <line x1={35} y1={predictBot} x2={45} y2={predictBot} stroke={blue} strokeWidth="1.5" />
+        <rect x={INIT_X} y={initY} width={INIT_W} height={INIT_H} rx="7"
+          fill={surf} stroke={border} strokeWidth="1.5" strokeDasharray="4 3" />
         <text
-          x={24} y={(predictTop + predictBot) / 2}
-          textAnchor="middle" fontSize="9" fontWeight="700" letterSpacing="0.14em" fill={blue}
-          transform={`rotate(-90, 24, ${(predictTop + predictBot) / 2})`}
+          x={INIT_X + INIT_W / 2} y={initY + INIT_H / 2}
+          textAnchor="middle" dominantBaseline="central"
+          fontSize="12" fontStyle="italic" fill={text2}
         >
-          PREDICT
+          Initial: {X}{sub('0,0')}, P{sub('0,0')}
         </text>
+
+        {/* ── Down arrows ── */}
+        <line x1={boxCx} y1={initY + INIT_H} x2={boxCx} y2={s1Y - 2}
+          stroke={muted} strokeWidth="1.5" markerEnd={am} />
+        <line x1={boxCx} y1={s1Y + BOX_H} x2={boxCx} y2={s2Y - 2}
+          stroke={muted} strokeWidth="1.5" markerEnd={am} />
+        <line x1={boxCx} y1={s2Y + BOX_H} x2={boxCx} y2={s3Y - 2}
+          stroke={muted} strokeWidth="1.5" markerEnd={am} />
+        <line x1={boxCx} y1={s3Y + BOX_H} x2={boxCx} y2={s4Y - 2}
+          stroke={muted} strokeWidth="1.5" markerEnd={am} />
+        <line x1={boxCx} y1={s4Y + BOX_H} x2={boxCx} y2={s5Y - 2}
+          stroke={muted} strokeWidth="1.5" markerEnd={am} />
+
+        {/* ── PREDICT bracket ── */}
+        <line x1={36} y1={predictTop} x2={36} y2={predictBot} stroke={blue} strokeWidth="2.5" />
+        <line x1={31} y1={predictTop} x2={41} y2={predictTop} stroke={blue} strokeWidth="1.5" />
+        <line x1={31} y1={predictBot} x2={41} y2={predictBot} stroke={blue} strokeWidth="1.5" />
+        <text
+          x={18} y={(predictTop + predictBot) / 2}
+          textAnchor="middle" dominantBaseline="central"
+          fontSize="9" fontWeight="700" letterSpacing="0.12em" fill={blue}
+          transform={`rotate(-90, 18, ${(predictTop + predictBot) / 2})`}
+        >PREDICT</text>
 
         {/* ── Step 1: Extrapolate state ── */}
         <rect x={BOX_X} y={s1Y} width={BOX_W} height={BOX_H} rx="8"
           fill={surf} stroke={border} strokeWidth="1.5" />
-        <foreignObject x={BOX_X} y={s1Y} width={BOX_W} height={BOX_H}>
-          <div style={{ padding: '10px 14px', height: '100%', boxSizing: 'border-box', fontFamily: 'inherit' }}>
-            <div style={{ color: blue, fontSize: 11.5, fontWeight: 600, marginBottom: 4 }}>
-              1. Extrapolate the state
-            </div>
-            <div style={{ color: blue, fontSize: 12, fontStyle: 'italic' }}>
-              {xhat}{sub('n+1,n')}{' = F'}{xhat}{sub('n,n')}
-            </div>
-          </div>
-        </foreignObject>
-
-        {/* S1 → S2 */}
-        <line x1={boxCx} y1={s1Y + BOX_H} x2={boxCx} y2={s2Y - 2}
-          stroke={muted} strokeWidth="1.5" markerEnd="url(#kf-arrow)" />
+        <text x={BOX_X + 14} y={s1Y + LBL} fontSize="13" fontWeight="600" fill={blue}>
+          1. Extrapolate the state
+        </text>
+        <text x={BOX_X + 14} y={s1Y + FML} fontSize="13" fontStyle="italic" fill={blue}>
+          {X}{sub('n+1,n')} = F{X}{sub('n,n')}
+        </text>
 
         {/* ── Step 2: Extrapolate uncertainty ── */}
         <rect x={BOX_X} y={s2Y} width={BOX_W} height={BOX_H} rx="8"
           fill={surf} stroke={border} strokeWidth="1.5" />
-        <foreignObject x={BOX_X} y={s2Y} width={BOX_W} height={BOX_H}>
-          <div style={{ padding: '10px 14px', height: '100%', boxSizing: 'border-box', fontFamily: 'inherit' }}>
-            <div style={{ color: orange, fontSize: 11.5, fontWeight: 600, marginBottom: 4 }}>
-              2. Extrapolate uncertainty
-            </div>
-            <div style={{ color: orange, fontSize: 12, fontStyle: 'italic' }}>
-              {'P'}{sub('n+1,n')}{' = FP'}{sub('n,n')}{'F'}{sup('T')}{' + Q'}
-            </div>
-          </div>
-        </foreignObject>
-
-        {/* S2 → S3 (cross-group arrow) */}
-        <line x1={boxCx} y1={s2Y + BOX_H} x2={boxCx} y2={s3Y - 2}
-          stroke={muted} strokeWidth="1.5" markerEnd="url(#kf-arrow)" />
-
-        {/* ── UPDATE bracket (left) ── */}
-        <line x1={40} y1={updateTop} x2={40} y2={updateBot} stroke={red} strokeWidth="2.5" />
-        <line x1={35} y1={updateTop} x2={45} y2={updateTop} stroke={red} strokeWidth="1.5" />
-        <line x1={35} y1={updateBot} x2={45} y2={updateBot} stroke={red} strokeWidth="1.5" />
-        <text
-          x={24} y={(updateTop + updateBot) / 2}
-          textAnchor="middle" fontSize="9" fontWeight="700" letterSpacing="0.14em" fill={red}
-          transform={`rotate(-90, 24, ${(updateTop + updateBot) / 2})`}
-        >
-          UPDATE
+        <text x={BOX_X + 14} y={s2Y + LBL} fontSize="13" fontWeight="600" fill={orange}>
+          2. Extrapolate uncertainty
         </text>
+        <text x={BOX_X + 14} y={s2Y + FML} fontSize="13" fontStyle="italic" fill={orange}>
+          P{sub('n+1,n')} = FP{sub('n,n')}F{sup('T')} + Q
+        </text>
+
+        {/* ── UPDATE bracket ── */}
+        <line x1={36} y1={updateTop} x2={36} y2={updateBot} stroke={red} strokeWidth="2.5" />
+        <line x1={31} y1={updateTop} x2={41} y2={updateTop} stroke={red} strokeWidth="1.5" />
+        <line x1={31} y1={updateBot} x2={41} y2={updateBot} stroke={red} strokeWidth="1.5" />
+        <text
+          x={18} y={(updateTop + updateBot) / 2}
+          textAnchor="middle" dominantBaseline="central"
+          fontSize="9" fontWeight="700" letterSpacing="0.12em" fill={red}
+          transform={`rotate(-90, 18, ${(updateTop + updateBot) / 2})`}
+        >UPDATE</text>
 
         {/* ── Step 3: Kalman Gain ── */}
         <rect x={BOX_X} y={s3Y} width={BOX_W} height={BOX_H} rx="8"
           fill={surf} stroke={border} strokeWidth="1.5" />
-        <foreignObject x={BOX_X} y={s3Y} width={BOX_W} height={BOX_H}>
-          <div style={{ padding: '10px 14px', height: '100%', boxSizing: 'border-box', fontFamily: 'inherit' }}>
-            <div style={{ color: red, fontSize: 11.5, fontWeight: 600, marginBottom: 4 }}>
-              3. Compute Kalman Gain
-            </div>
-            <div style={{ color: red, fontSize: 12, fontStyle: 'italic' }}>
-              {'K'}{sub('n')}{' = P'}{sub('n,n−1')}{' / (P'}{sub('n,n−1')}{' + R'}{sub('n')}{')'}
-            </div>
-          </div>
-        </foreignObject>
-
-        {/* S3 → S4 */}
-        <line x1={boxCx} y1={s3Y + BOX_H} x2={boxCx} y2={s4Y - 2}
-          stroke={muted} strokeWidth="1.5" markerEnd="url(#kf-arrow)" />
+        <text x={BOX_X + 14} y={s3Y + LBL} fontSize="13" fontWeight="600" fill={red}>
+          3. Compute Kalman Gain
+        </text>
+        <text x={BOX_X + 14} y={s3Y + FML} fontSize="13" fontStyle="italic" fill={red}>
+          K{sub('n')} = P{sub('n,n−1')} / (P{sub('n,n−1')} + R{sub('n')})
+        </text>
 
         {/* ── Step 4: Update state estimate ── */}
         <rect x={BOX_X} y={s4Y} width={BOX_W} height={BOX_H} rx="8"
           fill={surf} stroke={border} strokeWidth="1.5" />
-        <foreignObject x={BOX_X} y={s4Y} width={BOX_W} height={BOX_H}>
-          <div style={{ padding: '10px 14px', height: '100%', boxSizing: 'border-box', fontFamily: 'inherit' }}>
-            <div style={{ color: green, fontSize: 11.5, fontWeight: 600, marginBottom: 4 }}>
-              4. Update state estimate
-            </div>
-            <div style={{ color: green, fontSize: 12, fontStyle: 'italic' }}>
-              {xhat}{sub('n,n')}{' = '}{xhat}{sub('n,n−1')}{' + K'}{sub('n')}{'(z'}{sub('n')}{' − '}{xhat}{sub('n,n−1')}{')'}
-            </div>
-          </div>
-        </foreignObject>
+        <text x={BOX_X + 14} y={s4Y + LBL} fontSize="13" fontWeight="600" fill={green}>
+          4. Update state estimate
+        </text>
+        <text x={BOX_X + 14} y={s4Y + FML} fontSize="13" fontStyle="italic" fill={green}>
+          {X}{sub('n,n')} = {X}{sub('n,n−1')} + K{sub('n')}(z{sub('n')} − {X}{sub('n,n−1')})
+        </text>
 
-        {/* S4 → S5 */}
-        <line x1={boxCx} y1={s4Y + BOX_H} x2={boxCx} y2={s5Y - 2}
-          stroke={muted} strokeWidth="1.5" markerEnd="url(#kf-arrow)" />
-
-        {/* ── Step 5: Update uncertainty ── */}
+        {/* ── Step 5: Update estimate uncertainty ── */}
         <rect x={BOX_X} y={s5Y} width={BOX_W} height={BOX_H} rx="8"
           fill={surf} stroke={border} strokeWidth="1.5" />
-        <foreignObject x={BOX_X} y={s5Y} width={BOX_W} height={BOX_H}>
-          <div style={{ padding: '10px 14px', height: '100%', boxSizing: 'border-box', fontFamily: 'inherit' }}>
-            <div style={{ color: orange, fontSize: 11.5, fontWeight: 600, marginBottom: 4 }}>
-              5. Update estimate uncertainty
-            </div>
-            <div style={{ color: orange, fontSize: 12, fontStyle: 'italic' }}>
-              {'P'}{sub('n,n')}{' = (I − K'}{sub('n')}{')P'}{sub('n,n−1')}
-            </div>
-          </div>
-        </foreignObject>
+        <text x={BOX_X + 14} y={s5Y + LBL} fontSize="13" fontWeight="600" fill={orange}>
+          5. Update estimate uncertainty
+        </text>
+        <text x={BOX_X + 14} y={s5Y + FML} fontSize="13" fontStyle="italic" fill={orange}>
+          P{sub('n,n')} = (I − K{sub('n')})P{sub('n,n−1')}
+        </text>
 
         {/* ── Loop arrow: right side, S5 → S1 ── */}
         <path
-          d={`M ${BOX_RIGHT} ${s5Y + BOX_H / 2} L ${loopX} ${s5Y + BOX_H / 2} L ${loopX} ${s1Y + BOX_H / 2} L ${BOX_RIGHT + 2} ${s1Y + BOX_H / 2}`}
-          fill="none" stroke={muted} strokeWidth="1.5" markerEnd="url(#kf-arrow)"
+          d={`M ${BOX_RIGHT} ${s5Y + BOX_H / 2} H ${loopX} V ${s1Y + BOX_H / 2} H ${BOX_RIGHT + 2}`}
+          fill="none" stroke={muted} strokeWidth="1.5" markerEnd={am}
         />
         <text
           x={loopX + 5} y={loopMidY}
-          textAnchor="middle" fontSize="8.5" fill={muted} letterSpacing="0.04em"
+          textAnchor="middle" dominantBaseline="central"
+          fontSize="8.5" fill={muted} letterSpacing="0.04em"
           transform={`rotate(90, ${loopX + 5}, ${loopMidY})`}
-        >
-          next iteration
-        </text>
+        >next iteration</text>
       </svg>
 
       <figcaption className="mt-2 text-xs text-muted font-mono-accent text-center">
